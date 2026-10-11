@@ -12,10 +12,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Java JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '17'
+          distribution: 'temurin'
+          java-version: '21'
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -28,19 +28,19 @@ jobs:
           cp index.html dist/
           cp -r src dist/ 2>/dev/null || true
 
-      - name: Setup Capacitor and Android Platform
+      - name: Setup Capacitor and Generate Android Project
         run: |
           npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest
           npx cap init "DadKar" "ir.dadkar.app" --web-dir "dist"
           npx cap add android
           npx cap sync android
 
-      - name: Build Android APK with Gradle
+      - name: Build Android APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK File
         uses: actions/upload-artifact@v4
