@@ -22,51 +22,64 @@ jobs:
         with:
           node-version: 20
 
-      - name: Setup Project and Build Web Assets
+      - name: Bundle React App to Web Assets
         run: |
           npm init -y
-          npm install react react-dom lucide-react vite @vitejs/plugin-react
-          
-          # ایجاد فایل ورودی جاوااسکریپت برای رندر کردن کامپوننت
-          mkdir -p src
-          # اگر فایل سورس شما نام دیگری دارد، مطمئن شوید به عنوان کامپوننت لود شود
-          cat << 'EOF' > src/main.jsx
-          import React from 'react';
-          import ReactDOM from 'react-dom/client';
-          import App from './App';
+          npm install react react-dom lucide-react typescript @types/react @types/react-dom esbuild
 
-          ReactDOM.createRoot(document.getElementById('root')).render(
-            <React.StrictMode>
-              <App />
-            </React.StrictMode>
-          );
-          EOF
-
-          # اگر فایل سورس شما داخل src نیست یا نامش App.tsx نیست، از فایل موجود کپی بگیرد
-          if [ -f "pasted-text.txt" ]; then
-            cp pasted-text.txt src/App.jsx
-          elif [ -f "App.tsx" ]; then
-            cp App.tsx src/App.jsx
-          elif [ -f "src/App.tsx" ]; then
-            cp src/App.tsx src/App.jsx
+          # پیدا کردن فایل سورس اصلی
+          SOURCE_FILE=""
+          if [ -f "src/App.tsx" ]; then SOURCE_FILE="src/App.tsx";
+          elif [ -f "App.tsx" ]; then SOURCE_FILE="App.tsx";
+          elif [ -f "pasted-text.txt" ]; then SOURCE_FILE="pasted-text.txt";
           fi
 
-          # ساخت کانفیگ Vite
-          cat << 'EOF' > vite.config.js
-          import { defineConfig } from 'vite';
-          import react from '@vitejs/plugin-react';
+          mkdir -p dist src
+          
+          # ساخت فایل نقطه ورودی
+          cat << 'EOF' > src/entry.tsx
+          import React from 'react';
+          import ReactDOM from 'react-dom/client';
+          import DadKarApp from './AppSource';
 
-          export default defineConfig({
-            plugins: [react()],
-            build: {
-              outDir: 'dist',
-              emptyOutDir: true
-            }
-          });
+          const rootElement = document.getElementById('root');
+          if (rootElement) {
+            ReactDOM.createRoot(rootElement).render(<DadKarApp />);
+          }
           EOF
 
-          # کامپایل واقعی پروژه ری‌اکت به HTML و JS نهایی
-          npx vite build
+          cp "$SOURCE_FILE" src/AppSource.tsx
+
+          # کامپایل فوق‌سریع کدهای تایپ‌اسکریپت به جاوااسکریپت استاندارد مرورگر
+          npx esbuild src/entry.tsx --bundle --minify --loader:.tsx=tsx --outfile=dist/bundle.js --define:process.env.NODE_ENV='"production"'
+
+          # ساخت فایل index.html نهایی در dist
+          cat << 'EOF' > dist/index.html
+          <!DOCTYPE html>
+          <html lang="fa" dir="rtl">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+              <title>دادکار</title>
+              <script src="https://cdn.tailwindcss.com"></script>
+              <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+              <style>
+                body {
+                  font-family: 'Vazirmatn', sans-serif;
+                  margin: 0;
+                  padding: 0;
+                  background-color: #0f172a;
+                  -webkit-user-select: none;
+                  user-select: none;
+                }
+              </style>
+            </head>
+            <body>
+              <div id="root"></div>
+              <script src="./bundle.js"></script>
+            </body>
+          </html>
+          EOF
 
       - name: Setup Capacitor and Sync Android
         run: |
