@@ -1,17 +1,17 @@
 name: Build Android APK
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Source
+      - name: Checkout Source Code
         uses: actions/checkout@v3
 
-      - name: Setup Java
+      - name: Setup Java JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
@@ -22,24 +22,22 @@ jobs:
         with:
           node-version: 18
 
-      - name: Build Web & Capacitor
+      - name: Prepare Android Project & Bundle
         run: |
           npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init DadKar ir.dadkar.app --web-dir dist
-          mkdir dist
-          cp index.html dist/
+          npm install @capacitor/core@5.7.0 @capacitor/cli@5.7.0 @capacitor/android@5.7.0
+          npx cap init DadKar ir.dadkar.app --web-dir .
           npx cap add android
           npx cap sync android
 
-      - name: Build APK with Gradle
+      - name: Build Android APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleDebug
 
-      - name: Upload APK
+      - name: Upload APK File
         uses: actions/upload-artifact@v3
         with:
-          name: DadKar-Release-APK
-          path: android/app/build/outputs/apk/release/*.apk
+          name: DadKar-Installable-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
