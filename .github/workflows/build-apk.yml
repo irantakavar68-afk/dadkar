@@ -22,20 +22,59 @@ jobs:
         with:
           node-version: 20
 
-      - name: Prepare Web Assets
-        run: |
-          mkdir -p dist
-          cp index.html dist/
-          cp -r src dist/ 2>/dev/null || true
-
-      - name: Setup Capacitor Configuration
+      - name: Setup Project and Build Web Assets
         run: |
           npm init -y
+          npm install react react-dom lucide-react vite @vitejs/plugin-react
+          
+          # ایجاد فایل ورودی جاوااسکریپت برای رندر کردن کامپوننت
+          mkdir -p src
+          # اگر فایل سورس شما نام دیگری دارد، مطمئن شوید به عنوان کامپوننت لود شود
+          cat << 'EOF' > src/main.jsx
+          import React from 'react';
+          import ReactDOM from 'react-dom/client';
+          import App from './App';
+
+          ReactDOM.createRoot(document.getElementById('root')).render(
+            <React.StrictMode>
+              <App />
+            </React.StrictMode>
+          );
+          EOF
+
+          # اگر فایل سورس شما داخل src نیست یا نامش App.tsx نیست، از فایل موجود کپی بگیرد
+          if [ -f "pasted-text.txt" ]; then
+            cp pasted-text.txt src/App.jsx
+          elif [ -f "App.tsx" ]; then
+            cp App.tsx src/App.jsx
+          elif [ -f "src/App.tsx" ]; then
+            cp src/App.tsx src/App.jsx
+          fi
+
+          # ساخت کانفیگ Vite
+          cat << 'EOF' > vite.config.js
+          import { defineConfig } from 'vite';
+          import react from '@vitejs/plugin-react';
+
+          export default defineConfig({
+            plugins: [react()],
+            build: {
+              outDir: 'dist',
+              emptyOutDir: true
+            }
+          });
+          EOF
+
+          # کامپایل واقعی پروژه ری‌اکت به HTML و JS نهایی
+          npx vite build
+
+      - name: Setup Capacitor and Sync Android
+        run: |
           npm install @capacitor/core@5.7.4 @capacitor/cli@5.7.4 @capacitor/android@5.7.4
           cat <<EOF > capacitor.config.json
           {
             "appId": "ir.dadkar.app",
-            "appName": "DadKar",
+            "appName": "دادکار",
             "webDir": "dist",
             "bundledWebRuntime": false
           }
@@ -43,14 +82,14 @@ jobs:
           npx cap add android
           npx cap sync android
 
-      - name: Build Android APK with Gradle
+      - name: Build APK with Gradle
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Upload APK File
+      - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
-          name: DadKar-Installable-APK
+          name: DadKar-Release-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
