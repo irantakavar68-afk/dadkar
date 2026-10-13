@@ -2437,4 +2437,4 @@ export const LAWS_DATABASE: LawItem[] = [
   }
 ];
 
-export default lawsData;
+export default LAWS_DATABASE;
