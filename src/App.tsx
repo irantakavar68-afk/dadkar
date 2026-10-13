@@ -672,17 +672,16 @@ export default function DadKarApp() {
                       <span className="font-black text-sm text-slate-700">{formatRial(calculations.free14)}</span>
                     </div>
 
-                    <div className="p-3 bg-slate-50 rounded-2xl border flex justify-between items-center">
-                      <div>
-                        <div className="font-bold text-xs text-slate-800">مشاغل آزاد تعهد کامل (۱۸٪)</div>
-                        <div className="text-[10px] text-slate-500">بازنشستگی، فوت و ازکارافتادگی کلی</div>
+                    <div className="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50 flex justify-between items-center">
+                        <div>
+                          <div className="font-semibold text-slate-200">مشاغل آزاد تعهد کامل (۱۸٪)</div>
+                          <div className="text-xs text-slate-400">بازنشستگی، فوت و ازکارافتادگی کلی</div>
+                        </div>
+                        <div className="font-black text-amber-400">{formatRial(calculations.free18)}</div>
                       </div>
-                      <span className="font-black text-sm text-indigo-700">{formatRial(calculations.free18)}</span>
                     </div>
-                  </div>
-                </div>
-
-            {/* بخش قوانین و محاسبات بیمه زنان خانه‌دار */}
+      
+                    {/* بخش قوانین و محاسبات بیمه زنان خانه‌دار */}
                     <div className="mt-4 p-4 rounded-xl bg-pink-950/20 border border-pink-500/30">
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-bold text-pink-400">بیمه زنان خانه‌دار (مبتنی بر مشاغل آزاد)</span>
@@ -706,7 +705,10 @@ export default function DadKarApp() {
                         </div>
                       </div>
                     </div>
-              )}
+      
+                  </div>
+                )}
+
 
               {/* ۵. حق سنوات پایان خدمت */}
               {activeCalc === "severance" && (
