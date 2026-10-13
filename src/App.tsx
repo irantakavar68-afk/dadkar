@@ -19,10 +19,11 @@ import {
   CheckCircle2,
   AlertCircle
 } from "lucide-react";
-import * as LawsModule from "./lawsData";
-type LawItem = any;
-const rawDb = (LawsModule as any).LAWS_DATABASE || (LawsModule as any).lawsData || (LawsModule as any).default || [];
-const SAFE_LAWS_DATABASE: any[] = Array.isArray(rawDb) ? rawDb : [];
+import { LAWS_DATABASE as rawLaws } from "./lawsData";
+
+// تضمین ایمنی کامل دیتابیس در برابر خطاهای لود
+const SAFE_LAWS_DATABASE: any[] = Array.isArray(rawLaws) ? rawLaws : [];
+
 
 
 // --- Types ---
