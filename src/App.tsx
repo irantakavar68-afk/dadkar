@@ -9,93 +9,154 @@ import {
   Calendar, 
   Clock, 
   DollarSign, 
-  Info,
-  ShieldAlert,
-  Award,
-  Layers,
-  Sparkles,
-  RefreshCw,
-  Home,
-  CheckCircle2,
-  AlertCircle
+  Info, 
+  ShieldAlert, 
+  Award, 
+  Layers, 
+  Sparkles, 
+  RefreshCw, 
+  Home, 
+  CheckCircle2, 
+  AlertCircle,
+  ShieldCheck,
+  UserCheck,
+  Scale,
+  Phone,
+  User,
+  HeartHandshake,
+  Percent,
+  Briefcase,
+  Coins
 } from "lucide-react";
 import { LAWS_DATABASE as rawLaws } from "./lawsData";
 
-// تضمین ایمنی کامل دیتابیس در برابر خطاهای لود
+// تضمین کامل ایمنی بارگذاری دیتابیس
 const SAFE_LAWS_DATABASE: any[] = Array.isArray(rawLaws) ? rawLaws : [];
 
-
-
-// --- Types ---
-type TabType = "calc" | "laws" | "faq" | "templates";
-type CalcType = "severance" | "overtime" | "shift" | "leave" | "night" | "sanavat";
+// --- انواع تب‌ها ---
+type TabType = "home" | "calc" | "laws" | "faq" | "templates" | "about";
+type CalcCategory = 
+  | "severance" 
+  | "overtime" 
+  | "shift" 
+  | "leave" 
+  | "night" 
+  | "sanavat" 
+  | "insurance_compulsory" 
+  | "insurance_freelance" 
+  | "unemployment_benefit" 
+  | "pension";
 
 export default function DadKarApp() {
-  // Navigation
-  const [activeTab, setActiveTab] = useState<TabType>("calc");
-  const [activeCalc, setActiveCalc] = useState<CalcType>("severance");
+  // Splash & Loading State
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loadingProgress, setLoadingProgress] = useState<number>(10);
 
-  // Calculator States
-  const [baseSalary, setBaseSalary] = useState<number>(100000000); // 10 million Toman
+  // Navigation
+  const [activeTab, setActiveTab] = useState<TabType>("home");
+  const [activeCalc, setActiveCalc] = useState<CalcCategory>("insurance_compulsory");
+
+  // Calculator Inputs
+  const [baseSalary, setBaseSalary] = useState<number>(100000000); // 100,000,000 Rials (10M Toman)
   const [years, setYears] = useState<number>(1);
   const [months, setMonths] = useState<number>(0);
   const [days, setDays] = useState<number>(0);
   const [hours, setHours] = useState<number>(10);
   const [shiftType, setShiftType] = useState<"morning-evening" | "morning-night" | "evening-night" | "rotational">("morning-evening");
   const [unworkedLeaveDays, setUnworkedLeaveDays] = useState<number>(5);
+  const [dependents, setDependents] = useState<number>(1); // افراد تحت تکفل برای بیمه بیکاری
+  const [insuranceYears, setInsuranceYears] = useState<number>(30); // سابقه بیمه برای بازنشستگی
 
-  // Laws Library States
+  // Search & Filters
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [displayLimit, setDisplayLimit] = useState<number>(25);
-
-  // FAQ States
   const [faqCategory, setFaqCategory] = useState<string>("all");
   const [faqSearch, setFaqSearch] = useState("");
-
-  // Template Search State
   const [templateSearch, setTemplateSearch] = useState("");
 
-  // Reset display limit when search or category changes to preserve UI responsiveness
+  // Splash Screen Simulation
+  useEffect(() => {
+    const timer1 = setTimeout(() => setLoadingProgress(45), 400);
+    const timer2 = setTimeout(() => setLoadingProgress(85), 900);
+    const timer3 = setTimeout(() => {
+      setLoadingProgress(100);
+      setIsLoading(false);
+    }, 1400);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+    };
+  }, []);
+
   useEffect(() => {
     setDisplayLimit(25);
   }, [searchQuery, selectedCategory]);
 
-  // Format numbers to IRR currency style
-  const formatToman = (amount: number) => {
+  // ریال به فرمت خوانا
+  const formatRial = (amount: number) => {
     return Math.round(amount).toLocaleString("fa-IR") + " ریال";
   };
 
-  // --- Calculations Logic ---
+  // --- موتور جامع محاسبات ---
   const calculations = useMemo(() => {
     const dailyWage = baseSalary / 30;
-    const hourlyWage = baseSalary / 220; // Standard 220 hours per month in Iran Labor Law
+    const hourlyWage = baseSalary / 220;
 
-    // 1. حق سنوات (پایان کار)
+    // ۱. حق سنوات
     const totalDays = (years * 365) + (months * 30) + days;
     const severancePay = (dailyWage * 30) * (totalDays / 365);
 
-    // 2. اضافه‌کاری (40% مازاد بر مزد ساعت)
+    // ۲. اضافه‌کاری
     const overtimeHourlyRate = hourlyWage * 1.4;
     const overtimePay = overtimeHourlyRate * hours;
 
-    // 3. نوبت‌کاری
-    let shiftMultiplier = 0.1; // صبح و عصر 10%
-    if (shiftType === "morning-night") shiftMultiplier = 0.225; // صبح و شب 22.5%
-    if (shiftType === "evening-night") shiftMultiplier = 0.225; // عصر و شب 22.5%
-    if (shiftType === "rotational") shiftMultiplier = 0.15; // صبح، عصر و شب 15%
+    // ۳. نوبت‌کاری
+    let shiftMultiplier = 0.1;
+    if (shiftType === "morning-night") shiftMultiplier = 0.225;
+    if (shiftType === "evening-night") shiftMultiplier = 0.225;
+    if (shiftType === "rotational") shiftMultiplier = 0.15;
     const shiftPay = baseSalary * shiftMultiplier;
 
-    // 4. مانده مرخصی (بر اساس مزد روزانه و سنوات حق مسکن/بن به ازای هر روز مرخصی استفاده نشده)
+    // ۴. مانده مرخصی
     const leavePay = dailyWage * unworkedLeaveDays;
 
-    // 5. شب‌کاری (35% مازاد بر مزد ساعت عادی برای کارگران غیرنوبتی)
+    // ۵. شب‌کاری
     const nightHourlyRate = hourlyWage * 0.35;
     const nightPay = nightHourlyRate * hours;
 
-    // 6. پایه سنوات (تجمیع سنوات تجمیعی ماهانه بر اساس سال اشتغال)
-    const sanavatMonthlyBase = 2100000; // پایه سنوات روزانه 70,000 ریال به طور تقریبی ماهانه 2,100,000 ریال
+    // ۶. پایه سنوات
+    const sanavatMonthlyBase = 2100000;
     const totalSanavat = years > 0 ? (sanavatMonthlyBase * years) : 0;
+
+    // ۷. حق بیمه اجباری تأمین اجتماعی (ماده ۲۸ قانون تأمین اجتماعی و ماده ۵ بیمه بیکاری)
+    const empWorkerShare = baseSalary * 0.07; // سهم کارگر ۷٪
+    const empEmployerShare = baseSalary * 0.20; // سهم کارفرما ۲۰٪
+    const empUnemploymentShare = baseSalary * 0.03; // بیمه بیکاری کارفرما ۳٪
+    const totalCompulsoryInsurance = baseSalary * 0.30; // مجموع ۳۰٪
+
+    // ۸. حق بیمه اختیاری و مشاغل آزاد (خویش‌فرما)
+    const voluntary27 = baseSalary * 0.27; // اختیاری ۲۷٪
+    const free12 = baseSalary * 0.12; // مشاغل آزاد بازنشستگی ۱۲٪
+    const free14 = baseSalary * 0.14; // بازنشستگی و فوت ۱۴٪
+    const free18 = baseSalary * 0.18; // بازنشستگی، فوت و ازکارافتادگی ۱۸٪
+
+    // ۹. مقرری بیمه بیکاری (ماده ۷ قانون بیمه بیکاری: ۵۵٪ متوسط مزد + ۱۰٪ به ازای هر تکفل تا ۴ نفر، سقف ۸۰٪)
+    const minLegalWageMonthly = 71661840; // حداقل دستمزد پایه قانونی تقریبی ماهانه
+    const baseUnemploymentDaily = dailyWage * 0.55;
+    const dependentBonusDaily = (minLegalWageMonthly / 30) * 0.10 * Math.min(dependents, 4);
+    let totalUnemploymentDaily = baseUnemploymentDaily + dependentBonusDaily;
+    
+    // سقف مقرری ۸۰٪ متوسط دستمزد است
+    if (totalUnemploymentDaily > dailyWage * 0.80) {
+      totalUnemploymentDaily = dailyWage * 0.80;
+    }
+    const unemploymentMonthlyPay = totalUnemploymentDaily * 30;
+
+    // ۱۰. مستمری بازنشستگی (ماده ۷۷ قانون تأمین اجتماعی: (متوسط دستمزد * سابقه) / ۳۰)
+    const pensionMonthlyPay = (baseSalary * Math.min(insuranceYears, 35)) / 30;
 
     return {
       dailyWage,
@@ -108,451 +169,703 @@ export default function DadKarApp() {
       leavePay,
       nightPay,
       nightHourlyRate,
-      totalSanavat
+      totalSanavat,
+      empWorkerShare,
+      empEmployerShare,
+      empUnemploymentShare,
+      totalCompulsoryInsurance,
+      voluntary27,
+      free12,
+      free14,
+      free18,
+      unemploymentMonthlyPay,
+      pensionMonthlyPay
     };
-  }, [baseSalary, years, months, days, hours, shiftType, unworkedLeaveDays]);
+  }, [baseSalary, years, months, days, hours, shiftType, unworkedLeaveDays, dependents, insuranceYears]);
 
-  // --- FAQ Data ---
-  const FAQ_DATABASE = [
-    {
-      id: "f1",
-      category: "severance",
-      question: "آیا به کارگر با قرارداد کمتر از یک سال حق سنوات تعلق می‌گیرد؟",
-      answer: "بله، طبق ماده ۲۴ قانون کار و آرای وحدت رویه دیوان عدالت اداری، کارگر به نسبت مدت کارکرد خود در طول سال، استحقاق دریافت سنوات پایان خدمت بر مبنای آخرین مزد دریافتی را دارد.",
-      lawRef: "ماده ۲۴ قانون کار و دادنامه ۱۶۸ دیوان عدالت اداری"
-    },
-    {
-      id: "f2",
-      category: "contracts",
-      question: "آیا کارفرما می‌تواند تسویه‌حساب سفید امضا بگیرد؟",
-      answer: "خیر، طبق دادنامه ۱۲۴۳ هیات عمومی دیوان عدالت اداری، برگه‌های تسویه‌حساب صوری، کلی و سفیدامضا فاقد اعتبار قانونی بوده و بدون ارائه اسناد مثبته واریز بانکی پذیرفته نمی‌شوند.",
-      lawRef: "دادنامه ۱۲۴۳ دیوان عدالت اداری"
-    },
-    {
-      id: "f3",
-      category: "tamin",
-      question: "مهلت مراجعه برای دریافت مقرری بیمه بیکاری چقدر است؟",
-      answer: "بیمه‌شده بیکار مکلف است ظرف حداکثر ۳۰ روز از تاریخ بیکاری غیرارادی مراتب را به اداره تعاون، کار و رفاه اجتماعی اعلام کند. پس از ۳۰ روز با عذر موجه و تایید هیات حل اختلاف تا ۳ ماه امکان‌پذیر است.",
-      lawRef: "ماده ۶ قانون بیمه بیکاری"
-    },
-    {
-      id: "f4",
-      category: "leave",
-      question: "میزان مرخصی استحقاقی سالانه و سقف ذخیره آن چقدر است؟",
-      answer: "مرخصی استحقاقی سالانه ۲۶ روز کاری (یک ماه با احتساب ۴ جمعه) است. طبق ماده ۶۶ قانون کار، کارگر نمی‌تواند بیش از ۹ روز از مرخصی سالانه خود را برای سال بعد ذخیره کند.",
-      lawRef: "مواد ۶۴ و ۶۶ قانون کار"
-    },
-    {
-      id: "f5",
-      category: "overtime",
-      question: "حداکثر سقف مجاز اضافه‌کاری در قانون کار چقدر است؟",
-      answer: "طبق ماده ۵۹ قانون کار، ارجاع کار اضافی با رضایت کارگر و پرداخت ۴۰ درصد فوق‌العاده مجاز است و مدت آن نباید از ۴ ساعت در روز تجاوز کند (مگر در موارد استثنایی کارگاه).",
-      lawRef: "ماده ۵۹ قانون کار"
-    }
-  ];
-
-  // --- Templates Data ---
-  const TEMPLATES_DATABASE = [
-    {
-      id: "t1",
-      title: "قرارداد کار موقت (استاندارد وزارت کار)",
-      description: "فرمت استاندارد شامل مشخصات طرفین، مدت، موضوع قرارداد، حقوق و مزایا مطابق با ماده ۱۰ قانون کار.",
-      tags: ["قرارداد", "کار موقت", "استخدام"],
-      content: `بسمه تعالی
-قرارداد کار موقت
-این قرارداد به موجب ماده (۱۰) قانون کار جمهوری اسلامی ایران منعقد می‌گردد:
-۱. مشخصات طرفین:
-کارفرما: .................... فرزند: .................... کد ملی: .................... نشانی: ....................
-کارگر: .................... فرزند: .................... کد ملی: .................... نشانی: ....................
-۲. نوع قرارداد: موقت از تاریخ ............ لغایت ............ به مدت ............ ماه/سال.
-۳. موضوع کار: اشتغال در سمت/شغل .................... با شرح وظایف ابلاغی کارگاه.
-۴. ساعات کار: طبق مقررات ماده ۵۱ قانون کار ۴۴ ساعت در هفته.
-۵. مزد و مزایا:
-- مزد روزانه/ماهانه: .................... ریال
-- حق مسکن و بن خواربار: طبق مصوبات شورای عالی کار
-- پایه سنوات: مطابق مقررات اداره کار
-این قرارداد در ۲ نسخه تنظیم و به امضای طرفین رسید.`
-    },
-    {
-      id: "t2",
-      title: "فرم دادخواست مطالبه مطالبات و حق بیمه (اداره کار)",
-      description: "متن نمونه جهت ثبت دادخواست در سامانه جامع روابط کار برای دریافت معوقات مزدی، سنوات و الزام به بیمه.",
-      tags: ["دادخواست", "شکایت", "معوقات", "حق بیمه"],
-      content: `ریاست محترم اداره تعاون، کار و رفاه اجتماعی / هیات تشخیص
-با سلام و احترام؛
-اینجانب .................... کد ملی .................... از تاریخ ............ تا تاریخ ............ در کارگاه .................... متعلق به آقای/شرکت .................... در سمت .................... اشتغال به کار داشته‌ام.
-با توجه به اینکه کارفرمای محترم از پرداخت مطالبات قانونی بنده استنکاف نموده، تقاضای رسیدگی و صدور حکم مبنی بر:
-۱. پرداخت حقوق و مزایای معوقه از تاریخ ............ لغایت ............
-۲. پرداخت حق سنوات پایان خدمت و مانده مرخصی استفاده نشده
-۳. الزام کارفرما به واریز حق بیمه معوقه به سازمان تامین اجتماعی بر اساس ماده ۱۴۸ قانون کار
-مستدعی است. مدارک شامل پرینت بانکی و شهادت همکاران ضمیمه می‌گردد.`
-    },
-    {
-      id: "t3",
-      title: "برگه تسویه‌حساب نهایی قانونی (مبتنی بر تراکنش بانکی)",
-      description: "فرم قطعی تسویه خاتمه همکاری با تصریح جزئیات مبالغ واریز شده به حساب بانکی کارگر.",
-      tags: ["تسویه حساب", "خاتمه کار", "بانکی"],
-      content: `برگه تسویه‌حساب قطعی مالی پایان خدمت
-نام و نام خانوادگی: .................... شماره بیمه: .................... تاریخ خاتمه قرارداد: ....................
-بدین‌وسیله تایید می‌گردد کلیه مطالبات قانونی اینجانب شامل:
-۱. مزد و مزایای معوقه: .................... ریال
-۲. حق سنوات پایان خدمت: .................... ریال
-۳. مانده مرخصی: .................... ریال
-۴. پاداش و عیدی پایان سال: .................... ریال
-جمع کل به مبلغ .................... ریال به موجب شماره تراکنش بانکی / فیش پیوست شماره ............ به حساب اینجانب نزد بانک ............ واریز گردیده و رابطه کاری در این تاریخ با رضایت کامل خاتمه یافت.`
-    }
-  ];
-
-  // Filtering Laws with Memo (Crash-Proof)
+  // فیلتر قوانین
   const filteredLaws = useMemo(() => {
-    if (!SAFE_LAWS_DATABASE || !Array.isArray(SAFE_LAWS_DATABASE)) {
-      return [];
-    }
-
-    const q = searchQuery ? searchQuery.trim().toLowerCase() : "";
-
+    if (!SAFE_LAWS_DATABASE || !Array.isArray(SAFE_LAWS_DATABASE)) return [];
+    const q = searchQuery.trim().toLowerCase();
     return SAFE_LAWS_DATABASE.filter((law: any) => {
       if (!law) return false;
-
       const matchesCategory = selectedCategory === "all" || law.category === selectedCategory;
-
       const title = (law.title || "").toLowerCase();
       const subject = (law.subject || "").toLowerCase();
       const content = (law.content || "").toLowerCase();
       const tags = Array.isArray(law.tags) ? law.tags : [];
-
       const matchesSearch = q === "" || 
-        title.includes(q) ||
-        subject.includes(q) ||
-        content.includes(q) ||
+        title.includes(q) || subject.includes(q) || content.includes(q) ||
         tags.some((t: string) => typeof t === "string" && t.toLowerCase().includes(q));
-
       return matchesCategory && matchesSearch;
     });
   }, [searchQuery, selectedCategory]);
 
+  // پرسش و پاسخ
+  const FAQ_DATABASE = [
+    {
+      id: "f1",
+      category: "insurance",
+      question: "حق بیمه کارگر چند درصد است و چه بخش‌هایی را شامل می‌شود؟",
+      answer: "مجموع حق بیمه مشمولین قانون کار ۳۰ درصد است که ۷ درصد سهم کارگر بوده و از حقوق کسر می‌شود، ۲۰ درصد سهم کارفرما و ۳ درصد سهم بیمه بیکاری است که پرداخت آن تماماً بر عهده کارفرما می‌باشد.",
+      lawRef: "ماده ۲۸ قانون تأمین اجتماعی و ماده ۵ قانون بیمه بیکاری"
+    },
+    {
+      id: "f2",
+      category: "unemployment",
+      question: "مقرری بیمه بیکاری چگونه محاسبه می‌شود و سقف آن چقدر است؟",
+      answer: "میزان مقرری روزانه ۵۵٪ متوسط مزد روزانه است. به ازای هر نفر تحت تکفل (تا حداکثر ۴ نفر) ۱۰ درصد حداقل دستمزد اضافه می‌شود، مشروط بر اینکه مجموع از ۸۰ درصد متوسط دستمزد فراتر نرود.",
+      lawRef: "ماده ۷ قانون بیمه بیکاری"
+    },
+    {
+      id: "f3",
+      category: "pension",
+      question: "فرمول محاسبه مستمری بازنشستگی تأمین اجتماعی چیست؟",
+      answer: "طبق ماده ۷۷ قانون تأمین اجتماعی، مستمری برابر است با یک سی‌ام متوسط دستمزد دو سال آخر ضرب در سنوات پرداخت حق بیمه (حداکثر سقف محاسبه سنوات ۳۵ سال است).",
+      lawRef: "ماده ۷۷ قانون تأمین اجتماعی"
+    },
+    {
+      id: "f4",
+      category: "severance",
+      question: "آیا سنوات به قراردادهای کمتر از یک سال تعلق می‌گیرد؟",
+      answer: "بله، طبق ماده ۲۴ قانون کار و دادنامه ۱۶۸ دیوان عدالت اداری، کارگر به نسبت ایام کارکرد استحقاق دریافت سنوات پایان خدمت را دارد.",
+      lawRef: "ماده ۲۴ قانون کار"
+    }
+  ];
 
-  // Filtering FAQ with Memo
   const filteredFaq = useMemo(() => {
     return FAQ_DATABASE.filter(f => {
       const matchCat = faqCategory === "all" || f.category === faqCategory;
       const matchQuery = faqSearch.trim() === "" ||
-        f.question.includes(faqSearch) ||
-        f.answer.includes(faqSearch) ||
-        f.lawRef.includes(faqSearch);
+        f.question.includes(faqSearch) || f.answer.includes(faqSearch) || f.lawRef.includes(faqSearch);
       return matchCat && matchQuery;
     });
   }, [faqCategory, faqSearch]);
 
-  // Filtering Templates with Memo
+  // قالب‌های کاربردی
+  const TEMPLATES_DATABASE = [
+    {
+      id: "t1",
+      title: "قرارداد کار موقت قانونی",
+      description: "تنظیم‌شده بر مبنای ماده ۱۰ قانون کار و استانداردهای مصوب روابط کار.",
+      tags: ["قرارداد", "کار موقت"],
+      content: `بسمه تعالی\nقرارداد کار موقت\nاین قرارداد فی‌مابین کارفرما: .................... و کارگر: .................... با مشخصات مندرج منعقد گردید.\nمدت قرارداد: از تاریخ ............ لغایت ............ \nمزد و مزایا: طبق مصوبات شورای عالی کار و شرایط توافق‌شده کارگاه.\nنسخ قرارداد در دو نسخه تنظیم و اعتبار یکسان دارد.`
+    },
+    {
+      id: "t2",
+      title: "دادخواست مطالبه حقوق، سنوات و الزام به بیمه",
+      description: "فرم استاندارد ثبت دادخواست در سامانه جامع روابط کار.",
+      tags: ["دادخواست", "بیمه", "سنوات"],
+      content: `ریاست محترم هیات تشخیص اداره کار\nبا سلام؛ اینجانب .................... بدین‌وسیله به استحضار می‌رساند در کارگاه .................... اشتغال داشته و تقاضای صدور حکم بر الزام کارفرما به واریز حق بیمه طبق ماده ۱۴۸ قانون کار و پرداخت معوقات مزدی و سنوات پایان خدمت را دارم.`
+    }
+  ];
+
   const filteredTemplates = useMemo(() => {
     return TEMPLATES_DATABASE.filter(t => {
       return templateSearch.trim() === "" ||
         t.title.includes(templateSearch) ||
-        t.description.includes(templateSearch) ||
-        t.tags.some(tag => tag.includes(templateSearch));
+        t.description.includes(templateSearch);
     });
   }, [templateSearch]);
 
+  // --- صفحه اسپلش و لودینگ اولیه ---
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 bg-gradient-to-br from-slate-900 via-indigo-950 to-blue-950 flex flex-col items-center justify-center p-6 text-white select-none" dir="rtl">
+        <div className="relative flex items-center justify-center mb-8">
+          <div className="absolute w-36 h-36 bg-blue-500/20 rounded-full blur-2xl animate-pulse"></div>
+          <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 p-0.5 shadow-2xl shadow-blue-500/30 flex items-center justify-center animate-bounce duration-1000">
+            <div className="w-full h-full bg-slate-900/60 backdrop-blur-md rounded-[22px] flex items-center justify-center">
+              <Scale className="w-12 h-12 text-cyan-300 drop-shadow-[0_0_12px_rgba(34,211,238,0.8)]" />
+            </div>
+          </div>
+        </div>
+
+        <h1 className="text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-300 mb-2">
+          دادکـــــار
+        </h1>
+        <p className="text-xs text-slate-400 font-medium tracking-wide mb-10 text-center">
+          سامانه هوشمند قوانین کار، سنوات و تأمین اجتماعی
+        </p>
+
+        {/* لودینگ بار شیک و نئونی */}
+        <div className="w-64 bg-slate-800/80 rounded-full h-2.5 p-0.5 border border-slate-700/50 overflow-hidden shadow-inner">
+          <div 
+            className="bg-gradient-to-r from-blue-500 via-indigo-400 to-cyan-400 h-full rounded-full transition-all duration-300 ease-out shadow-sm"
+            style={{ width: `${loadingProgress}%` }}
+          />
+        </div>
+        <span className="text-[11px] text-cyan-300/80 font-mono mt-3">
+          در حال بارگذاری پایگاه داده و ماژول‌ها... {loadingProgress}٪
+        </span>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900 font-sans antialiased pb-24" dir="rtl">
-      {/* Top Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-3 shadow-sm">
+    <div className="flex flex-col min-h-screen bg-slate-100/80 text-slate-900 font-sans antialiased pb-28" dir="rtl">
+      
+      {/* هدر بالا */}
+      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-xl border-b border-slate-200/80 px-4 py-3.5 shadow-xs">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-              <Award className="w-6 h-6" />
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab("home")}>
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-blue-600/25">
+              <Scale className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="font-black text-xl text-slate-800 tracking-tight">دادکار</h1>
-              <p className="text-xs text-slate-500 font-medium">دستیار تخصصی قوانین کار، سنوات و تأمین اجتماعی</p>
+              <div className="flex items-center gap-2">
+                <h1 className="font-black text-xl text-slate-800 tracking-tight">دادکار</h1>
+                <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md font-bold">نسخه ۴.۰</span>
+              </div>
+              <p className="text-[11px] text-slate-500 font-medium">دستیار تخصصی حقوق کار و تأمین اجتماعی</p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full font-bold border border-blue-100">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>نسخه ۳.۰</span>
-          </div>
+          <button 
+            onClick={() => setActiveTab("about")}
+            className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1.5 border border-slate-200"
+          >
+            <User className="w-3.5 h-3.5 text-blue-600" />
+            <span>ارتباط با ما</span>
+          </button>
         </div>
       </header>
 
-      {/* Main Container */}
+      {/* بخش بدنه اصلی */}
       <main className="flex-1 max-w-4xl w-full mx-auto p-4 space-y-5">
-        
-        {/* ===================== TAB 1: CALCULATOR ===================== */}
+
+        {/* ======================= ۱. داشبورد صفحه اصلی (HOME) ======================= */}
+        {activeTab === "home" && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            {/* بنر خوش‌آمدگویی شیک */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-700 via-indigo-700 to-slate-900 text-white p-6 shadow-xl shadow-blue-900/10">
+              <div className="relative z-10 space-y-2">
+                <span className="text-xs font-bold uppercase tracking-wider bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-cyan-200 inline-block">
+                  سامانه جامع و مرجع
+                </span>
+                <h2 className="text-2xl font-black">به اپلیکیشن دادکار خوش آمدید</h2>
+                <p className="text-xs text-slate-200 leading-relaxed max-w-lg">
+                  مرجع محاسبات دقیق بیمه‌ای، مستمری، سنوات پایان خدمت و دسترسی سریع به ۳۰۳ ماده از قوانین کار و تأمین اجتماعی کشور.
+                </p>
+              </div>
+              <div className="absolute -left-10 -bottom-10 w-44 h-44 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none"></div>
+            </div>
+
+            {/* بخش گرید کارت‌ها (آیتم‌ها در باکس‌های بسیار شیک با آیکون و متن زیر آن) */}
+            <div>
+              <h3 className="text-sm font-black text-slate-700 mb-3.5 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-blue-600" />
+                دسترسی سریع به بخش‌ها و امکانات
+              </h3>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
+                {[
+                  {
+                    id: "calc_insurance",
+                    title: "حق بیمه و سهم‌ها",
+                    desc: "سهم ۷٪ کارگر، ۲۰٪ کارفرما و ۳٪ بیکاری",
+                    icon: ShieldCheck,
+                    color: "from-blue-500 to-cyan-500",
+                    action: () => { setActiveTab("calc"); setActiveCalc("insurance_compulsory"); }
+                  },
+                  {
+                    id: "calc_unemp",
+                    title: "مقرری بیمه بیکاری",
+                    desc: "فرمول ۵۵٪ ماده ۷ و افراد تحت تکفل",
+                    icon: Coins,
+                    color: "from-emerald-500 to-teal-600",
+                    action: () => { setActiveTab("calc"); setActiveCalc("unemployment_benefit"); }
+                  },
+                  {
+                    id: "calc_pension",
+                    title: "مستمری بازنشستگی",
+                    desc: "محاسبه ماده ۷۷ با سنوات و میانگین مزد",
+                    icon: Award,
+                    color: "from-purple-500 to-indigo-600",
+                    action: () => { setActiveTab("calc"); setActiveCalc("pension"); }
+                  },
+                  {
+                    id: "calc_severance",
+                    title: "حق سنوات پایان کار",
+                    desc: "ماده ۲۴ به نسبت سال، ماه و روز خدمت",
+                    icon: Calendar,
+                    color: "from-amber-500 to-orange-600",
+                    action: () => { setActiveTab("calc"); setActiveCalc("severance"); }
+                  },
+                  {
+                    id: "laws_db",
+                    title: "مخزن جامع قوانین",
+                    desc: "۳۰۳ ماده قانون کار، تأمین اجتماعی و دیوان",
+                    icon: BookOpen,
+                    color: "from-indigo-600 to-blue-700",
+                    action: () => setActiveTab("laws")
+                  },
+                  {
+                    id: "templates_box",
+                    title: "قالب‌ها و دادخواست‌ها",
+                    desc: "نمونه قراردادها، تسویه‌حساب و شکایات",
+                    icon: FileText,
+                    color: "from-rose-500 to-pink-600",
+                    action: () => setActiveTab("templates")
+                  }
+                ].map((box) => {
+                  const Icon = box.icon;
+                  return (
+                    <div
+                      key={box.id}
+                      onClick={box.action}
+                      className="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between group active:scale-[0.98]"
+                    >
+                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-tr ${box.color} flex items-center justify-center text-white mb-3 shadow-md`}>
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-sm text-slate-800 group-hover:text-blue-600 transition-colors">
+                          {box.title}
+                        </h4>
+                        <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+                          {box.desc}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* کارت ارتباط با ما در صفحه اصلی */}
+            <div 
+              onClick={() => setActiveTab("about")}
+              className="bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-3xl p-5 flex items-center justify-between cursor-pointer shadow-md hover:shadow-lg transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-cyan-300">
+                  <UserCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm">پشتیبانی و توسعه‌دهنده</h4>
+                  <p className="text-xs text-slate-300">سید حسین حجازی • ۰۹۱۳۸۰۰۳۲۱۶</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-slate-400 rotate-180" />
+            </div>
+          </div>
+        )}
+
+        {/* ======================= ۲. ماژول کامل محاسبات (CALCULATOR) ======================= */}
         {activeTab === "calc" && (
-          <div className="space-y-5">
-            {/* Calculator Navigation Pills */}
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 bg-slate-200/70 p-1.5 rounded-2xl border border-slate-200">
+          <div className="space-y-5 animate-in fade-in duration-300">
+            {/* انتخاب نوع محاسبه به صورت دکمه‌های اسکرول‌شونده مدرن */}
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none text-xs font-bold">
               {[
+                { id: "insurance_compulsory", label: "حق بیمه اجباری (۳۰٪)" },
+                { id: "unemployment_benefit", label: "مقرری بیمه بیکاری" },
+                { id: "pension", label: "مستمری بازنشستگی" },
+                { id: "insurance_freelance", label: "بیمه اختیاری و آزاد" },
                 { id: "severance", label: "حق سنوات" },
                 { id: "overtime", label: "اضافه‌کاری" },
                 { id: "shift", label: "نوبت‌کاری" },
                 { id: "leave", label: "مانده مرخصی" },
                 { id: "night", label: "شب‌کاری" },
                 { id: "sanavat", label: "پایه سنوات" }
-              ].map((c) => (
+              ].map((item) => (
                 <button
-                  key={c.id}
-                  onClick={() => setActiveCalc(c.id as CalcType)}
-                  className={`py-2 px-1 text-center rounded-xl text-xs font-bold transition-all ${
-                    activeCalc === c.id
-                      ? "bg-white text-blue-600 shadow-sm"
-                      : "text-slate-600 hover:text-slate-900"
+                  key={item.id}
+                  onClick={() => setActiveCalc(item.id as CalcCategory)}
+                  className={`px-3.5 py-2.5 rounded-2xl whitespace-nowrap transition-all ${
+                    activeCalc === item.id
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-500/25 scale-[1.02]"
+                      : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
                   }`}
                 >
-                  {c.label}
+                  {item.label}
                 </button>
               ))}
             </div>
 
-            {/* Base Salary Input Card */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
-              <div className="flex justify-between items-center">
-                <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+            {/* کارت ورود دستمزد: پشتیبانی از تایپ عددی مستقیم تا سقف ۵۰۰ میلیون ریال + اسلایدر */}
+            <div className="bg-white rounded-3xl p-5 shadow-xs border border-slate-200/80 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-2">
                   <DollarSign className="w-4 h-4 text-blue-600" />
-                  مزد ماهانه (پایه + مزایای مستمر به ریال):
+                  مزد مبنا / حقوق ماهانه مشمول (سقف ۵۰۰,۰۰۰,۰۰۰ ریال):
                 </label>
-                <span className="text-xs font-extrabold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">
-                  {formatToman(baseSalary)}
-                </span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={10000000}
+                    max={500000000}
+                    step={1000000}
+                    value={baseSalary}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      if (val <= 500000000) setBaseSalary(val);
+                      else setBaseSalary(500000000);
+                    }}
+                    className="p-2 border border-blue-200 rounded-xl font-black text-sm text-blue-700 bg-blue-50/50 w-36 text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <span className="text-xs text-slate-500 font-bold">ریال</span>
+                </div>
               </div>
+
               <input
                 type="range"
-                min={50000000}
+                min={10000000}
                 max={500000000}
                 step={5000000}
                 value={baseSalary}
                 onChange={(e) => setBaseSalary(Number(e.target.value))}
                 className="w-full accent-blue-600 h-2 bg-slate-200 rounded-lg cursor-pointer"
               />
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <div className="text-[11px] text-slate-500 font-medium">مزد روزانه (۳۰ روز):</div>
-                  <div className="text-sm font-bold text-slate-800 mt-0.5">{formatToman(calculations.dailyWage)}</div>
+
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className="text-[11px] text-slate-500">مزد روزانه (۳۰ روز):</div>
+                  <div className="text-xs font-black text-slate-800 mt-1">{formatRial(calculations.dailyWage)}</div>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <div className="text-[11px] text-slate-500 font-medium">مزد ساعتی (۲۲۰ ساعت):</div>
-                  <div className="text-sm font-bold text-slate-800 mt-0.5">{formatToman(calculations.hourlyWage)}</div>
+                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className="text-[11px] text-slate-500">مزد ساعتی (۲۲۰ ساعت):</div>
+                  <div className="text-xs font-black text-slate-800 mt-1">{formatRial(calculations.hourlyWage)}</div>
                 </div>
               </div>
             </div>
 
-            {/* Calculation Context View */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-5">
-              {/* 1. SEVERANCE */}
+            {/* بخش جزئیات محاسبه فعال */}
+            <div className="bg-white rounded-3xl p-5 shadow-xs border border-slate-200/80 space-y-4">
+              
+              {/* ۱. حق بیمه اجباری ۳۰ درصد */}
+              {activeCalc === "insurance_compulsory" && (
+                <div className="space-y-4">
+                  <h3 className="font-black text-slate-800 text-sm flex items-center gap-2 border-b pb-3">
+                    <ShieldCheck className="w-5 h-5 text-blue-600" />
+                    محاسبه تفکیکی حق بیمه اجباری تأمین اجتماعی (ماده ۲۸)
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-4 bg-blue-50/70 border border-blue-100 rounded-2xl">
+                      <span className="text-[11px] text-blue-700 font-bold">سهم کارگر (۷ درصد):</span>
+                      <div className="text-lg font-black text-blue-900 mt-1">{formatRial(calculations.empWorkerShare)}</div>
+                      <p className="text-[10px] text-blue-600 mt-1">کسر از حقوق ماهانه کارگر</p>
+                    </div>
+                    <div className="p-4 bg-indigo-50/70 border border-indigo-100 rounded-2xl">
+                      <span className="text-[11px] text-indigo-700 font-bold">سهم کارفرما (۲۰ درصد):</span>
+                      <div className="text-lg font-black text-indigo-900 mt-1">{formatRial(calculations.empEmployerShare)}</div>
+                      <p className="text-[10px] text-indigo-600 mt-1">تعهد کارفرما برای بازنشستگی و درمان</p>
+                    </div>
+                    <div className="p-4 bg-cyan-50/70 border border-cyan-100 rounded-2xl">
+                      <span className="text-[11px] text-cyan-700 font-bold">بیمه بیکاری (۳ درصد):</span>
+                      <div className="text-lg font-black text-cyan-900 mt-1">{formatRial(calculations.empUnemploymentShare)}</div>
+                      <p className="text-[10px] text-cyan-600 mt-1">پرداخت تماماً بر عهده کارفرما</p>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-slate-900 text-white rounded-2xl flex justify-between items-center">
+                    <span className="text-xs font-bold text-slate-300">مجموع کل حق بیمه واریزی به شعبه (۳۰٪):</span>
+                    <span className="text-lg font-black text-cyan-300">{formatRial(calculations.totalCompulsoryInsurance)}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* ۲. مقرری بیمه بیکاری */}
+              {activeCalc === "unemployment_benefit" && (
+                <div className="space-y-4">
+                  <h3 className="font-black text-slate-800 text-sm flex items-center gap-2 border-b pb-3">
+                    <Coins className="w-5 h-5 text-emerald-600" />
+                    محاسبه مقرری ماهیانه بیمه بیکاری (ماده ۷ قانون بیمه بیکاری)
+                  </h3>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">
+                      تعداد افراد تحت تکفل قانونی (حداکثر ۴ نفر):
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="4"
+                      value={dependents}
+                      onChange={(e) => setDependents(Math.min(4, Math.max(0, parseInt(e.target.value) || 0)))}
+                      className="w-full p-2.5 border rounded-xl font-bold bg-slate-50 text-slate-800"
+                    />
+                  </div>
+                  <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl">
+                    <span className="text-xs text-emerald-800 font-bold">مبلغ تخمینی مقرری ماهانه بیمه بیکاری:</span>
+                    <div className="text-2xl font-black text-emerald-900 mt-1">{formatRial(calculations.unemploymentMonthlyPay)}</div>
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed text-justify">
+                    * طبق بند «ب» ماده ۷: مقرری روزانه معادل ۵۵ درصد متوسط مزد روزانه بوده و به ازای هر تکفل (تا ۴ نفر) ۱۰٪ حداقل دستمزد افزوده می‌شود، به شرطی که مجموع از ۸۰٪ متوسط مزد تجاوز نکند.
+                  </p>
+                </div>
+              )}
+
+              {/* ۳. مستمری بازنشستگی */}
+              {activeCalc === "pension" && (
+                <div className="space-y-4">
+                  <h3 className="font-black text-slate-800 text-sm flex items-center gap-2 border-b pb-3">
+                    <Award className="w-5 h-5 text-purple-600" />
+                    محاسبه مستمری بازنشستگی (ماده ۷۷ قانون تأمین اجتماعی)
+                  </h3>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">
+                      تعداد سال‌های سابقه پرداخت حق بیمه (مثلاً ۳۰ سال):
+                    </label>
+                    <input
+                      type="number"
+                      min="10"
+                      max="35"
+                      value={insuranceYears}
+                      onChange={(e) => setInsuranceYears(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-full p-2.5 border rounded-xl font-bold bg-slate-50 text-slate-800"
+                    />
+                  </div>
+                  <div className="p-4 bg-purple-50 border border-purple-100 rounded-2xl">
+                    <span className="text-xs text-purple-800 font-bold">میزان مستمری بازنشستگی ماهانه:</span>
+                    <div className="text-2xl font-black text-purple-900 mt-1">{formatRial(calculations.pensionMonthlyPay)}</div>
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed text-justify">
+                    * فرمول قانونی: (متوسط دستمزد ۲ سال آخر × سنوات سابقه) تقسیم بر ۳۰.
+                  </p>
+                </div>
+              )}
+
+              {/* ۴. بیمه اختیاری و مشاغل آزاد */}
+              {activeCalc === "insurance_freelance" && (
+                <div className="space-y-4">
+                  <h3 className="font-black text-slate-800 text-sm flex items-center gap-2 border-b pb-3">
+                    <Percent className="w-5 h-5 text-indigo-600" />
+                    حق بیمه اختیاری و صاحبان حرف و مشاغل آزاد
+                  </h3>
+                  <div className="space-y-2.5">
+                    <div className="p-3 bg-slate-50 rounded-2xl border flex justify-between items-center">
+                      <div>
+                        <div className="font-bold text-xs text-slate-800">بیمه اختیاری (۲۷٪)</div>
+                        <div className="text-[10px] text-slate-500">شامل بازنشستگی، فوت، ازکارافتادگی و درمان کامل</div>
+                      </div>
+                      <span className="font-black text-sm text-blue-700">{formatRial(calculations.voluntary27)}</span>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-2xl border flex justify-between items-center">
+                      <div>
+                        <div className="font-bold text-xs text-slate-800">مشاغل آزاد (۱۲٪)</div>
+                        <div className="text-[10px] text-slate-500">فقط بازنشستگی و فوت بعد از بازنشستگی</div>
+                      </div>
+                      <span className="font-black text-sm text-slate-700">{formatRial(calculations.free12)}</span>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-2xl border flex justify-between items-center">
+                      <div>
+                        <div className="font-bold text-xs text-slate-800">مشاغل آزاد (۱۴٪)</div>
+                        <div className="text-[10px] text-slate-500">بازنشستگی و فوت قبل و بعد از بازنشستگی</div>
+                      </div>
+                      <span className="font-black text-sm text-slate-700">{formatRial(calculations.free14)}</span>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-2xl border flex justify-between items-center">
+                      <div>
+                        <div className="font-bold text-xs text-slate-800">مشاغل آزاد تعهد کامل (۱۸٪)</div>
+                        <div className="text-[10px] text-slate-500">بازنشستگی، فوت و ازکارافتادگی کلی</div>
+                      </div>
+                      <span className="font-black text-sm text-indigo-700">{formatRial(calculations.free18)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ۵. حق سنوات پایان خدمت */}
               {activeCalc === "severance" && (
                 <div className="space-y-4">
-                  <h3 className="font-bold text-slate-800 text-base flex items-center gap-2 border-b pb-3">
+                  <h3 className="font-black text-slate-800 text-sm flex items-center gap-2 border-b pb-3">
                     <Calendar className="w-5 h-5 text-blue-600" />
-                    محاسبه پاداش پایان خدمت (حق سنوات ماده ۲۴)
+                    محاسبه حق سنوات پایان خدمت (ماده ۲۴ قانون کار)
                   </h3>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-3 gap-2">
                     <div>
-                      <label className="text-xs font-semibold text-slate-600 mb-1 block">تعداد سال:</label>
+                      <label className="text-[11px] font-bold text-slate-600 mb-1 block">سال:</label>
                       <input
                         type="number"
                         min="0"
                         value={years}
                         onChange={(e) => setYears(Math.max(0, parseInt(e.target.value) || 0))}
-                        className="w-full p-2.5 border rounded-xl font-bold text-center bg-slate-50 text-slate-800"
+                        className="w-full p-2 border rounded-xl font-bold text-center bg-slate-50"
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-semibold text-slate-600 mb-1 block">تعداد ماه:</label>
+                      <label className="text-[11px] font-bold text-slate-600 mb-1 block">ماه:</label>
                       <input
                         type="number"
                         min="0"
                         max="11"
                         value={months}
                         onChange={(e) => setMonths(Math.max(0, parseInt(e.target.value) || 0))}
-                        className="w-full p-2.5 border rounded-xl font-bold text-center bg-slate-50 text-slate-800"
+                        className="w-full p-2 border rounded-xl font-bold text-center bg-slate-50"
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-semibold text-slate-600 mb-1 block">تعداد روز:</label>
+                      <label className="text-[11px] font-bold text-slate-600 mb-1 block">روز:</label>
                       <input
                         type="number"
                         min="0"
                         max="29"
                         value={days}
                         onChange={(e) => setDays(Math.max(0, parseInt(e.target.value) || 0))}
-                        className="w-full p-2.5 border rounded-xl font-bold text-center bg-slate-50 text-slate-800"
+                        className="w-full p-2 border rounded-xl font-bold text-center bg-slate-50"
                       />
                     </div>
                   </div>
-                  <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex flex-col gap-1">
-                    <span className="text-xs text-blue-700 font-semibold">مبلغ کل سنوات استحقاقی:</span>
-                    <span className="text-2xl font-black text-blue-900">{formatToman(calculations.severancePay)}</span>
+                  <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl">
+                    <span className="text-xs text-blue-800 font-bold">مبلغ کل حق سنوات استحقاقی:</span>
+                    <div className="text-2xl font-black text-blue-900 mt-1">{formatRial(calculations.severancePay)}</div>
                   </div>
-                  <p className="text-xs text-slate-500 leading-relaxed text-justify">
-                    * استناد به ماده ۲۴ قانون کار و دادنامه ۲۲۷ دیوان عدالت اداری: سنوات به ازای هر سال معادل یک ماه آخرین حقوق محاسبه شده و به ماه‌های کارکرد نیز متناسباً تعلق می‌گیرد.
-                  </p>
                 </div>
               )}
 
-              {/* 2. OVERTIME */}
+              {/* ۶. اضافه‌کاری */}
               {activeCalc === "overtime" && (
                 <div className="space-y-4">
-                  <h3 className="font-bold text-slate-800 text-base flex items-center gap-2 border-b pb-3">
+                  <h3 className="font-black text-slate-800 text-sm flex items-center gap-2 border-b pb-3">
                     <Clock className="w-5 h-5 text-blue-600" />
-                    محاسبه اضافه‌کاری (ماده ۵۹ قانون کار)
+                    محاسبه فوق‌العاده اضافه‌کاری (ماده ۵۹)
                   </h3>
                   <div>
-                    <label className="text-xs font-semibold text-slate-600 mb-1 block">ساعات اضافه‌کاری انجام شده:</label>
+                    <label className="text-xs font-bold text-slate-600 mb-1 block">ساعات اضافه‌کاری:</label>
                     <input
                       type="number"
                       min="1"
                       value={hours}
                       onChange={(e) => setHours(Math.max(0, parseInt(e.target.value) || 0))}
-                      className="w-full p-2.5 border rounded-xl font-bold bg-slate-50 text-slate-800"
+                      className="w-full p-2.5 border rounded-xl font-bold bg-slate-50"
                     />
                   </div>
-                  <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex flex-col gap-1">
-                    <span className="text-xs text-emerald-700 font-semibold">مبلغ فوق‌العاده اضافه‌کاری:</span>
-                    <span className="text-2xl font-black text-emerald-900">{formatToman(calculations.overtimePay)}</span>
-                    <span className="text-[11px] text-emerald-600 mt-1">نرخ هر ساعت اضافه‌کاری: {formatToman(calculations.overtimeHourlyRate)}</span>
+                  <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl">
+                    <span className="text-xs text-emerald-800 font-bold">مبلغ اضافه‌کاری (ضریب ۱.۴):</span>
+                    <div className="text-2xl font-black text-emerald-900 mt-1">{formatRial(calculations.overtimePay)}</div>
                   </div>
-                  <p className="text-xs text-slate-500 leading-relaxed text-justify">
-                    * طبق قانون کار، برای هر ساعت اضافه‌کاری ۴۰ درصد فوق‌العاده مازاد بر مزد هر ساعت عادی به کارگر تعلق می‌گیرد (نرخ ضریب ۱.۴).
-                  </p>
                 </div>
               )}
 
-              {/* 3. SHIFT */}
+              {/* ۷. نوبت‌کاری */}
               {activeCalc === "shift" && (
                 <div className="space-y-4">
-                  <h3 className="font-bold text-slate-800 text-base flex items-center gap-2 border-b pb-3">
+                  <h3 className="font-black text-slate-800 text-sm flex items-center gap-2 border-b pb-3">
                     <Layers className="w-5 h-5 text-blue-600" />
-                    محاسبه نوبت‌کاری (ماده ۵۶ قانون کار)
+                    محاسبه نوبت‌کاری (ماده ۵۶)
                   </h3>
-                  <div>
-                    <label className="text-xs font-semibold text-slate-600 mb-1 block">نوع گردش شیفت کاری:</label>
-                    <select
-                      value={shiftType}
-                      onChange={(e: any) => setShiftType(e.target.value)}
-                      className="w-full p-2.5 border rounded-xl font-bold bg-slate-50 text-slate-800"
-                    >
-                      <option value="morning-evening">صبح و عصر (۱۰ درصد فوق‌العاده)</option>
-                      <option value="rotational">صبح، عصر و شب (۱۵ درصد فوق‌العاده)</option>
-                      <option value="morning-night">صبح و شب (۲۲.۵ درصد فوق‌العاده)</option>
-                      <option value="evening-night">عصر و شب (۲۲.۵ درصد فوق‌العاده)</option>
-                    </select>
-                  </div>
-                  <div className="p-4 bg-purple-50 border border-purple-100 rounded-2xl flex flex-col gap-1">
-                    <span className="text-xs text-purple-700 font-semibold">فوق‌العاده نوبت‌کاری ماهانه ({calculations.shiftMultiplier}٪):</span>
-                    <span className="text-2xl font-black text-purple-900">{formatToman(calculations.shiftPay)}</span>
+                  <select
+                    value={shiftType}
+                    onChange={(e: any) => setShiftType(e.target.value)}
+                    className="w-full p-2.5 border rounded-xl font-bold bg-slate-50"
+                  >
+                    <option value="morning-evening">صبح و عصر (۱۰ درصد)</option>
+                    <option value="rotational">صبح، عصر و شب (۱۵ درصد)</option>
+                    <option value="morning-night">صبح و شب (۲۲.۵ درصد)</option>
+                    <option value="evening-night">عصر و شب (۲۲.۵ درصد)</option>
+                  </select>
+                  <div className="p-4 bg-purple-50 border border-purple-100 rounded-2xl">
+                    <span className="text-xs text-purple-800 font-bold">مبلغ نوبت‌کاری ماهانه ({calculations.shiftMultiplier}٪):</span>
+                    <div className="text-2xl font-black text-purple-900 mt-1">{formatRial(calculations.shiftPay)}</div>
                   </div>
                 </div>
               )}
 
-              {/* 4. LEAVE */}
+              {/* ۸. مانده مرخصی */}
               {activeCalc === "leave" && (
                 <div className="space-y-4">
-                  <h3 className="font-bold text-slate-800 text-base flex items-center gap-2 border-b pb-3">
+                  <h3 className="font-black text-slate-800 text-sm flex items-center gap-2 border-b pb-3">
                     <Calendar className="w-5 h-5 text-blue-600" />
-                    محاسبه بازخرید مانده مرخصی (ماده ۶۴ و ۶۶)
+                    بازخرید مانده مرخصی (مواد ۶۴ و ۶۶)
                   </h3>
                   <div>
-                    <label className="text-xs font-semibold text-slate-600 mb-1 block">تعداد روزهای مانده مرخصی استفاده نشده:</label>
+                    <label className="text-xs font-bold text-slate-600 mb-1 block">تعداد روزهای مانده مرخصی:</label>
                     <input
                       type="number"
                       min="0"
                       value={unworkedLeaveDays}
                       onChange={(e) => setUnworkedLeaveDays(Math.max(0, parseInt(e.target.value) || 0))}
-                      className="w-full p-2.5 border rounded-xl font-bold bg-slate-50 text-slate-800"
+                      className="w-full p-2.5 border rounded-xl font-bold bg-slate-50"
                     />
                   </div>
-                  <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl flex flex-col gap-1">
-                    <span className="text-xs text-amber-700 font-semibold">مبلغ بازخرید مانده مرخصی:</span>
-                    <span className="text-2xl font-black text-amber-900">{formatToman(calculations.leavePay)}</span>
+                  <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl">
+                    <span className="text-xs text-amber-800 font-bold">مبلغ بازخرید مرخصی:</span>
+                    <div className="text-2xl font-black text-amber-900 mt-1">{formatRial(calculations.leavePay)}</div>
                   </div>
-                  <p className="text-xs text-slate-500 leading-relaxed text-justify">
-                    * حداکثر میزان ذخیره قانونی مرخصی برای انتقال به سال بعد بر طبق ماده ۶۶ قانون کار ۹ روز است.
-                  </p>
                 </div>
               )}
 
-              {/* 5. NIGHT WORK */}
+              {/* ۹. شب‌کاری */}
               {activeCalc === "night" && (
                 <div className="space-y-4">
-                  <h3 className="font-bold text-slate-800 text-base flex items-center gap-2 border-b pb-3">
+                  <h3 className="font-black text-slate-800 text-sm flex items-center gap-2 border-b pb-3">
                     <Clock className="w-5 h-5 text-blue-600" />
-                    محاسبه شب‌کاری (ماده ۵۸ قانون کار)
+                    فوق‌العاده شب‌کاری (ماده ۵۸)
                   </h3>
                   <div>
-                    <label className="text-xs font-semibold text-slate-600 mb-1 block">تعداد ساعات کار در بازه شب (۲۲:۰۰ الی ۰۶:۰۰):</label>
+                    <label className="text-xs font-bold text-slate-600 mb-1 block">ساعات کار شبانه (۲۲ تا ۶ صبح):</label>
                     <input
                       type="number"
                       min="1"
                       value={hours}
                       onChange={(e) => setHours(Math.max(0, parseInt(e.target.value) || 0))}
-                      className="w-full p-2.5 border rounded-xl font-bold bg-slate-50 text-slate-800"
+                      className="w-full p-2.5 border rounded-xl font-bold bg-slate-50"
                     />
                   </div>
-                  <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl flex flex-col gap-1">
-                    <span className="text-xs text-indigo-700 font-semibold">فوق‌العاده شب‌کاری (۳۵٪):</span>
-                    <span className="text-2xl font-black text-indigo-900">{formatToman(calculations.nightPay)}</span>
+                  <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl">
+                    <span className="text-xs text-indigo-800 font-bold">فوق‌العاده شب‌کاری (۳۵٪ مازاد):</span>
+                    <div className="text-2xl font-black text-indigo-900 mt-1">{formatRial(calculations.nightPay)}</div>
                   </div>
                 </div>
               )}
 
-              {/* 6. SANAVAT BASE */}
+              {/* ۱۰. پایه سنوات */}
               {activeCalc === "sanavat" && (
                 <div className="space-y-4">
-                  <h3 className="font-bold text-slate-800 text-base flex items-center gap-2 border-b pb-3">
+                  <h3 className="font-black text-slate-800 text-sm flex items-center gap-2 border-b pb-3">
                     <Award className="w-5 h-5 text-blue-600" />
-                    محاسبه پایه سنوات تجمیعی ماهانه
+                    پایه سنوات تجمیعی ماهانه
                   </h3>
                   <div>
-                    <label className="text-xs font-semibold text-slate-600 mb-1 block">تعداد سال‌های سابقه کار در این کارگاه:</label>
+                    <label className="text-xs font-bold text-slate-600 mb-1 block">تعداد سال سابقه کارگاه:</label>
                     <input
                       type="number"
                       min="0"
                       value={years}
                       onChange={(e) => setYears(Math.max(0, parseInt(e.target.value) || 0))}
-                      className="w-full p-2.5 border rounded-xl font-bold bg-slate-50 text-slate-800"
+                      className="w-full p-2.5 border rounded-xl font-bold bg-slate-50"
                     />
                   </div>
-                  <div className="p-4 bg-rose-50 border border-rose-100 rounded-2xl flex flex-col gap-1">
-                    <span className="text-xs text-rose-700 font-semibold">مبلغ تقریبی پایه سنوات ماهانه:</span>
-                    <span className="text-2xl font-black text-rose-900">{formatToman(calculations.totalSanavat)}</span>
+                  <div className="p-4 bg-rose-50 border border-rose-100 rounded-2xl">
+                    <span className="text-xs text-rose-800 font-bold">مبلغ تخمینی پایه سنوات ماهانه:</span>
+                    <div className="text-2xl font-black text-rose-900 mt-1">{formatRial(calculations.totalSanavat)}</div>
                   </div>
                 </div>
               )}
+
             </div>
           </div>
         )}
 
-        {/* ===================== TAB 2: LAWS DATABASE ===================== */}
+        {/* ======================= ۳. مخزن قوانین (LAWS) ======================= */}
         {activeTab === "laws" && (
-          <div className="space-y-4">
-            {/* Search Input */}
+          <div className="space-y-4 animate-in fade-in duration-300">
             <div className="relative">
               <input
                 type="text"
-                placeholder="جستجو در متن قوانین، مواد و آرای دیوان..."
+                placeholder="جستجو در ۳۰۳ ماده قانون، آرای دیوان و بخشنامه‌ها..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-4 pr-11 py-3 bg-white rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                className="w-full pl-4 pr-11 py-3 bg-white rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs"
               />
               <Search className="w-5 h-5 text-slate-400 absolute right-4 top-3.5" />
             </div>
 
-            {/* Category Filter Pills */}
             <div className="flex gap-2 overflow-x-auto pb-1 text-xs font-bold scrollbar-none">
               {[
                 { id: "all", label: "همه قوانین" },
                 { id: "labor", label: "قانون کار" },
                 { id: "tamin", label: "تأمین اجتماعی" },
                 { id: "unemployment", label: "بیمه بیکاری" },
-                { id: "court", label: "آرای دیوان" }
+                { id: "court", label: "آرای دیوان عدالت" }
               ].map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
                   className={`px-4 py-2 rounded-xl whitespace-nowrap transition-all ${
                     selectedCategory === cat.id
-                      ? "bg-blue-600 text-white shadow-sm"
+                      ? "bg-blue-600 text-white shadow-xs"
                       : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
                   }`}
                 >
@@ -561,79 +874,75 @@ export default function DadKarApp() {
               ))}
             </div>
 
-            {/* Laws List Output */}
             {filteredLaws.length === 0 ? (
-              <div className="bg-white rounded-2xl p-8 text-center text-slate-500 shadow-sm border border-slate-100">
-                موردی با این عبارت یافت نشد.
+              <div className="bg-white rounded-2xl p-8 text-center text-slate-500 shadow-xs border border-slate-200">
+                موردی یافت نشد.
               </div>
             ) : (
-              <>
-                <div className="space-y-3">
-                  {filteredLaws.slice(0, displayLimit).map((law) => (
-                    <div key={law.id} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-2.5">
-                      <div className="flex justify-between items-start gap-2">
-                        <h3 className="font-bold text-slate-800 text-base">{law.title}</h3>
-                        <span className="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium whitespace-nowrap">
-                          {law.subject}
-                        </span>
-                      </div>
-                      <p className="text-slate-600 text-sm leading-relaxed text-justify">
-                        {law.content}
-                      </p>
-                      <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-50">
-                        {law.tags && law.tags.map((tag, i) => (
-                          <span key={i} className="text-[11px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
+              <div className="space-y-3">
+                {filteredLaws.slice(0, displayLimit).map((law) => (
+                  <div key={law.id} className="bg-white rounded-2xl p-5 shadow-xs border border-slate-200/90 space-y-2">
+                    <div className="flex justify-between items-start gap-2">
+                      <h3 className="font-black text-slate-800 text-sm">{law.title}</h3>
+                      <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-bold whitespace-nowrap">
+                        {law.subject}
+                      </span>
                     </div>
-                  ))}
-                </div>
+                    <p className="text-slate-600 text-xs leading-relaxed text-justify">
+                      {law.content}
+                    </p>
+                    <div className="flex flex-wrap gap-1 pt-2 border-t border-slate-50">
+                      {law.tags && law.tags.map((tag: string, i: number) => (
+                        <span key={i} className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
 
-                {/* Pagination Button */}
                 {filteredLaws.length > displayLimit && (
                   <button
                     onClick={() => setDisplayLimit((prev) => prev + 25)}
-                    className="w-full py-3.5 my-3 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white rounded-2xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
                   >
                     <span>نمایش موارد بیشتر</span>
-                    <span className="bg-blue-500 text-xs px-2.5 py-0.5 rounded-full">
+                    <span className="bg-blue-500 text-[10px] px-2 py-0.5 rounded-full">
                       {filteredLaws.length - displayLimit} مورد باقی‌مانده
                     </span>
                   </button>
                 )}
-              </>
+              </div>
             )}
           </div>
         )}
 
-        {/* ===================== TAB 3: FAQ ===================== */}
+        {/* ======================= ۴. پرسش و پاسخ (FAQ) ======================= */}
         {activeTab === "faq" && (
-          <div className="space-y-4">
+          <div className="space-y-4 animate-in fade-in duration-300">
             <div className="relative">
               <input
                 type="text"
                 placeholder="جستجو در پرسش و پاسخ‌های کاربردی..."
                 value={faqSearch}
                 onChange={(e) => setFaqSearch(e.target.value)}
-                className="w-full pl-4 pr-11 py-3 bg-white rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                className="w-full pl-4 pr-11 py-3 bg-white rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs"
               />
               <Search className="w-5 h-5 text-slate-400 absolute right-4 top-3.5" />
             </div>
 
             <div className="space-y-3">
               {filteredFaq.map((f) => (
-                <div key={f.id} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-2.5">
-                  <div className="flex items-start gap-2 text-slate-800 font-bold text-base">
-                    <HelpCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                <div key={f.id} className="bg-white rounded-2xl p-5 shadow-xs border border-slate-200 space-y-2">
+                  <div className="flex items-start gap-2 text-slate-800 font-black text-sm">
+                    <HelpCircle className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                     <h4>{f.question}</h4>
                   </div>
-                  <p className="text-slate-600 text-sm leading-relaxed text-justify pr-7">
+                  <p className="text-slate-600 text-xs leading-relaxed text-justify pr-6">
                     {f.answer}
                   </p>
-                  <div className="pr-7 pt-1">
-                    <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md font-semibold inline-block">
+                  <div className="pr-6 pt-1">
+                    <span className="text-[10px] bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md font-bold inline-block">
                       مستند: {f.lawRef}
                     </span>
                   </div>
@@ -643,37 +952,30 @@ export default function DadKarApp() {
           </div>
         )}
 
-        {/* ===================== TAB 4: TEMPLATES ===================== */}
+        {/* ======================= ۵. قالب‌ها و متون (TEMPLATES) ======================= */}
         {activeTab === "templates" && (
-          <div className="space-y-4">
+          <div className="space-y-4 animate-in fade-in duration-300">
             <div className="relative">
               <input
                 type="text"
-                placeholder="جستجو در قالب‌ها و فرم‌های قرارداد و دادخواست..."
+                placeholder="جستجو در قراردادها و دادخواست‌ها..."
                 value={templateSearch}
                 onChange={(e) => setTemplateSearch(e.target.value)}
-                className="w-full pl-4 pr-11 py-3 bg-white rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                className="w-full pl-4 pr-11 py-3 bg-white rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs"
               />
               <Search className="w-5 h-5 text-slate-400 absolute right-4 top-3.5" />
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {filteredTemplates.map((t) => (
-                <div key={t.id} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-3">
-                  <div className="flex items-center gap-2 font-bold text-slate-800 text-base">
-                    <FileText className="w-5 h-5 text-blue-600" />
+                <div key={t.id} className="bg-white rounded-2xl p-5 shadow-xs border border-slate-200 space-y-3">
+                  <div className="flex items-center gap-2 font-black text-slate-800 text-sm">
+                    <FileText className="w-4 h-4 text-blue-600" />
                     <h4>{t.title}</h4>
                   </div>
-                  <p className="text-xs text-slate-500 leading-relaxed">{t.description}</p>
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs font-mono text-slate-700 whitespace-pre-wrap leading-relaxed select-all">
+                  <p className="text-xs text-slate-500">{t.description}</p>
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs font-mono text-slate-700 whitespace-pre-wrap select-all">
                     {t.content}
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {t.tags.map((tag, idx) => (
-                      <span key={idx} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">
-                        #{tag}
-                      </span>
-                    ))}
                   </div>
                 </div>
               ))}
@@ -681,16 +983,56 @@ export default function DadKarApp() {
           </div>
         )}
 
+        {/* ======================= ۶. درباره ما و ارتباط با ما (ABOUT) ======================= */}
+        {activeTab === "about" && (
+          <div className="space-y-5 animate-in fade-in duration-300">
+            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs text-center space-y-4">
+              <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-blue-600 to-indigo-700 mx-auto flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
+                <Scale className="w-10 h-10" />
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-slate-800">سامانه حقوقی و محاسباتی دادکار</h3>
+                <p className="text-xs text-slate-500 mt-1">توسعه‌یافته با استانداردهای نوین فناوری و قوانین کار</p>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 max-w-sm mx-auto space-y-3">
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-right space-y-2">
+                  <div className="text-xs text-slate-500 font-bold">صاحب امتیاز و مدیر توسعه:</div>
+                  <div className="text-base font-black text-slate-800 flex items-center gap-2">
+                    <User className="w-4 h-4 text-blue-600" />
+                    <span>سید حسین حجازی</span>
+                  </div>
+                </div>
+
+                <a 
+                  href="tel:09138003216"
+                  className="p-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl shadow-md flex items-center justify-between transition-all"
+                >
+                  <div className="flex items-center gap-2 text-right">
+                    <Phone className="w-5 h-5 text-cyan-300" />
+                    <div>
+                      <div className="text-[11px] text-cyan-100 font-medium">شماره تماس مستقیم و پشتیبانی:</div>
+                      <div className="text-base font-black tracking-wider">۰۹۱۳۸۰۰۳۲۱۶</div>
+                    </div>
+                  </div>
+                  <span className="text-xs bg-white/20 px-3 py-1 rounded-xl font-bold backdrop-blur-xs">تماس</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+
       </main>
 
-      {/* Bottom Sticky Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-6 shadow-lg">
-        <div className="max-w-md mx-auto grid grid-cols-4 gap-1">
+      {/* ======================= فوتر ناوبری شناور با طراحی جدید ======================= */}
+      <footer className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-t border-slate-200/80 py-2.5 px-4 shadow-xl">
+        <div className="max-w-md mx-auto grid grid-cols-5 gap-1">
           {[
+            { id: "home", label: "خانه", icon: Home },
             { id: "calc", label: "محاسبات", icon: Calculator },
-            { id: "laws", label: "مخزن قوانین", icon: BookOpen },
-            { id: "faq", label: "پرسش‌وپاسخ", icon: HelpCircle },
-            { id: "templates", label: "قالب‌ها", icon: FileText }
+            { id: "laws", label: "قوانین", icon: BookOpen },
+            { id: "templates", label: "قالب‌ها", icon: FileText },
+            { id: "about", label: "ارتباط", icon: UserCheck }
           ].map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -698,17 +1040,17 @@ export default function DadKarApp() {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id as TabType)}
-                className={`flex flex-col items-center justify-center py-1 transition-all ${
-                  isActive ? "text-blue-600 font-black scale-105" : "text-slate-400 font-medium hover:text-slate-600"
+                className={`flex flex-col items-center justify-center py-1 transition-all rounded-xl ${
+                  isActive ? "text-blue-600 font-black scale-105" : "text-slate-400 font-bold hover:text-slate-600"
                 }`}
               >
                 <Icon className={`w-5 h-5 ${isActive ? "stroke-[2.5]" : "stroke-2"}`} />
-                <span className="text-[11px] mt-1">{item.label}</span>
+                <span className="text-[10px] mt-1">{item.label}</span>
               </button>
             );
           })}
         </div>
-      </nav>
+      </footer>
     </div>
   );
 }
