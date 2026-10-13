@@ -141,7 +141,14 @@ export default function DadKarApp() {
     const voluntary27 = baseSalary * 0.27; // اختیاری ۲۷٪
     const free12 = baseSalary * 0.12; // مشاغل آزاد بازنشستگی ۱۲٪
     const free14 = baseSalary * 0.14; // بازنشستگی و فوت ۱۴٪
+    // خط ۱۴۳ فعلی:
     const free18 = baseSalary * 0.18; // بازنشستگی، فوت و ازکارافتادگی ۱۸٪
+    
+    // بعد از خط ۱۴۳ این خطوط را اضافه کنید:
+    const housewives12 = baseSalary * 0.12; // بیمه زنان خانه‌دار - نرخ ۱۲٪
+    const housewives14 = baseSalary * 0.14; // بیمه زنان خانه‌دار - نرخ ۱۴٪
+    const housewives18 = baseSalary * 0.18; // بیمه زنان خانه‌دار - نرخ ۱۸٪
+
 
     // ۹. مقرری بیمه بیکاری (ماده ۷ قانون بیمه بیکاری: ۵۵٪ متوسط مزد + ۱۰٪ به ازای هر تکفل تا ۴ نفر، سقف ۸۰٪)
     const minLegalWageMonthly = 71661840; // حداقل دستمزد پایه قانونی تقریبی ماهانه
@@ -178,6 +185,9 @@ export default function DadKarApp() {
       free12,
       free14,
       free18,
+      housewives12,
+      housewives14,
+      housewives18,
       unemploymentMonthlyPay,
       pensionMonthlyPay
     };
@@ -482,7 +492,7 @@ export default function DadKarApp() {
               ))}
             </div>
 
-            {/* کارت ورود دستمزد: پشتیبانی از تایپ عددی مستقیم تا سقف ۵۰۰ میلیون ریال + اسلایدر */}
+            {/* کارت ورود دستمزد: پشتیبانی از تایپ عددی مستقیم تا سقف ۱۰ میلیارد ریال (۱ میلیارد تومان) + اسلایدر */}
             <div className="bg-white rounded-3xl p-5 shadow-xs border border-slate-200/80 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-2">
@@ -490,19 +500,26 @@ export default function DadKarApp() {
                   مزد مبنا / حقوق ماهانه مشمول (سقف ۵۰۰,۰۰۰,۰۰۰ ریال):
                 </label>
                 <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min={10000000}
-                    max={500000000}
-                    step={1000000}
-                    value={baseSalary}
-                    onChange={(e) => {
-                      const val = Number(e.target.value);
-                      if (val <= 500000000) setBaseSalary(val);
-                      else setBaseSalary(500000000);
-                    }}
-                    className="p-2 border border-blue-200 rounded-xl font-black text-sm text-blue-700 bg-blue-50/50 w-36 text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={baseSalary ? baseSalary.toLocaleString("fa-IR") : ""}
+                  onChange={(e) => {
+                    // تبدیل ارقام فارسی و حذف کاماها
+                    const rawVal = e.target.value
+                      .replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d).toString())
+                      .replace(/[^0-9]/g, "");
+                    const num = Number(rawVal);
+                    const maxLimit = 10000000000; // ۱۰ میلیارد ریال معادل ۱ میلیارد تومان
+                    if (num <= maxLimit) {
+                      setBaseSalary(num);
+                    } else {
+                      setBaseSalary(maxLimit);
+                    }
+                  }}
+                  className="w-full bg-slate-900 text-emerald-400 font-black text-xl rounded-xl p-3 text-center outline-none border border-slate-700 focus:border-emerald-500 transition"
+                />
+
                   <span className="text-xs text-slate-500 font-bold">ریال</span>
                 </div>
               </div>
@@ -510,8 +527,8 @@ export default function DadKarApp() {
               <input
                 type="range"
                 min={10000000}
-                max={500000000}
-                step={5000000}
+                max={10000000000}
+                step={10000000}
                 value={baseSalary}
                 onChange={(e) => setBaseSalary(Number(e.target.value))}
                 className="w-full accent-blue-600 h-2 bg-slate-200 rounded-lg cursor-pointer"
@@ -638,7 +655,7 @@ export default function DadKarApp() {
                       </div>
                       <span className="font-black text-sm text-blue-700">{formatRial(calculations.voluntary27)}</span>
                     </div>
-
+                    
                     <div className="p-3 bg-slate-50 rounded-2xl border flex justify-between items-center">
                       <div>
                         <div className="font-bold text-xs text-slate-800">مشاغل آزاد (۱۲٪)</div>
@@ -664,6 +681,31 @@ export default function DadKarApp() {
                     </div>
                   </div>
                 </div>
+
+            {/* بخش قوانین و محاسبات بیمه زنان خانه‌دار */}
+                    <div className="mt-4 p-4 rounded-xl bg-pink-950/20 border border-pink-500/30">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-bold text-pink-400">بیمه زنان خانه‌دار (مبتنی بر مشاغل آزاد)</span>
+                        <span className="text-xs bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-full">شرایط سنی ۱۸ تا ۵۰ سال</span>
+                      </div>
+                      <p className="text-xs text-slate-300 leading-relaxed mb-3">
+                        متقاضیان بین ۱۸ تا ۵۰ سال بدون سابقه قبلی مجاز به ثبت‌نام هستند. در صورت داشتن سابقه معادل مازاد سنی، شرط حداکثر سن ۵۰ سال تعدیل می‌گردد. سرانه درمان به ازای هر نفر جداگانه محاسبه می‌شود.
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                        <div className="bg-slate-900/80 p-2.5 rounded-lg border border-pink-500/20">
+                          <div className="text-xs text-slate-400 mb-1">نرخ ۱۲٪ (بازنشستگی)</div>
+                          <div className="font-black text-pink-400">{formatRial(calculations.housewives12)}</div>
+                        </div>
+                        <div className="bg-slate-900/80 p-2.5 rounded-lg border border-pink-500/20">
+                          <div className="text-xs text-slate-400 mb-1">نرخ ۱۴٪ (بازنشستگی + فوت قبل از آن)</div>
+                          <div className="font-black text-pink-400">{formatRial(calculations.housewives14)}</div>
+                        </div>
+                        <div className="bg-slate-900/80 p-2.5 rounded-lg border border-pink-500/20">
+                          <div className="text-xs text-slate-400 mb-1">نرخ ۱۸٪ (بازنشستگی + فوت + ازکارافتادگی)</div>
+                          <div className="font-black text-pink-400">{formatRial(calculations.housewives18)}</div>
+                        </div>
+                      </div>
+                    </div>
               )}
 
               {/* ۵. حق سنوات پایان خدمت */}
