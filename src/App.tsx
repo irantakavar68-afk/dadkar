@@ -19,7 +19,11 @@ import {
   CheckCircle2,
   AlertCircle
 } from "lucide-react";
-import { LAWS_DATABASE, LawItem } from "./lawsData";
+import * as LawsModule from "./lawsData";
+type LawItem = any;
+const rawDb = (LawsModule as any).LAWS_DATABASE || (LawsModule as any).lawsData || (LawsModule as any).default || [];
+const SAFE_LAWS_DATABASE: any[] = Array.isArray(rawDb) ? rawDb : [];
+
 
 // --- Types ---
 type TabType = "calc" | "laws" | "faq" | "templates";
@@ -198,19 +202,34 @@ export default function DadKarApp() {
     }
   ];
 
-  // Filtering Laws with Memo
+  // Filtering Laws with Memo (Crash-Proof)
   const filteredLaws = useMemo(() => {
-    return LAWS_DATABASE.filter((law: LawItem) => {
+    if (!SAFE_LAWS_DATABASE || !Array.isArray(SAFE_LAWS_DATABASE)) {
+      return [];
+    }
+
+    const q = searchQuery ? searchQuery.trim().toLowerCase() : "";
+
+    return SAFE_LAWS_DATABASE.filter((law: any) => {
+      if (!law) return false;
+
       const matchesCategory = selectedCategory === "all" || law.category === selectedCategory;
-      const matchesSearch = searchQuery.trim() === "" || 
-        law.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        law.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        law.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        law.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      const title = (law.title || "").toLowerCase();
+      const subject = (law.subject || "").toLowerCase();
+      const content = (law.content || "").toLowerCase();
+      const tags = Array.isArray(law.tags) ? law.tags : [];
+
+      const matchesSearch = q === "" || 
+        title.includes(q) ||
+        subject.includes(q) ||
+        content.includes(q) ||
+        tags.some((t: string) => typeof t === "string" && t.toLowerCase().includes(q));
 
       return matchesCategory && matchesSearch;
     });
   }, [searchQuery, selectedCategory]);
+
 
   // Filtering FAQ with Memo
   const filteredFaq = useMemo(() => {
