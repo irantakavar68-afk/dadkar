@@ -1236,7 +1236,7 @@ export default function DadKarApp() {
             </div>
           )}
 
-          {/* تب مراکز بیمه و شعب (جایگاه دقیق کد جدید) */}
+          {/* تب مراکز بیمه و شعب */}
           {activeTab === 'branches' && (
             <div className="tab-content">
               <TaminBranchesView />
@@ -1245,49 +1245,35 @@ export default function DadKarApp() {
 
           {/* ۶. درباره ما و ارتباط با ما */}
           {activeTab === "about" && (
-            <div className="space-y-6">
-
-           
-        {/* ======================= ۶. درباره ما و ارتباط با ما (ABOUT) ======================= */}
-        {activeTab === "about" && (
-          <div className="space-y-5 animate-in fade-in duration-300">
-            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs text-center space-y-4">
-              <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-blue-600 to-indigo-700 mx-auto flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
-                <Scale className="w-10 h-10" />
-              </div>
-              <div>
-                <h3 className="text-xl font-black text-slate-800">سامانه حقوقی و محاسباتی دادکار</h3>
-                <p className="text-xs text-slate-500 mt-1">توسعه‌یافته با استانداردهای نوین فناوری و قوانین کار</p>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 max-w-sm mx-auto space-y-3">
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-right space-y-2">
-                  <div className="text-xs text-slate-500 font-bold">صاحب امتیاز و مدیر توسعه:</div>
-                  <div className="text-base font-black text-slate-800 flex items-center gap-2">
-                    <User className="w-4 h-4 text-blue-600" />
-                    <span>سید حسین حجازی</span>
+            <div className="space-y-5 animate-in fade-in duration-300">
+              <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 text-center space-y-4">
+                <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+                  <ShieldCheck className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-800">سامانه جامع حقوقی دادکار</h3>
+                  <p className="text-xs text-slate-400 mt-1">نسخه ۱.۰.۰ • مرجع تخصصی قوانین کار و تأمین اجتماعی</p>
+                </div>
+                <div className="pt-4 border-t border-slate-100 text-right space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-500">طراح و توسعه‌دهنده:</span>
+                    <span className="font-bold text-slate-800">سید حسین حجازی</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-500">ارتباط و پشتیبانی:</span>
+                    <a href="tel:09138003216" className="font-bold text-blue-600 dir-ltr hover:underline">
+                      ۰۹۱۳۸۰۰۳۲۱۶
+                    </a>
                   </div>
                 </div>
-
-                <a 
-                  href="tel:09138003216"
-                  className="p-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl shadow-md flex items-center justify-between transition-all"
-                >
-                  <div className="flex items-center gap-2 text-right">
-                    <Phone className="w-5 h-5 text-cyan-300" />
-                    <div>
-                      <div className="text-[11px] text-cyan-100 font-medium">شماره تماس مستقیم و پشتیبانی:</div>
-                      <div className="text-base font-black tracking-wider">۰۹۱۳۸۰۰۳۲۱۶</div>
-                    </div>
-                  </div>
-                  <span className="text-xs bg-white/20 px-3 py-1 rounded-xl font-bold backdrop-blur-xs">تماس</span>
-                </a>
               </div>
             </div>
-          </div>
-        )}
-
+          )}
+        </div>
       </main>
+
+      {/* ======================= فوتر ناوبری شناور ======================= */}
+
 
       {/* ======================= فوتر ناوبری شناور با طراحی جدید ======================= */}
       <footer className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-t border-slate-200/80 py-2.5 px-4 shadow-xl">
