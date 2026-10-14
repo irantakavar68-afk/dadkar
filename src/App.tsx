@@ -1,4 +1,12 @@
 import React, { useState, useMemo, useEffect } from "react";
+// افزودن فونت رسمی وزیر (Vazirmatn) به صورت سراسری
+const vazirFontStyles = `
+  @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+  * {
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  }
+`;
+
 import { 
   Calculator, 
   BookOpen, 
@@ -55,6 +63,61 @@ export default function DadKarApp() {
   // Navigation
   const [activeTab, setActiveTab] = useState<TabType>("home");
   const [activeCalc, setActiveCalc] = useState<CalcCategory>("insurance_compulsory");
+
+    // State و تنظیمات اسلایدر صفحه اصلی
+  const [currentSlide, setCurrentSlide] = useState<number>(0);
+
+  const homeSlides = [
+    {
+      id: "calc",
+      badge: "سامانه محاسبات هوشمند",
+      title: "محاسبه دقیق دستمزد و مطالبات",
+      desc: "محاسبه آنی سنوات خدمت، اضافه‌کاری، شب‌کاری، نوبت‌کاری و حق بیمه‌های اجباری، اختیاری و زنان خانه‌دار بر اساس آخرین مصوبات.",
+      btnText: "ورود به بخش محاسبات",
+      targetTab: "calc" as TabType,
+      gradient: "from-blue-700 via-indigo-700 to-slate-900",
+      badgeBg: "bg-blue-500/20 text-cyan-200 border-blue-400/30",
+    },
+    {
+      id: "laws",
+      badge: "پایگاه جامع قوانین",
+      title: "دسترسی به ۳۰۳ ماده قانون کار و تأمین اجتماعی",
+      desc: "جستجوی پیشرفته و طبقه‌بندی موضوعی تمام فصول قانون کار جمهوری اسلامی ایران، آیین‌نامه‌ها و قوانین مرتبط بیمه‌ای.",
+      btnText: "مشاهده متن قوانین",
+      targetTab: "laws" as TabType,
+      gradient: "from-emerald-700 via-teal-800 to-slate-900",
+      badgeBg: "bg-emerald-500/20 text-emerald-200 border-emerald-400/30",
+    },
+    {
+      id: "templates",
+      badge: "مخزن اسناد و قراردادها",
+      title: "قالب‌های آماده فرم‌ها و قراردادهای کار",
+      desc: "مجموعه کاربردی انواع قراردادهای موقت، دائمی، پروژه‌ای، تسویه‌حساب نهایی و فرم‌های اداری با امکان کپی مستقیم.",
+      btnText: "دانلود و کپی قالب‌ها",
+      targetTab: "templates" as TabType,
+      gradient: "from-amber-600 via-orange-700 to-slate-900",
+      badgeBg: "bg-amber-500/20 text-amber-200 border-amber-400/30",
+    },
+    {
+      id: "about",
+      badge: "پشتیبانی و ارتباط",
+      title: "مشاوره و پشتیبانی حقوق کار",
+      desc: "توسعه‌یافته توسط سید حسین حجازی. آماده دریافت نظرات سازنده و ارائه مشاوره‌های تخصصی روابط کار و امور اجتماعی.",
+      btnText: "اطلاعات تماس و پشتیبانی",
+      targetTab: "about" as TabType,
+      gradient: "from-purple-700 via-violet-800 to-slate-900",
+      badgeBg: "bg-purple-500/20 text-purple-200 border-purple-400/30",
+    },
+  ];
+
+  useEffect(() => {
+    if (activeTab !== "home") return;
+    const slideTimer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % homeSlides.length);
+    }, 5000);
+    return () => clearInterval(slideTimer);
+  }, [activeTab, homeSlides.length]);
+
 
   // Calculator Inputs
   const [baseSalary, setBaseSalary] = useState<number>(100000000); // 100,000,000 Rials (10M Toman)
@@ -314,6 +377,7 @@ export default function DadKarApp() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-100/80 text-slate-900 font-sans antialiased pb-28" dir="rtl">
+      <style>{vazirFontStyles}</style>
       
       {/* هدر بالا */}
       <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-xl border-b border-slate-200/80 px-4 py-3.5 shadow-xs">
@@ -346,19 +410,59 @@ export default function DadKarApp() {
         {/* ======================= ۱. داشبورد صفحه اصلی (HOME) ======================= */}
         {activeTab === "home" && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            {/* بنر خوش‌آمدگویی شیک */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-700 via-indigo-700 to-slate-900 text-white p-6 shadow-xl shadow-blue-900/10">
-              <div className="relative z-10 space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-cyan-200 inline-block">
-                  سامانه جامع و مرجع
-                </span>
-                <h2 className="text-2xl font-black">به اپلیکیشن دادکار خوش آمدید</h2>
-                <p className="text-xs text-slate-200 leading-relaxed max-w-lg">
-                  مرجع محاسبات دقیق بیمه‌ای، مستمری، سنوات پایان خدمت و دسترسی سریع به ۳۰۳ ماده از قوانین کار و تأمین اجتماعی کشور.
-                </p>
-              </div>
-              <div className="absolute -left-10 -bottom-10 w-44 h-44 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none"></div>
+                       {/* بنر اسلایدری ۴ گانه منطبق بر منوهای اصلی */}
+            <div className="relative overflow-hidden rounded-3xl text-white shadow-xl min-h-[220px]">
+              {homeSlides.map((slide, index) => (
+                <div
+                  key={slide.id}
+                  className={`absolute inset-0 p-6 flex flex-col justify-between transition-opacity duration-700 bg-gradient-to-br ${slide.gradient} ${
+                    index === currentSlide ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
+                  }`}
+                >
+                  <div className="absolute -left-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                  <div className="relative z-10 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className={`inline-block text-[11px] font-bold px-3 py-1 rounded-full border backdrop-blur-md ${slide.badgeBg}`}>
+                        {slide.badge}
+                      </span>
+                      <span className="text-xs text-white/60 font-mono">
+                        {index + 1} / {homeSlides.length}
+                      </span>
+                    </div>
+
+                    <h2 className="text-xl md:text-2xl font-black tracking-tight">{slide.title}</h2>
+                    <p className="text-xs text-slate-200 leading-relaxed max-w-xl line-clamp-2">
+                      {slide.desc}
+                    </p>
+                  </div>
+
+                  <div className="relative z-10 flex items-center justify-between pt-3 mt-1 border-t border-white/10">
+                    <button
+                      onClick={() => setActiveTab(slide.targetTab)}
+                      className="inline-flex items-center gap-1.5 bg-white text-slate-900 font-bold text-xs px-4 py-2 rounded-xl shadow hover:bg-slate-100 active:scale-95 transition"
+                    >
+                      <span>{slide.btnText}</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+
+                    <div className="flex items-center gap-1.5" dir="ltr">
+                      {homeSlides.map((_, dotIdx) => (
+                        <button
+                          key={dotIdx}
+                          onClick={() => setCurrentSlide(dotIdx)}
+                          className={`h-2 rounded-full transition-all duration-300 ${
+                            dotIdx === currentSlide ? "w-6 bg-white" : "w-2 bg-white/40 hover:bg-white/70"
+                          }`}
+                          aria-label={`Slide ${dotIdx + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
+
 
             {/* بخش گرید کارت‌ها (آیتم‌ها در باکس‌های بسیار شیک با آیکون و متن زیر آن) */}
             <div>
