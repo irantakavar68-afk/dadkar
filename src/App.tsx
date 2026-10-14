@@ -128,6 +128,8 @@ export default function DadKarApp() {
   const [shiftType, setShiftType] = useState<"morning-evening" | "morning-night" | "evening-night" | "rotational">("morning-evening");
   const [unworkedLeaveDays, setUnworkedLeaveDays] = useState<number>(5);
   const [dependents, setDependents] = useState<number>(1); // افراد تحت تکفل برای بیمه بیکاری
+  const [unemploymentMonths, setUnemploymentMonths] = useState<number>(24); // سابقه پرداخت حق بیمه (ماه)
+  const [insuranceYears, setInsuranceYears] = useState<number>(30); // سابقه بیمه برای بازنشستگی
   const [insuranceYears, setInsuranceYears] = useState<number>(30); // سابقه بیمه برای بازنشستگی
 
   // Search & Filters
@@ -213,17 +215,41 @@ export default function DadKarApp() {
     const housewives18 = baseSalary * 0.18; // بیمه زنان خانه‌دار - نرخ ۱۸٪
 
 
-    // ۹. مقرری بیمه بیکاری (ماده ۷ قانون بیمه بیکاری: ۵۵٪ متوسط مزد + ۱۰٪ به ازای هر تکفل تا ۴ نفر، سقف ۸۰٪)
+    // ۹. مقرری و مدت استحقاق بیمه بیکاری (جدول ماده ۷ قانون بیمه بیکاری)
     const minLegalWageMonthly = 71661840; // حداقل دستمزد پایه قانونی تقریبی ماهانه
     const baseUnemploymentDaily = dailyWage * 0.55;
     const dependentBonusDaily = (minLegalWageMonthly / 30) * 0.10 * Math.min(dependents, 4);
     let totalUnemploymentDaily = baseUnemploymentDaily + dependentBonusDaily;
-    
-    // سقف مقرری ۸۰٪ متوسط دستمزد است
+
+    // سقف مقرری ۸۰٪ متوسط دستمزد و کف آن نباید از حداقل دستمزد کمتر باشد
     if (totalUnemploymentDaily > dailyWage * 0.80) {
       totalUnemploymentDaily = dailyWage * 0.80;
     }
+    if (totalUnemploymentDaily < minLegalWageMonthly / 30) {
+      totalUnemploymentDaily = minLegalWageMonthly / 30;
+    }
     const unemploymentMonthlyPay = totalUnemploymentDaily * 30;
+
+    // محاسبه مدت استحقاق بیمه بیکاری بر اساس جدول قانونی (بر حسب ماه)
+    const isMarriedOrDependent = dependents > 0;
+    let unemploymentDurationMonths = 0;
+    let unemploymentEligible = true;
+
+    if (unemploymentMonths < 6) {
+      unemploymentDurationMonths = 0;
+      unemploymentEligible = false;
+    } else if (unemploymentMonths <= 24) {
+      unemploymentDurationMonths = isMarriedOrDependent ? 12 : 6;
+    } else if (unemploymentMonths <= 120) {
+      unemploymentDurationMonths = isMarriedOrDependent ? 18 : 12;
+    } else if (unemploymentMonths <= 180) {
+      unemploymentDurationMonths = isMarriedOrDependent ? 26 : 14;
+    } else if (unemploymentMonths <= 240) {
+      unemploymentDurationMonths = isMarriedOrDependent ? 36 : 18;
+    } else {
+      unemploymentDurationMonths = isMarriedOrDependent ? 50 : 36;
+    }
+
 
     // ۱۰. مستمری بازنشستگی (ماده ۷۷ قانون تأمین اجتماعی: (متوسط دستمزد * سابقه) / ۳۰)
     const pensionMonthlyPay = (baseSalary * Math.min(insuranceYears, 35)) / 30;
@@ -252,9 +278,11 @@ export default function DadKarApp() {
       housewives14,
       housewives18,
       unemploymentMonthlyPay,
+      unemploymentDurationMonths,
+      unemploymentEligible,
       pensionMonthlyPay
     };
-  }, [baseSalary, years, months, days, hours, shiftType, unworkedLeaveDays, dependents, insuranceYears]);
+  }, [baseSalary, years, months, days, hours, shiftType, unworkedLeaveDays, dependents, unemploymentMonths, insuranceYears]);
 
   // فیلتر قوانین
   const filteredLaws = useMemo(() => {
@@ -684,16 +712,35 @@ export default function DadKarApp() {
                 </div>
               )}
 
-              {/* ۲. مقرری بیمه بیکاری */}
-              {activeCalc === "unemployment_benefit" && (
-                <div className="space-y-4">
-                  <h3 className="font-black text-slate-800 text-sm flex items-center gap-2 border-b pb-3">
-                    <Coins className="w-5 h-5 text-emerald-600" />
-                    محاسبه مقرری ماهیانه بیمه بیکاری (ماده ۷ قانون بیمه بیکاری)
-                  </h3>
+            {/* ۲. مقرری و مدت بیمه بیکاری */}
+            {activeCalc === "unemployment_benefit" && (
+              <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-5">
+                <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <Coins className="w-5 h-5 text-emerald-600" />
+                  <h3 className="font-black text-slate-800 text-sm">محاسبه مدت و مقرری ماهیانه بیمه بیکاری (ماده ۷ قانون بیمه بیکاری)</h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">
-                      تعداد افراد تحت تکفل قانونی (حداکثر ۴ نفر):
+                    <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                      سابقه پرداخت حق بیمه (ماه):
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="480"
+                      value={unemploymentMonths}
+                      onChange={(e) => setUnemploymentMonths(Math.max(1, parseInt(e.target.value) || 0))}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-800 focus:outline-blue-600"
+                    />
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      معادل تقریبی {(unemploymentMonths / 12).toFixed(1)} سال سابقه
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                      تعداد افراد تحت تکفل قانونی:
                     </label>
                     <input
                       type="number"
@@ -701,18 +748,51 @@ export default function DadKarApp() {
                       max="4"
                       value={dependents}
                       onChange={(e) => setDependents(Math.min(4, Math.max(0, parseInt(e.target.value) || 0)))}
-                      className="w-full p-2.5 border rounded-xl font-bold bg-slate-50 text-slate-800"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-800 focus:outline-blue-600"
                     />
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      {dependents > 0 ? "محاسبه بر مبنای جدول متأهل / متکفل" : "محاسبه بر مبنای جدول مجرد"}
+                    </span>
                   </div>
-                  <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl">
-                    <span className="text-xs text-emerald-800 font-bold">مبلغ تخمینی مقرری ماهانه بیمه بیکاری:</span>
-                    <div className="text-2xl font-black text-emerald-900 mt-1">{formatRial(calculations.unemploymentMonthlyPay)}</div>
-                  </div>
-                  <p className="text-xs text-slate-500 leading-relaxed text-justify">
-                    * طبق بند «ب» ماده ۷: مقرری روزانه معادل ۵۵ درصد متوسط مزد روزانه بوده و به ازای هر تکفل (تا ۴ نفر) ۱۰٪ حداقل دستمزد افزوده می‌شود، به شرطی که مجموع از ۸۰٪ متوسط مزد تجاوز نکند.
-                  </p>
                 </div>
-              )}
+
+                {!calculations.unemploymentEligible ? (
+                  <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 text-xs text-rose-700 font-bold space-y-1">
+                    <p>⚠️ عدم احراز حداقل سابقه قانونی:</p>
+                    <p className="font-normal text-rose-600 leading-relaxed">
+                      طبق ماده ۷ قانون بیمه بیکاری، شرط برقراری مقرری، داشتن حداقل ۶ ماه سابقه پرداخت حق بیمه قبل از بیکاری است.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="bg-emerald-50 border border-emerald-200/80 rounded-2xl p-4">
+                      <span className="text-xs text-emerald-700 font-bold block mb-1">مدت زمان استحقاق دریافت مقرری:</span>
+                      <p className="text-xl font-black text-emerald-800">
+                        {calculations.unemploymentDurationMonths} <span className="text-xs font-bold text-emerald-600">ماه</span>
+                      </p>
+                      <span className="text-[11px] text-emerald-600 mt-1 block">
+                        (بر اساس سابقه و وضعیت تکفل)
+                      </span>
+                    </div>
+
+                    <div className="bg-blue-50 border border-blue-200/80 rounded-2xl p-4">
+                      <span className="text-xs text-blue-700 font-bold block mb-1">مبلغ تخمینی مقرری ماهانه:</span>
+                      <p className="text-xl font-black text-blue-800">
+                        {formatRial(calculations.unemploymentMonthlyPay)}
+                      </p>
+                      <span className="text-[11px] text-blue-600 mt-1 block">
+                        (۵۵٪ دستمزد + تکفل، سقف ۸۰٪)
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3 text-[11px] text-slate-500 leading-relaxed">
+                  💡 مطابق بندهای «الف» و «ب» ماده ۷: جمع کل مدت پرداخت مقرری برای مجردین حداکثر ۳۶ ماه و برای متأهلین یا متکفلین حداکثر ۵۰ ماه است و میزان مقرری روزانه نباید از ۸۰٪ متوسط مزد بیشتر و از حداقل مزد کمتر باشد.
+                </div>
+              </div>
+            )}
+
 
               {/* ۳. مستمری بازنشستگی */}
               {activeCalc === "pension" && (
@@ -1039,13 +1119,25 @@ export default function DadKarApp() {
                     <p className="text-slate-600 text-xs leading-relaxed text-justify">
                       {law.content}
                     </p>
-                    <div className="flex flex-wrap gap-1 pt-2 border-t border-slate-50">
-                      {law.tags && law.tags.map((tag: string, i: number) => (
-                        <span key={i} className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
+                                     {/* برچسب‌ها / هشتگ‌ها با قابلیت کلیک و فیلتر آنی */}
+                  <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-50">
+                    {law.tags && law.tags.map((tag: string, i: number) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedCategory("all");
+                          setSearchQuery(tag);
+                        }}
+                        title={`مشاهده تمام موارد با برچسب #${tag}`}
+                        className="text-[10px] bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white px-2.5 py-0.5 rounded-full font-bold transition-colors cursor-pointer border border-blue-100/80 active:scale-95"
+                      >
+                        #{tag}
+                      </button>
+                    ))}
+                  </div>
+
                   </div>
                 ))}
 
