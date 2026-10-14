@@ -130,7 +130,6 @@ export default function DadKarApp() {
   const [dependents, setDependents] = useState<number>(1); // افراد تحت تکفل برای بیمه بیکاری
   const [unemploymentMonths, setUnemploymentMonths] = useState<number>(24); // سابقه پرداخت حق بیمه (ماه)
   const [insuranceYears, setInsuranceYears] = useState<number>(30); // سابقه بیمه برای بازنشستگی
-  const [insuranceYears, setInsuranceYears] = useState<number>(30); // سابقه بیمه برای بازنشستگی
 
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -282,7 +281,7 @@ export default function DadKarApp() {
       unemploymentEligible,
       pensionMonthlyPay
     };
-  }, [baseSalary, years, months, days, hours, shiftType, unworkedLeaveDays, dependents, unemploymentMonths, insuranceYears]);
+  }, [baseSalary, years, months, days, hours, shiftType, unworkedLeaveDays, dependents, unemploymentMonths, ]);
 
   // فیلتر قوانین
   const filteredLaws = useMemo(() => {
