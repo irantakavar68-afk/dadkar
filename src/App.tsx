@@ -34,7 +34,8 @@ import {
   HeartHandshake,
   Percent,
   Briefcase,
-  Coins
+  Coins,
+  MapPin
 } from "lucide-react";
 import { LAWS_DATABASE as rawLaws } from "./lawsData";
 
@@ -42,7 +43,7 @@ import { LAWS_DATABASE as rawLaws } from "./lawsData";
 const SAFE_LAWS_DATABASE: any[] = Array.isArray(rawLaws) ? rawLaws : [];
 
 // --- انواع تب‌ها ---
-type TabType = "home" | "calc" | "laws" | "faq" | "templates" | "about";
+type TabType = "home" | "calc" | "laws" | "branches" | "faq" | "templates" | "about";
 type CalcCategory = 
   | "severance" 
   | "overtime" 
@@ -55,6 +56,176 @@ type CalcCategory =
   | "unemployment_benefit" 
   | "pension";
 
+interface TaminBranch {
+  name: string;
+  code: string;
+  address: string;
+  tel: string;
+}
+
+interface ProvinceData {
+  id: string;
+  name: string;
+  center: string;
+  x: number; // مختصات برای ژئومپ وکتوری
+  y: number;
+  branches: TaminBranch[];
+}
+
+const IRAN_PROVINCES_DATA: ProvinceData[] = [
+  {
+    id: "tehran",
+    name: "تهران",
+    center: "تهران",
+    x: 420,
+    y: 220,
+    branches: [
+      { name: "شعبه ۱ تأمین اجتماعی (شهدای هفتم تیر)", code: "۰۱", address: "تهران، میدان هفتم تیر، ابتدای خیابان مفتح جنوبی", tel: "۰۲۱-۸۸۸۳۱۰۰۱" },
+      { name: "شعبه ۲ تأمین اجتماعی (آزادی)", code: "۰۲", address: "تهران، خیابان آزادی، بعد از تقاطع یادگار امام", tel: "۰۲۱-۶۶۰۰۵۱۱۱" },
+      { name: "شعبه ۲۵ تأمین اجتماعی (تخصصی شمیران)", code: "۲۵", address: "تهران، میدان تجریش، خیابان فناخسرو", tel: "۰۲۱-۲۲۷۱۴۰۰۰" },
+      { name: "شعبه ۲۲ تأمین اجتماعی (غرب تهران)", code: "۲۲", address: "تهران، صادقیه، اشرفی اصفهانی، نبش پیامبر", tel: "۰۲۱-۴۴۰۰۱۲۰۳" }
+    ]
+  },
+  {
+    id: "isfahan",
+    name: "اصفهان",
+    center: "اصفهان",
+    x: 410,
+    y: 350,
+    branches: [
+      { name: "شعبه ۱ اصفهان (پل خواجو)", code: "۰۱", address: "اصفهان، میدان خواجو، خیابان چهارباغ خواجو", tel: "۰۳۱-۳۲۷۳۱۱۴۴" },
+      { name: "شعبه ۲ اصفهان (میدان امام علی)", code: "۰۲", address: "اصفهان، میدان جمهوری اسلامی، ابتدای امام خمینی", tel: "۰۳۱-۳۳۳۸۵۰۰۱" },
+      { name: "شعبه ۴ اصفهان (صنعتی)", code: "۰۴", address: "اصفهان، شهرک صنعتی محمودآباد", tel: "۰۳۱-۳۳۸۰۲۰۳۰" }
+    ]
+  },
+  {
+    id: "fars",
+    name: "فارس",
+    center: "شیراز",
+    x: 440,
+    y: 490,
+    branches: [
+      { name: "شعبه ۱ شیراز", code: "۰۱", address: "شیراز، بلوار پاسداران، نبش خیابان آقایی", tel: "۰۷۱-۳۸۳۳۹۰۰۰" },
+      { name: "شعبه ۲ شیراز (زند)", code: "۰۲", address: "شیراز، خیابان کریمخان زند، روبروی بیمارستان شهید فقیهی", tel: "۰۷۱-۳۲۳۵۷۰۰۱" },
+      { name: "شعبه ۳ شیراز", code: "۰۳", address: "شیراز، بلوار عدالت، جنب میدان بسیج", tel: "۰۷۱-۳۸۲۴۵۰۱۲" }
+    ]
+  },
+  {
+    id: "khorasan_razavi",
+    name: "خراسان رضوی",
+    center: "مشهد",
+    x: 620,
+    y: 200,
+    branches: [
+      { name: "شعبه ۱ مشهد (احمدآباد)", code: "۰۱", address: "مشهد، بلوار احمدآباد، خیابان کلاهدوز", tel: "۰۵۱-۳۸۴۰۰۴۵۱" },
+      { name: "شعبه ۲ مشهد (کامیاب)", code: "۰۲", address: "مشهد، میدان راه‌آهن، بولوار کامیاب", tel: "۰۵۱-۳۲۲۲۶۱۱۰" },
+      { name: "شعبه ۴ مشهد (خیام)", code: "۰۴", address: "مشهد، میدان خیام، ابتدای بلوار توس", tel: "۰۵۱-۳۷۶۴۵۵۰۰" }
+    ]
+  },
+  {
+    id: "khuzestan",
+    name: "خوزستان",
+    center: "اهواز",
+    x: 270,
+    y: 420,
+    branches: [
+      { name: "شعبه ۱ اهواز (امانیه)", code: "۰۱", address: "اهواز، امانیه، خیابان دز شرقی", tel: "۰۶۱-۳۳۳۳۱۰۰۱" },
+      { name: "شعبه ۲ اهواز (نادری)", code: "۰۲", address: "اهواز، خیابان شریعتی، جنب سینما اکسین", tel: "۰۶۱-۳۲۲۱۷۸۹۰" }
+    ]
+  },
+  {
+    id: "east_azerbaijan",
+    name: "آذربایجان شرقی",
+    center: "تبریز",
+    x: 210,
+    y: 110,
+    branches: [
+      { name: "شعبه ۱ تبریز", code: "۰۱", address: "تبریز، میدان جهاد (نصف‌راه)، جنب ایستگاه مترو", tel: "۰۴۱-۳۴۴۴۷۰۰۱" },
+      { name: "شعبه ۲ تبریز", code: "۰۲", address: "تبریز، چهارراه آبرسان، اول خیابان هفت تیر", tel: "۰۴۱-۳۳۳۵۲۱۱۲" }
+    ]
+  },
+  {
+    id: "mazandaran",
+    name: "مازندران",
+    center: "ساری",
+    x: 440,
+    y: 160,
+    branches: [
+      { name: "شعبه ۱ ساری", code: "۰۱", address: "ساری، بلوار طالقانی، بعد از شهرداری", tel: "۰۱۱-۳۳۲۵۰۱۱۱" },
+      { name: "شعبه بابل", code: "۰۱", address: "بابل، میدان هلال احمر، بلوار نوشیروانی", tel: "۰۱۱-۳۲۳۳۶۰۷۰" }
+    ]
+  },
+  {
+    id: "gilan",
+    name: "گیلان",
+    center: "رشت",
+    x: 340,
+    y: 130,
+    branches: [
+      { name: "شعبه ۱ رشت", code: "۰۱", address: "رشت، میدان فرهنگ، ابتدای خیابان پرستار", tel: "۰۱۳-۳۳۳۲۴۰۰۱" },
+      { name: "شعبه ۲ رشت", code: "۰۲", address: "رشت، گلسار، بلوار سمیه", tel: "۰۱۳-۳۳۷۵۱۰۰۰" }
+    ]
+  },
+  {
+    id: "alborz",
+    name: "البرز",
+    center: "کرج",
+    x: 380,
+    y: 200,
+    branches: [
+      { name: "شعبه ۱ کرج", code: "۰۱", address: "کرج، میدان هفت تیر، بلوار طالقانی جنوبی", tel: "۰۲۶-۳۲۲۶۴۰۰۱" },
+      { name: "شعبه ۲ کرج (فردیس)", code: "۰۲", address: "کرج، فردیس، کانال غربی، بلوار امام رضا", tel: "۰۲۶-۳۶۵۴۱۰۰۰" }
+    ]
+  },
+  {
+    id: "kerman",
+    name: "کرمان",
+    center: "کرمان",
+    x: 560,
+    y: 470,
+    branches: [
+      { name: "شعبه ۱ کرمان", code: "۰۱", address: "کرمان، میدان قرنی، خیابان فردوسی", tel: "۰۳۴-۳۲۲۳۶۰۰۱" },
+      { name: "شعبه ۲ کرمان", code: "۰۲", address: "کرمان، بلوار جمهوری اسلامی، نبش والفجر", tel: "۰۳۴-۳۲۴۴۵۱۲۰" }
+    ]
+  },
+  {
+    id: "yazd",
+    name: "یزد",
+    center: "یزد",
+    x: 490,
+    y: 380,
+    branches: [
+      { name: "شعبه ۱ یزد", code: "۰۱", address: "یزد، بلوار شهید بهشتی، خیابان مهدی", tel: "۰۳۵-۳۶۲۶۱۰۰۱" },
+      { name: "شعبه ۲ یزد (صنعتی)", code: "۰۲", address: "یزد، شهرک صنعتی زارچ", tel: "۰۳۵-۳۵۲۲۴۰۰۰" }
+    ]
+  },
+  {
+    id: "qom",
+    name: "قم",
+    center: "قم",
+    x: 390,
+    y: 260,
+    branches: [
+      { name: "شعبه ۱ قم", code: "۰۱", address: "قم، خیابان امام خمینی، جنب میدان سعیدی", tel: "۰۲۵-۳۶۶۱۷۰۰۱" },
+      { name: "شعبه ۲ قم", code: "۰۲", address: "قم، خیابان ۱۹ دی (باجک)، کوچه ۵۵", tel: "۰۲۵-۳۷۷۵۴۰۰۰" }
+    ]
+  },
+  {
+    id: "hormozgan",
+    name: "هرمزگان",
+    center: "بندرعباس",
+    x: 540,
+    y: 600,
+    branches: [
+      { name: "شعبه ۱ بندرعباس", code: "۰۱", address: "بندرعباس، بلوار امام خمینی، پشت پارک مصطفی خمینی", tel: "۰۷۶-۳۳۶۶۴۰۰۱" },
+      { name: "شعبه شهید رجایی", code: "۰۲", address: "بندرعباس، اسکله شهید رجایی", tel: "۰۷۶-۳۲۵۶۱۱۱۱" }
+    ]
+  }
+];
+
+
+
+
 export default function DadKarApp() {
   // Splash & Loading State
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -62,6 +233,7 @@ export default function DadKarApp() {
 
   // Navigation
   const [activeTab, setActiveTab] = useState<TabType>("home");
+  const [selectedProvinceId, setSelectedProvinceId] = useState<string>("tehran"); // 👈 اضافه شود
   const [activeCalc, setActiveCalc] = useState<CalcCategory>("insurance_compulsory");
 
     // State و تنظیمات اسلایدر صفحه اصلی
@@ -628,7 +800,7 @@ export default function DadKarApp() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-2">
                   <DollarSign className="w-4 h-4 text-blue-600" />
-                  مزد مبنا / حقوق ماهانه مشمول (سقف ۵۰۰,۰۰۰,۰۰۰ ریال):
+                    مزد مبنا / حقوق ماهانه مشمول (سقف ۱۰،۰۰۰،۰۰۰،۰۰۰ ریال):
                 </label>
                 <div className="flex items-center gap-2">
                 <input
@@ -1222,6 +1394,138 @@ export default function DadKarApp() {
           </div>
         )}
 
+
+                    {/* تب مراکز بیمه و ژئومپ استان‌ها */}
+            {activeTab === "branches" && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs">
+                  <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-4">
+                    <MapPin className="w-5 h-5 text-blue-600" />
+                    <div>
+                      <h2 className="text-base font-black text-slate-800">مراکز بیمه تأمین اجتماعی سراسر کشور</h2>
+                      <p className="text-xs text-slate-500 font-medium">روی استان مورد نظر در نقشه یا فهرست کلیک کنید تا شعب آن نمایش داده شوند.</p>
+                    </div>
+                  </div>
+
+                  {/* نقشه تعاملی ایران */}
+                  <div className="relative w-full bg-slate-900 rounded-2xl p-4 overflow-hidden shadow-inner border border-slate-800">
+                    <div className="text-center mb-2">
+                      <span className="text-[11px] font-bold text-blue-400 bg-blue-950/80 px-3 py-1 rounded-full border border-blue-800/50">
+                        نقشه موقعیت استانی شعب فعال تأمین اجتماعی
+                      </span>
+                    </div>
+
+                    <svg viewBox="100 50 650 620" className="w-full h-72 sm:h-96 mx-auto">
+                      {/* خطوط زمینه تزئینی نقشه */}
+                      <circle cx="410" cy="350" r="280" fill="none" stroke="#1e293b" strokeWidth="1" strokeDasharray="4 4" />
+                      
+                      {/* نقاط و مارکرهای تعاملی استان‌ها */}
+                      {IRAN_PROVINCES_DATA.map((prov) => {
+                        const isSelected = prov.id === selectedProvinceId;
+                        return (
+                          <g
+                            key={prov.id}
+                            className="cursor-pointer transition-all duration-200"
+                            onClick={() => setSelectedProvinceId(prov.id)}
+                          >
+                            <circle
+                              cx={prov.x}
+                              cy={prov.y}
+                              r={isSelected ? 16 : 9}
+                              className={isSelected ? "fill-blue-500 animate-pulse" : "fill-blue-600/70 hover:fill-blue-400"}
+                            />
+                            <circle
+                              cx={prov.x}
+                              cy={prov.y}
+                              r={isSelected ? 6 : 4}
+                              className="fill-white"
+                            />
+                            <text
+                              x={prov.x}
+                              y={prov.y + (isSelected ? 24 : 18)}
+                              textAnchor="middle"
+                              className={`text-[12px] font-black select-none pointer-events-none transition-all ${
+                                isSelected ? "fill-yellow-300 font-extrabold text-[13px]" : "fill-slate-300 hover:fill-white"
+                              }`}
+                            >
+                              {prov.name}
+                            </text>
+                          </g>
+                        );
+                      })}
+                    </svg>
+
+                    <div className="flex flex-wrap gap-1.5 justify-center mt-3 pt-3 border-t border-slate-800">
+                      {IRAN_PROVINCES_DATA.map((prov) => (
+                        <button
+                          key={prov.id}
+                          onClick={() => setSelectedProvinceId(prov.id)}
+                          className={`text-[11px] px-2.5 py-1 rounded-lg font-bold transition-all ${
+                            selectedProvinceId === prov.id
+                              ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
+                              : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                          }`}
+                        >
+                          {prov.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* جدول شعب تأمین اجتماعی استان انتخابی */}
+                {(() => {
+                  const currentProvince = IRAN_PROVINCES_DATA.find((p) => p.id === selectedProvinceId) || IRAN_PROVINCES_DATA[0];
+                  return (
+                    <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                          <h3 className="font-black text-slate-800 text-sm">
+                            شعب تأمین اجتماعی استان {currentProvince.name} (مرکز: {currentProvince.center})
+                          </h3>
+                        </div>
+                        <span className="text-xs bg-blue-50 text-blue-700 font-bold px-2.5 py-1 rounded-full">
+                          {currentProvince.branches.length} شعبه ثبت شده
+                        </span>
+                      </div>
+
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-right text-xs">
+                          <thead>
+                            <tr className="bg-slate-50 text-slate-600 border-b border-slate-200">
+                              <th className="py-2.5 px-3 font-black">کد</th>
+                              <th className="py-2.5 px-3 font-black">نام مرکز / شعبه</th>
+                              <th className="py-2.5 px-3 font-black">نشانی دقیق</th>
+                              <th className="py-2.5 px-3 font-black text-center">شماره تماس مستقیم</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {currentProvince.branches.map((b, idx) => (
+                              <tr key={idx} className="hover:bg-blue-50/50 transition-colors">
+                                <td className="py-3 px-3 font-bold text-slate-500">{b.code}</td>
+                                <td className="py-3 px-3 font-black text-slate-800 whitespace-nowrap">{b.name}</td>
+                                <td className="py-3 px-3 text-slate-600 leading-relaxed min-w-[220px]">{b.address}</td>
+                                <td className="py-3 px-3 text-center whitespace-nowrap">
+                                  <a
+                                    href={`tel:${b.tel.replace(/-/g, "")}`}
+                                    className="inline-flex items-center gap-1 font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-lg transition-colors dir-ltr"
+                                  >
+                                    <Phone className="w-3.5 h-3.5" />
+                                    {b.tel}
+                                  </a>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+
         {/* ======================= ۶. درباره ما و ارتباط با ما (ABOUT) ======================= */}
         {activeTab === "about" && (
           <div className="space-y-5 animate-in fade-in duration-300">
@@ -1266,13 +1570,15 @@ export default function DadKarApp() {
       {/* ======================= فوتر ناوبری شناور با طراحی جدید ======================= */}
       <footer className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-t border-slate-200/80 py-2.5 px-4 shadow-xl">
         <div className="max-w-md mx-auto grid grid-cols-5 gap-1">
-          {[
-            { id: "home", label: "خانه", icon: Home },
-            { id: "calc", label: "محاسبات", icon: Calculator },
-            { id: "laws", label: "قوانین", icon: BookOpen },
-            { id: "templates", label: "قالب‌ها", icon: FileText },
-            { id: "about", label: "ارتباط", icon: UserCheck }
-          ].map((item) => {
+                     {[
+              { id: "home", label: "خانه", icon: Home },
+              { id: "calc", label: "محاسبات", icon: Calculator },
+              { id: "laws", label: "قوانین", icon: BookOpen },
+              { id: "branches", label: "مراکز بیمه", icon: MapPin },
+              { id: "templates", label: "قالب‌ها", icon: FileText },
+              { id: "about", label: "ارتباط", icon: UserCheck },
+            ].map((item) => {
+
             const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
