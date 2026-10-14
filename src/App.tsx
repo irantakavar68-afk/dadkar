@@ -5,6 +5,8 @@ const vazirFontStyles = `
   * {
     font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   }
+import { TaminBranchesView } from './TaminBranchesView';
+
 `;
 
 import { 
@@ -1227,159 +1229,25 @@ export default function DadKarApp() {
           </div>
         )}
 
+          {/* ۵. قالب‌های کاربردی قرارداد */}
+          {activeTab === "templates" && (
+            <div className="space-y-6">
+              {/* محتوای تب قالب‌ها */}
+            </div>
+          )}
 
-            {/* تب ژئومپ سراسری مراکز تأمین اجتماعی استان‌های ایران */}
-            {activeTab === "branches" && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-4">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-blue-600" />
-                      <div>
-                        <h2 className="text-base font-black text-slate-800">نقشه ژئومپ شعب تأمین اجتماعی ۳۱ استان ایران</h2>
-                        <p className="text-xs text-slate-500 font-medium">روی حریم هر استان در نقشه یا دکمه‌های زیر کلیک کنید.</p>
-                      </div>
-                    </div>
-                    <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full font-bold">
-                      ۳۱ استان کامل - پوشش سراسری
-                    </span>
-                  </div>
+          {/* تب مراکز بیمه و شعب (جایگاه دقیق کد جدید) */}
+          {activeTab === 'branches' && (
+            <div className="tab-content">
+              <TaminBranchesView />
+            </div>
+          )}
 
-                  {/* نقشه ژئومپ وکتوری استان‌های ایران */}
-                  <div className="relative w-full bg-slate-950 rounded-2xl p-4 overflow-hidden shadow-2xl border border-slate-800">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-[11px] font-bold text-blue-400 bg-blue-900/50 px-3 py-1 rounded-full border border-blue-700/40">
-                        🗺️ ژئومپ تقسیمات استانی و پایگاه‌های بیمه
-                      </span>
-                      <span className="text-[11px] text-slate-400 font-medium">
-                        استان جاری: <strong className="text-yellow-400 font-black">{IRAN_PROVINCES_COMPLETE.find(p => p.id === selectedProvinceId)?.name}</strong>
-                      </span>
-                    </div>
+          {/* ۶. درباره ما و ارتباط با ما */}
+          {activeTab === "about" && (
+            <div className="space-y-6">
 
-                    <svg viewBox="110 40 560 600" className="w-full h-80 sm:h-[450px] mx-auto filter drop-shadow-md">
-                      {/* پس‌زمینه و المان‌های وکتوری مرز هر استان */}
-                      {IRAN_PROVINCES_COMPLETE.map((prov) => {
-                        const isSelected = prov.id === selectedProvinceId;
-                        return (
-                          <g
-                            key={prov.id}
-                            onClick={() => setSelectedProvinceId(prov.id)}
-                            className="cursor-pointer group transition-all duration-300"
-                          >
-                            {/* حریم و مرز وکتوری استان */}
-                            <path
-                              d={prov.svgPath}
-                              stroke={isSelected ? "#facc15" : "#3b82f6"}
-                              strokeWidth={isSelected ? "2.5" : "1.2"}
-                              strokeLinejoin="round"
-                              className={`transition-all duration-300 ${
-                                isSelected
-                                  ? "fill-blue-600 fill-opacity-90"
-                                  : "fill-slate-800/80 hover:fill-blue-800/60"
-                              }`}
-                            />
-                            {/* مرکز استان و برچسب نام */}
-                            <circle
-                              cx={prov.labelPos.x}
-                              cy={prov.labelPos.y}
-                              r={isSelected ? "4.5" : "3"}
-                              className={isSelected ? "fill-yellow-400 animate-pulse" : "fill-blue-400 group-hover:fill-white"}
-                            />
-                            <text
-                              x={prov.labelPos.x}
-                              y={prov.labelPos.y - 7}
-                              textAnchor="middle"
-                              className={`text-[11px] font-black pointer-events-none select-none transition-all ${
-                                isSelected
-                                  ? "fill-yellow-300 font-black text-[12px]"
-                                  : "fill-slate-200 group-hover:fill-white font-bold"
-                              }`}
-                            >
-                              {prov.name}
-                            </text>
-                          </g>
-                        );
-                      })}
-                    </svg>
-
-                    {/* لیست دکمه‌های سریع دسترسی به تمام ۳۱ استان */}
-                    <div className="mt-4 pt-3 border-t border-slate-800/80 max-h-36 overflow-y-auto">
-                      <p className="text-[11px] text-slate-400 font-bold mb-2">انتخاب مستقیم استان از فهرست ۳۱ گانه:</p>
-                      <div className="flex flex-wrap gap-1.5 justify-center">
-                        {IRAN_PROVINCES_COMPLETE.map((prov) => (
-                          <button
-                            key={prov.id}
-                            onClick={() => setSelectedProvinceId(prov.id)}
-                            className={`text-[10px] px-2.5 py-1 rounded-lg font-bold transition-all ${
-                              selectedProvinceId === prov.id
-                                ? "bg-yellow-400 text-slate-900 shadow-md font-black"
-                                : "bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-800"
-                            }`}
-                          >
-                            {prov.name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* جدول مشخصات کامل شعب تأمین اجتماعی استان انتخابی */}
-                {(() => {
-                  const currentProvince =
-                    IRAN_PROVINCES_COMPLETE.find((p) => p.id === selectedProvinceId) ||
-                    IRAN_PROVINCES_COMPLETE[0];
-                  return (
-                    <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-4">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 rounded-full bg-blue-600 animate-ping"></span>
-                          <h3 className="font-black text-slate-800 text-base">
-                            شعب و مراکز بیمه تأمین اجتماعی استان {currentProvince.name} (مرکز استان: {currentProvince.center})
-                          </h3>
-                        </div>
-                        <span className="text-xs bg-blue-50 text-blue-700 font-bold px-3 py-1 rounded-full self-start sm:self-auto">
-                          تعداد شعب فعال: {currentProvince.branches.length} شعبه
-                        </span>
-                      </div>
-
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-right text-xs">
-                          <thead>
-                            <tr className="bg-slate-50 text-slate-700 border-b border-slate-200">
-                              <th className="py-3 px-3 font-black">کد شعبه</th>
-                              <th className="py-3 px-3 font-black">نام مرکز / شعبه تأمین اجتماعی</th>
-                              <th className="py-3 px-3 font-black min-w-[260px]">نشانی پستی دقیق</th>
-                              <th className="py-3 px-3 font-black text-center whitespace-nowrap">شماره تماس مستقیم</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100">
-                            {currentProvince.branches.map((b, idx) => (
-                              <tr key={idx} className="hover:bg-blue-50/60 transition-colors">
-                                <td className="py-3.5 px-3 font-bold text-slate-500">{b.code}</td>
-                                <td className="py-3.5 px-3 font-black text-slate-800 whitespace-nowrap">{b.name}</td>
-                                <td className="py-3.5 px-3 text-slate-600 leading-relaxed font-medium">{b.address}</td>
-                                <td className="py-3.5 px-3 text-center whitespace-nowrap">
-                                  <a
-                                    href={`tel:${b.tel.replace(/-/g, "")}`}
-                                    className="inline-flex items-center gap-1.5 font-bold text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-xl transition-all border border-blue-100 dir-ltr"
-                                  >
-                                    <Phone className="w-3.5 h-3.5" />
-                                    {b.tel}
-                                  </a>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
-            )}
-
-
+           
         {/* ======================= ۶. درباره ما و ارتباط با ما (ABOUT) ======================= */}
         {activeTab === "about" && (
           <div className="space-y-5 animate-in fade-in duration-300">
