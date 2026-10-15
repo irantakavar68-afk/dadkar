@@ -9,14 +9,10 @@ const vazirFontStyles = `
   }
 `;
 
-
-
-`;
-
-import { 
-  Calculator, 
-  BookOpen, 
-  HelpCircle, 
+import {
+  Calculator,
+  BookOpen,
+  HelpCircle,
   FileText, 
   ChevronRight, 
   Search, 
