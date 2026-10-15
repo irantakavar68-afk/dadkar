@@ -49,7 +49,6 @@ const PROVINCE_MAPPER: Record<string, IranProvinceKey> = {
   'hormozgan': 'hormozgan',
 };
 
-// نگاشت بر اساس کلیدهای استاندارد ISO موجود در دیتاسورس
 const ISO_MAPPER: Record<string, IranProvinceKey> = {
   'IR-01': 'gilan',
   'IR-02': 'mazandaran',
@@ -84,39 +83,39 @@ const ISO_MAPPER: Record<string, IranProvinceKey> = {
   'IR-00': 'markazi',
 };
 
-// مختصات دقیق مرکز استان‌ها روی viewBox="0 0 798 724" برای درج برچسب نام‌ها
+// مختصات دقیق و متمرکز برای درج برچسب نام ۳۱ استان در viewBox="0 0 798 724"
 const PROVINCE_LABEL_COORDS: Record<IranProvinceKey, { x: number; y: number }> = {
-  tehran: { x: 382, y: 290 },
-  alborz: { x: 345, y: 275 },
-  qom: { x: 375, y: 345 },
-  markazi: { x: 320, y: 365 },
-  qazvin: { x: 320, y: 285 },
-  gilan: { x: 310, y: 215 },
-  mazandaran: { x: 415, y: 245 },
-  golestan: { x: 505, y: 210 },
-  semnan: { x: 485, y: 315 },
-  isfahan: { x: 395, y: 415 },
-  yazd: { x: 485, y: 445 },
-  fars: { x: 415, y: 555 },
-  kerman: { x: 565, y: 540 },
-  razaviKhorasan: { x: 645, y: 290 },
-  northKhorasan: { x: 590, y: 195 },
-  southKhorasan: { x: 640, y: 425 },
-  sistanAndBaluchestan: { x: 675, y: 585 },
-  hormozgan: { x: 525, y: 645 },
-  bushehr: { x: 345, y: 565 },
-  khuzestan: { x: 260, y: 470 },
-  chaharmahalAndBakhtiari: { x: 335, y: 445 },
-  kohgiluyehAndBoyerAhmad: { x: 350, y: 495 },
-  lorestan: { x: 265, y: 395 },
-  ilam: { x: 195, y: 405 },
-  kermanshah: { x: 190, y: 345 },
-  kurdistan: { x: 200, y: 285 },
-  hamedan: { x: 265, y: 335 },
-  zanjan: { x: 260, y: 265 },
-  eastAzerbaijan: { x: 195, y: 185 },
-  westAzerbaijan: { x: 135, y: 215 },
-  ardabil: { x: 235, y: 150 },
+  tehran: { x: 382, y: 288 },
+  alborz: { x: 345, y: 270 },
+  qom: { x: 378, y: 335 },
+  markazi: { x: 320, y: 355 },
+  qazvin: { x: 318, y: 278 },
+  gilan: { x: 315, y: 210 },
+  mazandaran: { x: 420, y: 238 },
+  golestan: { x: 505, y: 215 },
+  semnan: { x: 490, y: 305 },
+  isfahan: { x: 405, y: 420 },
+  yazd: { x: 490, y: 450 },
+  fars: { x: 420, y: 550 },
+  kerman: { x: 575, y: 535 },
+  razaviKhorasan: { x: 650, y: 285 },
+  northKhorasan: { x: 595, y: 195 },
+  southKhorasan: { x: 645, y: 425 },
+  sistanAndBaluchestan: { x: 685, y: 580 },
+  hormozgan: { x: 535, y: 645 },
+  bushehr: { x: 355, y: 565 },
+  khuzestan: { x: 260, y: 465 },
+  chaharmahalAndBakhtiari: { x: 338, y: 438 },
+  kohgiluyehAndBoyerAhmad: { x: 355, y: 492 },
+  lorestan: { x: 270, y: 390 },
+  ilam: { x: 195, y: 400 },
+  kermanshah: { x: 190, y: 340 },
+  kurdistan: { x: 205, y: 280 },
+  hamedan: { x: 265, y: 330 },
+  zanjan: { x: 260, y: 260 },
+  eastAzerbaijan: { x: 195, y: 180 },
+  westAzerbaijan: { x: 138, y: 210 },
+  ardabil: { x: 235, y: 148 },
 };
 
 interface ParsedMapProvince {
@@ -131,7 +130,6 @@ export const TaminBranchesView: React.FC = () => {
   const [branchSearch, setBranchSearch] = useState<string>('');
   const [hoveredProvince, setHoveredProvince] = useState<string | null>(null);
 
-  // استخراج و یکسان‌سازی مسیرهای برداری از فایل Iran.json
   const vectorProvinces = useMemo<ParsedMapProvince[]>(() => {
     const list: ParsedMapProvince[] = [];
     const rawData = iranRawJson as Record<string, any>;
@@ -204,10 +202,9 @@ export const TaminBranchesView: React.FC = () => {
           </div>
         </div>
 
-        {/* کادر اصلی نقشه جغرافیایی وکتور */}
+        {/* کادر اصلی نقشه جغرافیایی وکتور (بدون دریاها) */}
         <div className="relative w-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 rounded-2xl p-4 overflow-hidden border border-slate-800 shadow-xl flex flex-col items-center justify-center">
           
-          {/* تولتیپ استان معلق روی نقشه */}
           <div className="absolute top-3 right-4 z-10 flex items-center gap-1.5 bg-slate-800/80 backdrop-blur-md px-3 py-1 rounded-xl text-xs text-slate-200 border border-slate-700/50">
             <Navigation className="w-3.5 h-3.5 text-blue-400" />
             <span>{hoveredProvince ? `استان: ${hoveredProvince}` : 'روی استان مورد نظر ضربه بزنید'}</span>
@@ -217,14 +214,6 @@ export const TaminBranchesView: React.FC = () => {
             viewBox="0 0 798 724"
             className="w-full max-w-xl h-auto select-none transition-transform duration-300 filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
           >
-            {/* لایه دریاها و آب‌ها */}
-            <g id="water-bodies" className="pointer-events-none">
-              <path d="M 245 40 Q 380 90 520 85 L 540 185 Q 430 195 305 180 Q 255 140 235 95 Z" fill="#0284c7" fillOpacity="0.25" stroke="#38bdf8" strokeWidth="1.2" strokeDasharray="4 3" />
-              <text x="380" y="130" fill="#7dd3fc" fontSize="12" fontWeight="bold" textAnchor="middle" opacity="0.8">دریای خزر</text>
-              <path d="M 230 520 Q 320 590 440 635 Q 560 670 730 670 L 730 720 L 210 720 Z" fill="#0284c7" fillOpacity="0.25" stroke="#38bdf8" strokeWidth="1.2" strokeDasharray="4 3" />
-              <text x="360" y="665" fill="#7dd3fc" fontSize="13" fontWeight="bold" textAnchor="middle" opacity="0.8">خلیج فارس</text>
-            </g>
-
             {/* لایه استان‌های نقشه */}
             <g id="provinces-layer">
               {vectorProvinces.map((item, index) => {
@@ -251,7 +240,7 @@ export const TaminBranchesView: React.FC = () => {
               })}
             </g>
 
-            {/* لایه برچسب نام استان‌ها روی نقشه */}
+            {/* لایه برچسب نام استان‌ها در مرکز دقیق هندسی */}
             <g id="province-labels" className="pointer-events-none select-none">
               {vectorProvinces.map((item, index) => {
                 const isSelected = selectedKey === item.mapKey;
