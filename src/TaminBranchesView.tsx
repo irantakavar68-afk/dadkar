@@ -4,9 +4,8 @@ import { MapPin, Phone, Building2, Search, CheckCircle, Navigation } from 'lucid
 import { IRAN_PROVINCES_COMPLETE, IranProvinceKey, TaminProvince } from './data/taminData';
 import iranRawJson from './data/Iran.json';
 
-// جدول نگاشت تطبیقی برای یکسان‌سازی کلیدهای Iran.json با IranProvinceKey در taminData
+// جدول نگاشت جامع برای یکسان‌سازی کلیدهای Iran.json با IranProvinceKey در taminData
 const PROVINCE_MAPPER: Record<string, IranProvinceKey> = {
-  // بر اساس name_en یا کدهای رایج فایل
   'tehran': 'tehran',
   'isfahan': 'isfahan',
   'esfahan': 'isfahan',
@@ -16,41 +15,63 @@ const PROVINCE_MAPPER: Record<string, IranProvinceKey> = {
   'khorasan-e razavi': 'razaviKhorasan',
   'east azarbaijan': 'eastAzerbaijan',
   'east azerbaijan': 'eastAzerbaijan',
+  'azarbaijan-e sharqi': 'eastAzerbaijan',
+  'azarbaijan sharghi': 'eastAzerbaijan',
   'west azarbaijan': 'westAzerbaijan',
   'west azerbaijan': 'westAzerbaijan',
+  'azarbaijan-e gharbi': 'westAzerbaijan',
+  'azarbaijan gharbi': 'westAzerbaijan',
   'khuzestan': 'khuzestan',
+  'khouzestan': 'khuzestan',
   'alborz': 'alborz',
   'gilan': 'gilan',
+  'guilan': 'gilan',
   'mazandaran': 'mazandaran',
   'kerman': 'kerman',
   'ardabil': 'ardabil',
   'ardebil': 'ardabil',
   'zanjan': 'zanjan',
   'qazvin': 'qazvin',
+  'ghazvin': 'qazvin',
   'markazi': 'markazi',
   'qom': 'qom',
+  'ghom': 'qom',
   'hamedan': 'hamedan',
   'hamadan': 'hamedan',
   'kermanshah': 'kermanshah',
   'kurdistan': 'kurdistan',
   'kordestan': 'kurdistan',
+  'kurdestan': 'kurdistan',
   'lorestan': 'lorestan',
+  'luristan': 'lorestan',
   'ilam': 'ilam',
+  'elam': 'ilam',
   'chahar mahall and bakhtiari': 'chaharmahalAndBakhtiari',
   'chaharmahal and bakhtiari': 'chaharmahalAndBakhtiari',
+  'chahar mahal va bakhtiari': 'chaharmahalAndBakhtiari',
+  'chahar mahaal and bakhtiari': 'chaharmahalAndBakhtiari',
   'kohgiluyeh and boyer-ahmad': 'kohgiluyehAndBoyerAhmad',
   'kohgiluyeh and boyer ahmad': 'kohgiluyehAndBoyerAhmad',
+  'kohgiluyeh va boyerahmad': 'kohgiluyehAndBoyerAhmad',
+  'kohgiluyeh and boyerahmad': 'kohgiluyehAndBoyerAhmad',
+  'kohgiluyeh & boyer-ahmad': 'kohgiluyehAndBoyerAhmad',
+  'boyer-ahmad': 'kohgiluyehAndBoyerAhmad',
+  'kohgiluyeh': 'kohgiluyehAndBoyerAhmad',
   'bushehr': 'bushehr',
+  'boushehr': 'bushehr',
   'semnan': 'semnan',
   'golestan': 'golestan',
   'north khorasan': 'northKhorasan',
+  'khorasan-e shomali': 'northKhorasan',
   'south khorasan': 'southKhorasan',
+  'khorasan-e jonoubi': 'southKhorasan',
   'yazd': 'yazd',
   'sistan and baluchestan': 'sistanAndBaluchestan',
+  'sistan va baluchestan': 'sistanAndBaluchestan',
   'hormozgan': 'hormozgan',
 };
 
-// نگاشت بر اساس کلیدهای استاندارد ISO موجود در دیتاسورس
+// نگاشت کدهای ISO و شماره‌گذاری‌های استاندارد کشور
 const ISO_MAPPER: Record<string, IranProvinceKey> = {
   'IR-01': 'gilan',
   'IR-02': 'mazandaran',
@@ -82,7 +103,16 @@ const ISO_MAPPER: Record<string, IranProvinceKey> = {
   'IR-28': 'northKhorasan',
   'IR-29': 'southKhorasan',
   'IR-30': 'alborz',
+  'IR-31': 'kohgiluyehAndBoyerAhmad',
   'IR-00': 'markazi',
+};
+
+// اصلاح آفست برای جلوگیری از تداخل برچسب‌ها در اشکال کشیده/نامنظم
+const LABEL_OFFSETS: Partial<Record<IranProvinceKey, { dx: number; dy: number }>> = {
+  eastAzerbaijan: { dx: 18, dy: -4 }, // انتقال ملایم نام آذربایجان شرقی به سمت راست و بالا جهت رفع هم‌پوشانی با آذربایجان غربی
+  westAzerbaijan: { dx: -10, dy: 6 },
+  kohgiluyehAndBoyerAhmad: { dx: 0, dy: 0 },
+  kurdistan: { dx: 0, dy: 0 },
 };
 
 interface ParsedMapProvince {
@@ -96,12 +126,10 @@ export const TaminBranchesView: React.FC = () => {
   const [branchSearch, setBranchSearch] = useState<string>('');
   const [hoveredProvince, setHoveredProvince] = useState<string | null>(null);
 
-  // NEW: مراکز محاسبه‌شده برچسب‌ها (بر اساس خود path)
   const [labelCenters, setLabelCenters] = useState<Record<IranProvinceKey, { x: number; y: number }>>(
     {} as Record<IranProvinceKey, { x: number; y: number }>
   );
 
-  // NEW: رفرنس SVG برای اندازه‌گیری
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   // استخراج و یکسان‌سازی مسیرهای برداری از فایل Iran.json
@@ -113,7 +141,6 @@ export const TaminBranchesView: React.FC = () => {
       const item = rawData[rawKey];
       if (!item) return;
 
-      // دریافت مسیر با اولویت med_res (روان‌ترین نسخه برای وب/موبایل)
       const pathD =
         item.path?.med_res ||
         item.path?.high_res ||
@@ -122,7 +149,6 @@ export const TaminBranchesView: React.FC = () => {
         (typeof item.path === 'string' ? item.path : '');
       if (!pathD) return;
 
-      // تشخیص کلید استان
       const nameEn = (item.name_en || '').toLowerCase().trim();
       const isoId = (item.id || '').toUpperCase().trim();
       const rawKeyLower = rawKey.toLowerCase().trim();
@@ -133,7 +159,6 @@ export const TaminBranchesView: React.FC = () => {
         PROVINCE_MAPPER[rawKeyLower] ||
         (rawKey as IranProvinceKey);
 
-      // یافتن نام فارسی از پایگاه اصلی دادکار
       const provinceInfo = IRAN_PROVINCES_COMPLETE.find((p) => p.mapKey === resolvedKey);
       const displayName = provinceInfo ? provinceInfo.name : (item.name_fa || item.name_en || rawKey);
 
@@ -147,7 +172,7 @@ export const TaminBranchesView: React.FC = () => {
     return list;
   }, []);
 
-  // NEW: محاسبه مرکز هر استان با getBBox روی path مخفی
+  // محاسبه مرکز هر استان به صورت خودکار بر اساس getBBox + اعمال آفست‌های تنظیمی
   useLayoutEffect(() => {
     const svgEl = svgRef.current;
     if (!svgEl) return;
@@ -159,7 +184,12 @@ export const TaminBranchesView: React.FC = () => {
       if (!el) continue;
 
       const box = el.getBBox();
-      nextCenters[item.mapKey] = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+      const offset = LABEL_OFFSETS[item.mapKey] || { dx: 0, dy: 0 };
+
+      nextCenters[item.mapKey] = {
+        x: box.x + box.width / 2 + offset.dx,
+        y: box.y + box.height / 2 + offset.dy,
+      };
     }
 
     setLabelCenters(nextCenters as Record<IranProvinceKey, { x: number; y: number }>);
@@ -202,9 +232,9 @@ export const TaminBranchesView: React.FC = () => {
           </div>
         </div>
 
-        {/* کادر اصلی نقشه جغرافیایی وکتور */}
+        {/* کادر نقشه جغرافیایی وکتور */}
         <div className="relative w-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 rounded-2xl p-4 overflow-hidden border border-slate-800 shadow-xl flex flex-col items-center justify-center">
-          {/* تولتیپ استان معلق روی نقشه */}
+          {/* تولتیپ شناور */}
           <div className="absolute top-3 right-4 z-10 flex items-center gap-1.5 bg-slate-800/80 backdrop-blur-md px-3 py-1 rounded-xl text-xs text-slate-200 border border-slate-700/50">
             <Navigation className="w-3.5 h-3.5 text-blue-400" />
             <span>{hoveredProvince ? `استان: ${hoveredProvince}` : 'روی استان مورد نظر ضربه بزنید'}</span>
@@ -215,7 +245,7 @@ export const TaminBranchesView: React.FC = () => {
             viewBox="0 0 798 724"
             className="w-full max-w-xl h-auto select-none transition-transform duration-300 filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
           >
-            {/* لایه استان‌ها */}
+            {/* لایه بصری استان‌ها */}
             <g id="provinces-layer">
               {vectorProvinces.map((item, index) => {
                 const isSelected = selectedKey === item.mapKey;
@@ -241,7 +271,7 @@ export const TaminBranchesView: React.FC = () => {
               })}
             </g>
 
-            {/* NEW: مسیرهای مخفی فقط برای محاسبه مرکز (هیچ تغییری در ظاهر ایجاد نمی‌کند) */}
+            {/* لایه نامرئی صرفاً جهت سنجش مرکز */}
             <g
               id="label-measure-layer"
               className="pointer-events-none"
@@ -256,7 +286,7 @@ export const TaminBranchesView: React.FC = () => {
               ))}
             </g>
 
-            {/* NEW: برچسب نام استان‌ها در مرکز محاسبه‌شده */}
+            {/* لایه اسامی استان‌ها */}
             <g id="province-labels" className="pointer-events-none select-none">
               {vectorProvinces.map((item, index) => {
                 const c = labelCenters[item.mapKey];
