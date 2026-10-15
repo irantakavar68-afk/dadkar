@@ -4,7 +4,7 @@ import { MapPin, Phone, Building2, Search, CheckCircle, Navigation } from 'lucid
 import { IRAN_PROVINCES_COMPLETE, IranProvinceKey, ProvinceMapData } from './data/taminData';
 import iranRawJson from './data/Iran.json';
 
-// ۱. نگاشت دقیق و تفکیک‌شده کلیدهای Iran.json به IranProvinceKey
+// ۱. نگاشت دقیق کلیدهای Iran.json به IranProvinceKey
 const RAW_KEY_TO_MAPKEY: Record<string, IranProvinceKey> = {
   'Teh': 'tehran',
   'Esf': 'isfahan',
@@ -39,7 +39,7 @@ const RAW_KEY_TO_MAPKEY: Record<string, IranProvinceKey> = {
   'Hor': 'hormozgan',
 };
 
-// ۲. مختصات دقیق مرکز ثقل ۳۱ استان روی نقشه (viewBox 0 0 798 724)
+// ۲. مختصات دقیق مرکز استان‌ها روی viewBox="0 0 798 724"
 const PROVINCE_LABEL_COORDS: Record<IranProvinceKey, { x: number; y: number }> = {
   tehran: { x: 382, y: 290 },
   alborz: { x: 345, y: 275 },
@@ -87,7 +87,7 @@ export const TaminBranchesView: React.FC = () => {
   const [branchSearch, setBranchSearch] = useState<string>('');
   const [hoveredName, setHoveredName] = useState<string | null>(null);
 
-  // ادغام پایدار وکتورهای Iran.json با اسامی و رکوردهای taminData
+  // استخراج وکتورهای نقشه
   const svgProvinces = useMemo<ProvinceSvgItem[]>(() => {
     const rawData = (iranRawJson as any).default || iranRawJson;
     const items: ProvinceSvgItem[] = [];
@@ -99,7 +99,6 @@ export const TaminBranchesView: React.FC = () => {
 
       if (!jsonItem) return;
 
-      // دریافت مسیر SVG با اولویت کیفیت مناسب
       const pathD =
         jsonItem.path?.med_res ||
         jsonItem.path?.high_res ||
@@ -120,7 +119,6 @@ export const TaminBranchesView: React.FC = () => {
     return items;
   }, []);
 
-  // استان فعال انتخاب‌شده
   const currentProvince: ProvinceMapData = useMemo(() => {
     return (
       IRAN_PROVINCES_COMPLETE.find((p) => p.mapKey === selectedMapKey) ||
@@ -128,7 +126,6 @@ export const TaminBranchesView: React.FC = () => {
     );
   }, [selectedMapKey]);
 
-  // فیلتر شعب جستجو شده
   const filteredBranches = useMemo(() => {
     const branches = currentProvince?.branches || [];
     if (!branchSearch.trim()) return branches;
@@ -144,69 +141,38 @@ export const TaminBranchesView: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-14 font-['Vazirmatn'] text-slate-800" dir="rtl">
-      {/* هدر بخش نقشه */}
-      <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 space-y-4">
+      {/* هدر و نقشه */}
+      <div className="bg-white rounded-3xl p-4 md:p-5 shadow-sm border border-slate-100 space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 font-black text-slate-900 text-lg">
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-inner">
+          <div className="flex items-center gap-2 font-black text-slate-900 text-base md:text-lg">
+            <div className="w-9 h-9 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-inner">
               <MapPin className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-black">اطلس شعب تأمین اجتماعی ایران</h2>
-              <p className="text-[11px] text-slate-400 font-normal">نقشه تعاملی و دسترسی به شعب استانی</p>
+              <h2 className="text-sm md:text-base font-black">اطلس شعب تأمین اجتماعی ایران</h2>
+              <p className="text-[10px] md:text-[11px] text-slate-400 font-normal">انتخاب استان از روی نقشه تعاملی</p>
             </div>
           </div>
-          <div className="text-left">
-            <span className="text-[11px] bg-blue-50 text-blue-700 font-bold px-3 py-1.5 rounded-full border border-blue-100/60 inline-block">
-              استان انتخابی: {currentProvince.name}
-            </span>
-          </div>
+          <span className="text-[11px] bg-blue-50 text-blue-700 font-bold px-3 py-1.5 rounded-full border border-blue-100/60">
+            {currentProvince.name}
+          </span>
         </div>
 
-        {/* کادر نقشه وکتور با استایل دقیق */}
-        <div className="relative w-full bg-slate-950 rounded-2xl p-3 md:p-4 overflow-hidden border border-slate-800 shadow-2xl flex flex-col items-center justify-center">
-          
-          {/* تولتیپ شناور */}
-          <div className="absolute top-3 right-4 z-20 flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md px-3 py-1 rounded-xl text-xs text-slate-200 border border-slate-700/60 shadow-lg">
+        {/* کادر نقشه وکتور */}
+        <div className="relative w-full bg-slate-950 rounded-2xl p-2 md:p-4 overflow-hidden border border-slate-800 shadow-2xl flex flex-col items-center justify-center">
+          <div className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-slate-900/90 backdrop-blur-md px-2.5 py-1 rounded-xl text-[11px] text-slate-200 border border-slate-700/60 shadow-lg">
             <Navigation className="w-3.5 h-3.5 text-blue-400" />
-            <span>{hoveredName ? `استان: ${hoveredName}` : 'روی استان مورد نظر ضربه بزنید'}</span>
+            <span>{hoveredName ? `استان: ${hoveredName}` : 'روی نقشه ضربه بزنید'}</span>
           </div>
 
-          <svg
-            viewBox="0 0 798 724"
-            className="w-full max-w-2xl h-auto select-none"
-          >
-            {/* پهنه‌های آبی */}
+          <svg viewBox="0 0 798 724" className="w-full max-w-xl h-auto select-none">
             <g id="water-bodies" className="pointer-events-none">
-              <path
-                d="M 245 40 Q 380 90 520 85 L 540 185 Q 430 195 305 180 Q 255 140 235 95 Z"
-                fill="#0284c7"
-                fillOpacity="0.25"
-                stroke="#38bdf8"
-                strokeWidth="1.2"
-                strokeDasharray="4 3"
-              />
-              <text x="380" y="130" fill="#7dd3fc" fontSize="13" fontWeight="bold" textAnchor="middle" opacity="0.85">
-                دریای خزر (کاسپین)
-              </text>
-
-              <path
-                d="M 230 520 Q 320 590 440 635 Q 560 670 730 670 L 730 720 L 210 720 Z"
-                fill="#0284c7"
-                fillOpacity="0.25"
-                stroke="#38bdf8"
-                strokeWidth="1.2"
-                strokeDasharray="4 3"
-              />
-              <text x="360" y="665" fill="#7dd3fc" fontSize="14" fontWeight="bold" textAnchor="middle" opacity="0.85">
-                خلیج همیشه فارس
-              </text>
-              <text x="640" y="695" fill="#7dd3fc" fontSize="13" fontWeight="bold" textAnchor="middle" opacity="0.8">
-                دریای عمان
-              </text>
+              <path d="M 245 40 Q 380 90 520 85 L 540 185 Q 430 195 305 180 Q 255 140 235 95 Z" fill="#0284c7" fillOpacity="0.25" stroke="#38bdf8" strokeWidth="1.2" strokeDasharray="4 3" />
+              <text x="380" y="130" fill="#7dd3fc" fontSize="12" fontWeight="bold" textAnchor="middle" opacity="0.8">دریای خزر</text>
+              <path d="M 230 520 Q 320 590 440 635 Q 560 670 730 670 L 730 720 L 210 720 Z" fill="#0284c7" fillOpacity="0.25" stroke="#38bdf8" strokeWidth="1.2" strokeDasharray="4 3" />
+              <text x="360" y="665" fill="#7dd3fc" fontSize="13" fontWeight="bold" textAnchor="middle" opacity="0.8">خلیج فارس</text>
             </g>
 
-            {/* لایه ۳۱ استان ایران */}
             <g id="provinces-layer">
               {svgProvinces.map((item) => {
                 const isSelected = selectedMapKey === item.key;
@@ -214,10 +180,7 @@ export const TaminBranchesView: React.FC = () => {
                   <path
                     key={item.key}
                     d={item.pathD}
-                    onClick={() => {
-                      setSelectedMapKey(item.key);
-                      setBranchSearch('');
-                    }}
+                    onClick={() => { setSelectedMapKey(item.key); setBranchSearch(''); }}
                     onMouseEnter={() => setHoveredName(item.name)}
                     onMouseLeave={() => setHoveredName(null)}
                     className={`cursor-pointer transition-all duration-200 outline-none ${
@@ -232,7 +195,6 @@ export const TaminBranchesView: React.FC = () => {
               })}
             </g>
 
-            {/* لایه نام استان‌ها دقیقاً در مرکز هر استان */}
             <g id="province-labels" className="pointer-events-none select-none">
               {svgProvinces.map((item) => {
                 const isSelected = selectedMapKey === item.key;
@@ -244,10 +206,10 @@ export const TaminBranchesView: React.FC = () => {
                     textAnchor="middle"
                     dominantBaseline="middle"
                     className="font-black tracking-tighter"
-                    fontSize={isSelected ? "11.5" : "9.5"}
+                    fontSize={isSelected ? "11" : "9"}
                     fill={isSelected ? '#ffffff' : '#cbd5e1'}
                     stroke={isSelected ? '#1e3a8a' : '#020617'}
-                    strokeWidth={isSelected ? "2.5" : "2"}
+                    strokeWidth={isSelected ? "2.5" : "1.8"}
                     paintOrder="stroke fill"
                   >
                     {item.name}
@@ -258,34 +220,35 @@ export const TaminBranchesView: React.FC = () => {
           </svg>
         </div>
 
-        {/* لیست افقی اسامی استان‌ها برای دسترسی سریع */}
-        <div className="flex gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar">
-          {IRAN_PROVINCES_COMPLETE.map((prov) => {
-            const isSelected = selectedMapKey === prov.mapKey;
-            return (
-              <button
-                key={prov.id}
-                onClick={() => {
-                  setSelectedMapKey(prov.mapKey);
-                  setBranchSearch('');
-                }}
-                className={`px-3 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all ${
-                  isSelected
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 font-bold'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium'
-                }`}
-              >
-                {prov.name} ({prov.branchCount})
-              </button>
-            );
-          })}
+        {/* دکمه‌های انتخاب سریع استان (طراحی کاملاً مرتب، گرید ریسپانسیو و بدون به هم ریختگی) */}
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-slate-500 px-1 block">انتخاب سریع استان:</label>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-1.5 max-h-44 overflow-y-auto p-1 bg-slate-50 rounded-2xl border border-slate-100">
+            {IRAN_PROVINCES_COMPLETE.map((prov) => {
+              const isSelected = selectedMapKey === prov.mapKey;
+              return (
+                <button
+                  key={prov.id}
+                  onClick={() => { setSelectedMapKey(prov.mapKey); setBranchSearch(''); }}
+                  className={`px-2 py-1.5 rounded-xl text-[11px] font-medium transition-all truncate text-center ${
+                    isSelected
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 font-bold'
+                      : 'bg-white hover:bg-slate-200/70 text-slate-700 border border-slate-200/60'
+                  }`}
+                  title={prov.name}
+                >
+                  {prov.name}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* سرچ‌باکس شعب */}
+        {/* جستجوی شعب */}
         <div className="relative">
           <input
             type="text"
-            placeholder={`جستجو در شعب استان ${currentProvince.name} (نام، شهر، آدرس، کد شعبه)...`}
+            placeholder={`جستجو در شعب استان ${currentProvince.name}...`}
             value={branchSearch}
             onChange={(e) => setBranchSearch(e.target.value)}
             className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl py-3 pr-10 pl-4 text-xs md:text-sm outline-none transition-all"
@@ -302,7 +265,7 @@ export const TaminBranchesView: React.FC = () => {
         </div>
       </div>
 
-      {/* فهرست شعب استان */}
+      {/* فهرست شعب */}
       <div className="space-y-4">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-2">
@@ -318,7 +281,7 @@ export const TaminBranchesView: React.FC = () => {
 
         {filteredBranches.length === 0 ? (
           <div className="bg-white rounded-2xl p-8 text-center border border-slate-100 text-slate-400 text-xs">
-            شعبه‌ای با مشخصات «{branchSearch}» در استان {currentProvince.name} یافت نشد.
+            شعبه‌ای مطابق با «{branchSearch}» در این استان یافت نشد.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
@@ -344,7 +307,7 @@ export const TaminBranchesView: React.FC = () => {
 
                 <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
                   <span className="flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
-                    <CheckCircle className="w-3.5 h-3.5" /> شعبه فعال اجرایی
+                    <CheckCircle className="w-3.5 h-3.5" /> شعبه فعال
                   </span>
                   <a
                     href={`tel:${branch.tel.replace(/[^0-9]/g, '')}`}
