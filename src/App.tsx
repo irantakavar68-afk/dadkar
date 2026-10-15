@@ -1,11 +1,14 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { TaminBranchesView } from './TaminBranchesView';
+
 // افزودن فونت رسمی وزیر (Vazirmatn) به صورت سراسری
 const vazirFontStyles = `
   @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
   * {
     font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   }
-import { TaminBranchesView } from './TaminBranchesView';
+`;
+
 
 `;
 
