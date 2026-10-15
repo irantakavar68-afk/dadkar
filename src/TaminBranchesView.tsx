@@ -6,7 +6,6 @@ import iranRawJson from './data/Iran.json';
 
 // جدول نگاشت تطبیقی برای یکسان‌سازی کلیدهای Iran.json با IranProvinceKey در taminData
 const PROVINCE_MAPPER: Record<string, IranProvinceKey> = {
-  // بر اساس name_en یا کدهای رایج فایل
   'tehran': 'tehran',
   'isfahan': 'isfahan',
   'esfahan': 'isfahan',
@@ -85,10 +84,46 @@ const ISO_MAPPER: Record<string, IranProvinceKey> = {
   'IR-00': 'markazi',
 };
 
+// مختصات دقیق مرکز استان‌ها روی viewBox="0 0 798 724" برای درج برچسب نام‌ها
+const PROVINCE_LABEL_COORDS: Record<IranProvinceKey, { x: number; y: number }> = {
+  tehran: { x: 382, y: 290 },
+  alborz: { x: 345, y: 275 },
+  qom: { x: 375, y: 345 },
+  markazi: { x: 320, y: 365 },
+  qazvin: { x: 320, y: 285 },
+  gilan: { x: 310, y: 215 },
+  mazandaran: { x: 415, y: 245 },
+  golestan: { x: 505, y: 210 },
+  semnan: { x: 485, y: 315 },
+  isfahan: { x: 395, y: 415 },
+  yazd: { x: 485, y: 445 },
+  fars: { x: 415, y: 555 },
+  kerman: { x: 565, y: 540 },
+  razaviKhorasan: { x: 645, y: 290 },
+  northKhorasan: { x: 590, y: 195 },
+  southKhorasan: { x: 640, y: 425 },
+  sistanAndBaluchestan: { x: 675, y: 585 },
+  hormozgan: { x: 525, y: 645 },
+  bushehr: { x: 345, y: 565 },
+  khuzestan: { x: 260, y: 470 },
+  chaharmahalAndBakhtiari: { x: 335, y: 445 },
+  kohgiluyehAndBoyerAhmad: { x: 350, y: 495 },
+  lorestan: { x: 265, y: 395 },
+  ilam: { x: 195, y: 405 },
+  kermanshah: { x: 190, y: 345 },
+  kurdistan: { x: 200, y: 285 },
+  hamedan: { x: 265, y: 335 },
+  zanjan: { x: 260, y: 265 },
+  eastAzerbaijan: { x: 195, y: 185 },
+  westAzerbaijan: { x: 135, y: 215 },
+  ardabil: { x: 235, y: 150 },
+};
+
 interface ParsedMapProvince {
   mapKey: IranProvinceKey;
   pathD: string;
   name: string;
+  coords: { x: number; y: number };
 }
 
 export const TaminBranchesView: React.FC = () => {
@@ -105,11 +140,9 @@ export const TaminBranchesView: React.FC = () => {
       const item = rawData[rawKey];
       if (!item) return;
 
-      // دریافت مسیر با اولویت med_res (روان‌ترین نسخه برای وب/موبایل)
       const pathD = item.path?.med_res || item.path?.high_res || item.med_res || item.high_res || (typeof item.path === 'string' ? item.path : '');
       if (!pathD) return;
 
-      // تشخیص کلید استان
       const nameEn = (item.name_en || '').toLowerCase().trim();
       const isoId = (item.id || '').toUpperCase().trim();
       const rawKeyLower = rawKey.toLowerCase().trim();
@@ -120,7 +153,6 @@ export const TaminBranchesView: React.FC = () => {
         PROVINCE_MAPPER[rawKeyLower] || 
         (rawKey as IranProvinceKey);
 
-      // یافتن نام فارسی از پایگاه اصلی دادکار
       const provinceInfo = IRAN_PROVINCES_COMPLETE.find((p) => p.mapKey === resolvedKey);
       const displayName = provinceInfo ? provinceInfo.name : (item.name_fa || item.name_en || rawKey);
 
@@ -128,6 +160,7 @@ export const TaminBranchesView: React.FC = () => {
         mapKey: resolvedKey,
         pathD,
         name: displayName,
+        coords: PROVINCE_LABEL_COORDS[resolvedKey] || { x: 400, y: 360 },
       });
     });
 
@@ -184,28 +217,63 @@ export const TaminBranchesView: React.FC = () => {
             viewBox="0 0 798 724"
             className="w-full max-w-xl h-auto select-none transition-transform duration-300 filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
           >
-            {vectorProvinces.map((item, index) => {
-              const isSelected = selectedKey === item.mapKey;
-              return (
-                <path
-                  key={`${item.mapKey}-${index}`}
-                  d={item.pathD}
-                  onClick={() => {
-                    setSelectedKey(item.mapKey);
-                    setBranchSearch('');
-                  }}
-                  onMouseEnter={() => setHoveredProvince(item.name)}
-                  onMouseLeave={() => setHoveredProvince(null)}
-                  className={`cursor-pointer transition-all duration-200 outline-none ${
-                    isSelected
-                      ? 'fill-blue-500 stroke-white stroke-[2] drop-shadow-[0_0_12px_rgba(59,130,246,0.9)]'
-                      : 'fill-slate-800 hover:fill-blue-900/60 stroke-slate-700/80 hover:stroke-blue-400 stroke-[1]'
-                  }`}
-                >
-                  <title>{item.name}</title>
-                </path>
-              );
-            })}
+            {/* لایه دریاها و آب‌ها */}
+            <g id="water-bodies" className="pointer-events-none">
+              <path d="M 245 40 Q 380 90 520 85 L 540 185 Q 430 195 305 180 Q 255 140 235 95 Z" fill="#0284c7" fillOpacity="0.25" stroke="#38bdf8" strokeWidth="1.2" strokeDasharray="4 3" />
+              <text x="380" y="130" fill="#7dd3fc" fontSize="12" fontWeight="bold" textAnchor="middle" opacity="0.8">دریای خزر</text>
+              <path d="M 230 520 Q 320 590 440 635 Q 560 670 730 670 L 730 720 L 210 720 Z" fill="#0284c7" fillOpacity="0.25" stroke="#38bdf8" strokeWidth="1.2" strokeDasharray="4 3" />
+              <text x="360" y="665" fill="#7dd3fc" fontSize="13" fontWeight="bold" textAnchor="middle" opacity="0.8">خلیج فارس</text>
+            </g>
+
+            {/* لایه استان‌های نقشه */}
+            <g id="provinces-layer">
+              {vectorProvinces.map((item, index) => {
+                const isSelected = selectedKey === item.mapKey;
+                return (
+                  <path
+                    key={`${item.mapKey}-${index}`}
+                    d={item.pathD}
+                    onClick={() => {
+                      setSelectedKey(item.mapKey);
+                      setBranchSearch('');
+                    }}
+                    onMouseEnter={() => setHoveredProvince(item.name)}
+                    onMouseLeave={() => setHoveredProvince(null)}
+                    className={`cursor-pointer transition-all duration-200 outline-none ${
+                      isSelected
+                        ? 'fill-blue-600 stroke-amber-300 stroke-[2.2] drop-shadow-[0_0_12px_rgba(37,99,235,0.95)]'
+                        : 'fill-slate-800/90 hover:fill-blue-950/80 stroke-slate-700 hover:stroke-cyan-400 stroke-[1]'
+                    }`}
+                  >
+                    <title>{item.name}</title>
+                  </path>
+                );
+              })}
+            </g>
+
+            {/* لایه برچسب نام استان‌ها روی نقشه */}
+            <g id="province-labels" className="pointer-events-none select-none">
+              {vectorProvinces.map((item, index) => {
+                const isSelected = selectedKey === item.mapKey;
+                return (
+                  <text
+                    key={`lbl-${item.mapKey}-${index}`}
+                    x={item.coords.x}
+                    y={item.coords.y}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="font-black tracking-tighter"
+                    fontSize={isSelected ? "11" : "9"}
+                    fill={isSelected ? '#ffffff' : '#cbd5e1'}
+                    stroke={isSelected ? '#1e3a8a' : '#020617'}
+                    strokeWidth={isSelected ? "2.5" : "1.8"}
+                    paintOrder="stroke fill"
+                  >
+                    {item.name}
+                  </text>
+                );
+              })}
+            </g>
           </svg>
         </div>
 
