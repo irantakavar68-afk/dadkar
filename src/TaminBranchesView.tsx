@@ -1,5 +1,5 @@
 // src/TaminBranchesView.tsx
-import React, { useState, useMemo, useLayoutEffect, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import { MapPin, Phone, Building2, Search, CheckCircle, Navigation } from 'lucide-react';
 import { IRAN_PROVINCES_COMPLETE, IranProvinceKey, TaminProvince } from './data/taminData';
 import iranRawJson from './data/Iran.json';
@@ -15,63 +15,44 @@ const PROVINCE_MAPPER: Record<string, IranProvinceKey> = {
   'khorasan-e razavi': 'razaviKhorasan',
   'east azarbaijan': 'eastAzerbaijan',
   'east azerbaijan': 'eastAzerbaijan',
-  'azarbaijan-e sharqi': 'eastAzerbaijan',
-  'azarbaijan sharghi': 'eastAzerbaijan',
   'west azarbaijan': 'westAzerbaijan',
   'west azerbaijan': 'westAzerbaijan',
-  'azarbaijan-e gharbi': 'westAzerbaijan',
-  'azarbaijan gharbi': 'westAzerbaijan',
   'khuzestan': 'khuzestan',
-  'khouzestan': 'khuzestan',
   'alborz': 'alborz',
   'gilan': 'gilan',
-  'guilan': 'gilan',
   'mazandaran': 'mazandaran',
   'kerman': 'kerman',
   'ardabil': 'ardabil',
   'ardebil': 'ardabil',
   'zanjan': 'zanjan',
   'qazvin': 'qazvin',
-  'ghazvin': 'qazvin',
   'markazi': 'markazi',
   'qom': 'qom',
-  'ghom': 'qom',
   'hamedan': 'hamedan',
   'hamadan': 'hamedan',
   'kermanshah': 'kermanshah',
   'kurdistan': 'kurdistan',
   'kordestan': 'kurdistan',
-  'kurdestan': 'kurdistan',
   'lorestan': 'lorestan',
-  'luristan': 'lorestan',
   'ilam': 'ilam',
-  'elam': 'ilam',
   'chahar mahall and bakhtiari': 'chaharmahalAndBakhtiari',
   'chaharmahal and bakhtiari': 'chaharmahalAndBakhtiari',
   'chahar mahal va bakhtiari': 'chaharmahalAndBakhtiari',
-  'chahar mahaal and bakhtiari': 'chaharmahalAndBakhtiari',
   'kohgiluyeh and boyer-ahmad': 'kohgiluyehAndBoyerAhmad',
   'kohgiluyeh and boyer ahmad': 'kohgiluyehAndBoyerAhmad',
-  'kohgiluyeh va boyerahmad': 'kohgiluyehAndBoyerAhmad',
-  'kohgiluyeh and boyerahmad': 'kohgiluyehAndBoyerAhmad',
-  'kohgiluyeh & boyer-ahmad': 'kohgiluyehAndBoyerAhmad',
-  'boyer-ahmad': 'kohgiluyehAndBoyerAhmad',
   'kohgiluyeh': 'kohgiluyehAndBoyerAhmad',
+  'boyer-ahmad': 'kohgiluyehAndBoyerAhmad',
   'bushehr': 'bushehr',
-  'boushehr': 'bushehr',
   'semnan': 'semnan',
   'golestan': 'golestan',
   'north khorasan': 'northKhorasan',
-  'khorasan-e shomali': 'northKhorasan',
   'south khorasan': 'southKhorasan',
-  'khorasan-e jonoubi': 'southKhorasan',
   'yazd': 'yazd',
   'sistan and baluchestan': 'sistanAndBaluchestan',
-  'sistan va baluchestan': 'sistanAndBaluchestan',
   'hormozgan': 'hormozgan',
 };
 
-// نگاشت کدهای ISO و شماره‌گذاری‌های استاندارد کشور
+// نگاشت بر اساس کلیدهای استاندارد ISO
 const ISO_MAPPER: Record<string, IranProvinceKey> = {
   'IR-01': 'gilan',
   'IR-02': 'mazandaran',
@@ -107,12 +88,39 @@ const ISO_MAPPER: Record<string, IranProvinceKey> = {
   'IR-00': 'markazi',
 };
 
-// اصلاح آفست برای جلوگیری از تداخل برچسب‌ها در اشکال کشیده/نامنظم
-const LABEL_OFFSETS: Partial<Record<IranProvinceKey, { dx: number; dy: number }>> = {
-  eastAzerbaijan: { dx: 18, dy: -4 }, // انتقال ملایم نام آذربایجان شرقی به سمت راست و بالا جهت رفع هم‌پوشانی با آذربایجان غربی
-  westAzerbaijan: { dx: -10, dy: 6 },
-  kohgiluyehAndBoyerAhmad: { dx: 0, dy: 0 },
-  kurdistan: { dx: 0, dy: 0 },
+// مختصات دقیق، استاندارد و بدون تداخل مرکز استان‌ها منطبق بر ویوباکس 798x724
+const PROVINCE_CENTERS: Record<IranProvinceKey, { x: number; y: number }> = {
+  westAzerbaijan: { x: 92, y: 135 },
+  eastAzerbaijan: { x: 172, y: 110 },
+  ardabil: { x: 228, y: 88 },
+  gilan: { x: 288, y: 148 },
+  zanjan: { x: 218, y: 182 },
+  kurdistan: { x: 148, y: 228 },
+  kermanshah: { x: 135, y: 300 },
+  ilam: { x: 130, y: 375 },
+  lorestan: { x: 215, y: 345 },
+  hamedan: { x: 218, y: 268 },
+  markazi: { x: 285, y: 285 },
+  qom: { x: 335, y: 275 },
+  tehran: { x: 348, y: 215 },
+  alborz: { x: 312, y: 202 },
+  qazvin: { x: 275, y: 205 },
+  mazandaran: { x: 368, y: 165 },
+  golestan: { x: 472, y: 148 },
+  semnan: { x: 450, y: 250 },
+  northKhorasan: { x: 558, y: 142 },
+  razaviKhorasan: { x: 642, y: 242 },
+  southKhorasan: { x: 628, y: 405 },
+  isfahan: { x: 345, y: 370 },
+  chaharmahalAndBakhtiari: { x: 285, y: 420 },
+  khuzestan: { x: 215, y: 460 },
+  kohgiluyehAndBoyerAhmad: { x: 300, y: 470 },
+  bushehr: { x: 295, y: 565 },
+  fars: { x: 395, y: 525 },
+  yazd: { x: 465, y: 390 },
+  kerman: { x: 535, y: 515 },
+  hormozgan: { x: 505, y: 640 },
+  sistanAndBaluchestan: { x: 685, y: 550 },
 };
 
 interface ParsedMapProvince {
@@ -126,13 +134,7 @@ export const TaminBranchesView: React.FC = () => {
   const [branchSearch, setBranchSearch] = useState<string>('');
   const [hoveredProvince, setHoveredProvince] = useState<string | null>(null);
 
-  const [labelCenters, setLabelCenters] = useState<Record<IranProvinceKey, { x: number; y: number }>>(
-    {} as Record<IranProvinceKey, { x: number; y: number }>
-  );
-
-  const svgRef = useRef<SVGSVGElement | null>(null);
-
-  // استخراج و یکسان‌سازی مسیرهای برداری از فایل Iran.json
+  // استخراج مسیرهای وکتور
   const vectorProvinces = useMemo<ParsedMapProvince[]>(() => {
     const list: ParsedMapProvince[] = [];
     const rawData = iranRawJson as Record<string, any>;
@@ -172,29 +174,6 @@ export const TaminBranchesView: React.FC = () => {
     return list;
   }, []);
 
-  // محاسبه مرکز هر استان به صورت خودکار بر اساس getBBox + اعمال آفست‌های تنظیمی
-  useLayoutEffect(() => {
-    const svgEl = svgRef.current;
-    if (!svgEl) return;
-
-    const nextCenters: Record<string, { x: number; y: number }> = {};
-
-    for (const item of vectorProvinces) {
-      const el = svgEl.querySelector<SVGPathElement>(`path[data-mapkey="${item.mapKey}"]`);
-      if (!el) continue;
-
-      const box = el.getBBox();
-      const offset = LABEL_OFFSETS[item.mapKey] || { dx: 0, dy: 0 };
-
-      nextCenters[item.mapKey] = {
-        x: box.x + box.width / 2 + offset.dx,
-        y: box.y + box.height / 2 + offset.dy,
-      };
-    }
-
-    setLabelCenters(nextCenters as Record<IranProvinceKey, { x: number; y: number }>);
-  }, [vectorProvinces]);
-
   const currentProvince: TaminProvince = useMemo(() => {
     return IRAN_PROVINCES_COMPLETE.find((p) => p.mapKey === selectedKey) || IRAN_PROVINCES_COMPLETE[0];
   }, [selectedKey]);
@@ -232,8 +211,9 @@ export const TaminBranchesView: React.FC = () => {
           </div>
         </div>
 
-        {/* کادر نقشه جغرافیایی وکتور */}
+        {/* کادر اصلی نقشه جغرافیایی وکتور */}
         <div className="relative w-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 rounded-2xl p-4 overflow-hidden border border-slate-800 shadow-xl flex flex-col items-center justify-center">
+          
           {/* تولتیپ شناور */}
           <div className="absolute top-3 right-4 z-10 flex items-center gap-1.5 bg-slate-800/80 backdrop-blur-md px-3 py-1 rounded-xl text-xs text-slate-200 border border-slate-700/50">
             <Navigation className="w-3.5 h-3.5 text-blue-400" />
@@ -241,11 +221,10 @@ export const TaminBranchesView: React.FC = () => {
           </div>
 
           <svg
-            ref={svgRef}
             viewBox="0 0 798 724"
             className="w-full max-w-xl h-auto select-none transition-transform duration-300 filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
           >
-            {/* لایه بصری استان‌ها */}
+            {/* ۱. لایه اشکال استان‌ها */}
             <g id="provinces-layer">
               {vectorProvinces.map((item, index) => {
                 const isSelected = selectedKey === item.mapKey;
@@ -271,40 +250,25 @@ export const TaminBranchesView: React.FC = () => {
               })}
             </g>
 
-            {/* لایه نامرئی صرفاً جهت سنجش مرکز */}
-            <g
-              id="label-measure-layer"
-              className="pointer-events-none"
-              style={{ opacity: 0, position: 'absolute' as any }}
-            >
-              {vectorProvinces.map((item, index) => (
-                <path
-                  key={`m-${item.mapKey}-${index}`}
-                  d={item.pathD}
-                  data-mapkey={item.mapKey}
-                />
-              ))}
-            </g>
-
-            {/* لایه اسامی استان‌ها */}
+            {/* ۲. لایه اسامی استان‌ها با مختصات استاندارد و بدون خطا */}
             <g id="province-labels" className="pointer-events-none select-none">
               {vectorProvinces.map((item, index) => {
-                const c = labelCenters[item.mapKey];
-                if (!c) return null;
+                const coords = PROVINCE_CENTERS[item.mapKey];
+                if (!coords) return null;
 
                 const isSelected = selectedKey === item.mapKey;
                 return (
                   <text
-                    key={`lbl-${item.mapKey}-${index}`}
-                    x={c.x}
-                    y={c.y}
+                    key={`label-${item.mapKey}-${index}`}
+                    x={coords.x}
+                    y={coords.y}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    className="font-black tracking-tighter"
-                    fontSize={isSelected ? 11 : 9}
+                    className="font-bold pointer-events-none"
+                    fontSize={isSelected ? 10.5 : 8.5}
                     fill={isSelected ? '#ffffff' : '#cbd5e1'}
-                    stroke={isSelected ? '#0b1220' : '#020617'}
-                    strokeWidth={isSelected ? 2.6 : 2.0}
+                    stroke={isSelected ? '#0f172a' : '#020617'}
+                    strokeWidth={isSelected ? 2.5 : 1.8}
                     paintOrder="stroke fill"
                   >
                     {item.name}
