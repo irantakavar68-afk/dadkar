@@ -4,9 +4,8 @@ import { MapPin, Phone, Building2, Search, CheckCircle, Navigation } from 'lucid
 import { IRAN_PROVINCES_COMPLETE, IranProvinceKey, ProvinceMapData } from './data/taminData';
 import iranRawJson from './data/Iran.json';
 
-// جدول تطبیق دقیق کلیدهای فایل Iran.json با تایپ رسمی IranProvinceKey
+// جدول نگاشت دقیق کلیدهای فایل Iran.json با تایپ رسمی IranProvinceKey
 const RAW_KEY_TO_PROVINCE_KEY: Record<string, IranProvinceKey> = {
-  // کدهای ۳ حرفی موجود در Iran.json
   'waz': 'westAzerbaijan',
   'eaz': 'eastAzerbaijan',
   'ard': 'ardabil',
@@ -39,7 +38,7 @@ const RAW_KEY_TO_PROVINCE_KEY: Record<string, IranProvinceKey> = {
   'ham': 'hamedan',
   'yzd': 'yazd',
 
-  // کدهای ISO استاندارد
+  // کدهای ISO
   'ir-01': 'westAzerbaijan',
   'ir-02': 'eastAzerbaijan',
   'ir-03': 'ardabil',
@@ -73,39 +72,39 @@ const RAW_KEY_TO_PROVINCE_KEY: Record<string, IranProvinceKey> = {
   'ir-31': 'yazd',
 };
 
-// مختصات بهینه‌شده نام‌ها در مقیاس SVG نقشه ایران (viewBox: 0 0 798 724)
+// مختصات دقیق حساب‌شده بر اساس Visual Center (Pole of Inaccessibility) هندسی نقشه
 const PROVINCE_LABEL_SETTINGS: Record<IranProvinceKey, { x: number; y: number; fs: number; short?: string }> = {
-  westAzerbaijan: { x: 95, y: 155, fs: 7.2, short: 'آذربایجان غربی' },
-  eastAzerbaijan: { x: 172, y: 102, fs: 7.2, short: 'آذربایجان شرقی' },
-  ardabil: { x: 232, y: 88, fs: 7.0 },
-  gilan: { x: 288, y: 148, fs: 7.0 },
-  zanjan: { x: 215, y: 182, fs: 7.0 },
-  kurdistan: { x: 145, y: 232, fs: 7.2, short: 'کردستان' },
-  kermanshah: { x: 135, y: 300, fs: 7.0 },
-  ilam: { x: 122, y: 365, fs: 6.8 },
-  lorestan: { x: 212, y: 345, fs: 7.2 },
-  hamedan: { x: 220, y: 268, fs: 7.0 },
-  markazi: { x: 285, y: 282, fs: 7.2 },
-  qom: { x: 340, y: 278, fs: 6.8 },
-  tehran: { x: 350, y: 220, fs: 7.0 },
-  alborz: { x: 312, y: 202, fs: 6.0 },
-  qazvin: { x: 272, y: 212, fs: 6.8 },
-  mazandaran: { x: 370, y: 168, fs: 7.2 },
-  golestan: { x: 470, y: 145, fs: 7.2 },
-  semnan: { x: 450, y: 238, fs: 8.0 },
-  northKhorasan: { x: 558, y: 140, fs: 7.0, short: 'خراسان شمالی' },
-  razaviKhorasan: { x: 638, y: 235, fs: 7.8, short: 'خراسان رضوی' },
-  southKhorasan: { x: 625, y: 400, fs: 7.8, short: 'خراسان جنوبی' },
-  isfahan: { x: 350, y: 365, fs: 8.5 },
-  chaharmahalAndBakhtiari: { x: 282, y: 415, fs: 6.2, short: 'چهارمحال' },
-  khuzestan: { x: 212, y: 455, fs: 8.2 },
-  kohgiluyehAndBoyerAhmad: { x: 298, y: 462, fs: 6.2, short: 'کهگیلویه' },
-  bushehr: { x: 295, y: 555, fs: 7.2 },
-  fars: { x: 395, y: 510, fs: 8.5 },
-  yazd: { x: 470, y: 390, fs: 8.0 },
-  kerman: { x: 540, y: 505, fs: 8.5 },
-  hormozgan: { x: 485, y: 630, fs: 7.5 },
-  sistanAndBaluchestan: { x: 680, y: 540, fs: 7.5, short: 'سیستان و بلوچستان' },
+  westAzerbaijan: { x: 70, y: 145, fs: 6.8, short: 'آذربایجان غربی' },
+  eastAzerbaijan: { x: 140, y: 100, fs: 6.8, short: 'آذربایجان شرقی' },
+  ardabil: { x: 172, y: 80, fs: 6.5, short: 'اردبیل' },
+  gilan: { x: 238, y: 145, fs: 6.5, short: 'گیلان' },
+  zanjan: { x: 181, y: 162, fs: 6.5, short: 'زنجان' },
+  kurdistan: { x: 127, y: 211, fs: 6.8, short: 'کردستان' },
+  kermanshah: { x: 93, y: 276, fs: 6.8, short: 'کرمانشاه' },
+  ilam: { x: 130, y: 353, fs: 6.5, short: 'ایلام' },
+  lorestan: { x: 163, y: 321, fs: 6.8, short: 'لرستان' },
+  hamedan: { x: 193, y: 242, fs: 6.5, short: 'همدان' },
+  markazi: { x: 233, y: 284, fs: 6.8, short: 'مرکزی' },
+  qom: { x: 294, y: 258, fs: 5.8, short: 'قم' },
+  tehran: { x: 305, y: 221, fs: 5.8, short: 'تهران' },
+  alborz: { x: 284, y: 194, fs: 5.5, short: 'البرز' },
+  qazvin: { x: 245, y: 190, fs: 6.5, short: 'قزوین' },
+  mazandaran: { x: 380, y: 179, fs: 6.5, short: 'مازندران' },
+  golestan: { x: 469, y: 119, fs: 6.8, short: 'گلستان' },
+  semnan: { x: 456, y: 223, fs: 7.5, short: 'سمنان' },
+  northKhorasan: { x: 535, y: 120, fs: 6.8, short: 'خراسان شمالی' },
+  razaviKhorasan: { x: 629, y: 217, fs: 7.5, short: 'خراسان رضوی' },
+  southKhorasan: { x: 641, y: 386, fs: 7.5, short: 'خراسان جنوبی' },
+  isfahan: { x: 334, y: 330, fs: 8.0, short: 'اصفهان' },
+  chaharmahalAndBakhtiari: { x: 279, y: 401, fs: 5.5, short: 'چهارمحال' },
+  khuzestan: { x: 204, y: 412, fs: 7.5, short: 'خوزستان' },
+  kohgiluyehAndBoyerAhmad: { x: 280, y: 455, fs: 5.5, short: 'کهگیلویه' },
+  bushehr: { x: 312, y: 561, fs: 6.5, short: 'بوشهر' },
+  fars: { x: 397, y: 560, fs: 8.0, short: 'فارس' },
+  yazd: { x: 507, y: 350, fs: 7.5, short: 'یزد' },
+  kerman: { x: 556, y: 494, fs: 8.0, short: 'کرمان' },
+  hormozgan: { x: 499, y: 604, fs: 7.0, short: 'هرمزگان' },
+  sistanAndBaluchestan: { x: 689, y: 616, fs: 7.2, short: 'سیستان و بلوچستان' },
 };
 
 interface RenderedProvince {
@@ -119,7 +118,6 @@ export const TaminBranchesView: React.FC = () => {
   const [branchSearch, setBranchSearch] = useState<string>('');
   const [hoveredProvince, setHoveredProvince] = useState<string | null>(null);
 
-  // استخراج مسیرهای وکتور و فیلتر کردن قطعی دریاچه‌ها یا کلیدهای نامعتبر
   const parsedMapProvinces = useMemo<RenderedProvince[]>(() => {
     const list: RenderedProvince[] = [];
     const rawData = iranRawJson as Record<string, any>;
@@ -138,37 +136,39 @@ export const TaminBranchesView: React.FC = () => {
 
       if (!pathD) return;
 
-      const normalizedRawKey = key.toLowerCase().trim();
+      const normalizedKey = key.toLowerCase().trim();
       const normalizedIso = (item.id || '').toLowerCase().trim();
       const normalizedNameEn = (item.name_en || '').toLowerCase().trim();
 
       const matchedKey: IranProvinceKey | undefined =
-        RAW_KEY_TO_PROVINCE_KEY[normalizedRawKey] ||
+        RAW_KEY_TO_PROVINCE_KEY[normalizedKey] ||
         RAW_KEY_TO_PROVINCE_KEY[normalizedIso] ||
         RAW_KEY_TO_PROVINCE_KEY[normalizedNameEn];
 
       if (!matchedKey) return;
 
       const pData = IRAN_PROVINCES_COMPLETE.find((p) => p.mapKey === matchedKey);
-      const name = pData ? pData.name : item.name_fa || key;
+      
+      // اصلاح اصلاحی نام‌گذاری جابه‌جا شده‌ی آذربایجان‌ها در Iran.json خام
+      let fixedName = pData ? pData.name : item.name_fa;
+      if (matchedKey === 'westAzerbaijan') fixedName = 'آذربایجان غربی';
+      if (matchedKey === 'eastAzerbaijan') fixedName = 'آذربایجان شرقی';
 
       list.push({
         mapKey: matchedKey,
         pathD,
-        name,
+        name: fixedName || key,
       });
     });
 
     return list;
   }, []);
 
-  // استان انتخاب شده همراه با Fallback تضمینی برای جلوگیری از ارور
   const currentProvince: ProvinceMapData = useMemo(() => {
     const found = IRAN_PROVINCES_COMPLETE.find((p) => p.mapKey === selectedKey);
     return found || IRAN_PROVINCES_COMPLETE[0];
   }, [selectedKey]);
 
-  // فیلتر شعب با گارد دفاعی برای جلوگیری از خطای دسترسی به فیلدها
   const filteredBranches = useMemo(() => {
     const branches = currentProvince?.branches || [];
     if (!branchSearch.trim()) return branches;
@@ -185,7 +185,7 @@ export const TaminBranchesView: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-14 font-['Vazirmatn'] text-slate-800" dir="rtl">
-      {/* کارت بالای نقشه */}
+      {/* هدر */}
       <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5 font-black text-slate-900 text-lg">
@@ -204,7 +204,7 @@ export const TaminBranchesView: React.FC = () => {
           </div>
         </div>
 
-        {/* کادر نقشه برداری */}
+        {/* کادر نقشه */}
         <div className="relative w-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 rounded-2xl p-4 overflow-hidden border border-slate-800 shadow-xl flex flex-col items-center justify-center">
           <div className="absolute top-3 right-4 z-10 flex items-center gap-1.5 bg-slate-800/80 backdrop-blur-md px-3 py-1 rounded-xl text-xs text-slate-200 border border-slate-700/50">
             <Navigation className="w-3.5 h-3.5 text-blue-400" />
@@ -215,7 +215,6 @@ export const TaminBranchesView: React.FC = () => {
             viewBox="0 0 798 724"
             className="w-full max-w-xl h-auto select-none transition-transform duration-300 filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
           >
-            {/* لایه استان‌ها */}
             <g id="provinces-layer">
               {parsedMapProvinces.map((item, index) => {
                 const isSelected = selectedKey === item.mapKey;
@@ -241,7 +240,6 @@ export const TaminBranchesView: React.FC = () => {
               })}
             </g>
 
-            {/* لایه نام استان‌ها */}
             <g id="province-labels" className="pointer-events-none select-none">
               {parsedMapProvinces.map((item, index) => {
                 const conf = PROVINCE_LABEL_SETTINGS[item.mapKey];
@@ -258,7 +256,7 @@ export const TaminBranchesView: React.FC = () => {
                     textAnchor="middle"
                     dominantBaseline="middle"
                     className="font-bold pointer-events-none"
-                    fontSize={isSelected ? conf.fs + 1.2 : conf.fs}
+                    fontSize={isSelected ? conf.fs + 1.5 : conf.fs}
                     fill={isSelected ? '#ffffff' : '#cbd5e1'}
                     stroke={isSelected ? '#0f172a' : '#020617'}
                     strokeWidth={isSelected ? 2.4 : 1.8}
@@ -272,7 +270,7 @@ export const TaminBranchesView: React.FC = () => {
           </svg>
         </div>
 
-        {/* فیلد جستجوی شعب */}
+        {/* جستجوی شعب */}
         <div className="relative">
           <input
             type="text"
@@ -293,7 +291,7 @@ export const TaminBranchesView: React.FC = () => {
         </div>
       </div>
 
-      {/* لیست کارت‌های شعب */}
+      {/* لیست شعب */}
       <div className="space-y-4">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-2">
