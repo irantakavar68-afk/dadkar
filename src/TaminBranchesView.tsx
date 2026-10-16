@@ -113,46 +113,39 @@ const ISO_MAPPER: Record<string, IranProvinceKey> = {
   'IR-31': 'yazd',
 };
 
-// مختصات بهینه‌شده به انضمام تنظیمات فونت و چندخطی بودن متن متناسب با مساحت هندسی
-interface ProvinceCenterConfig {
-  x: number;
-  y: number;
-  baseSize: number;
-  lines?: string[]; // در صورت شکستن به دو خط
-}
-
-const STATIC_PROVINCE_CONFIG: Record<IranProvinceKey, ProvinceCenterConfig> = {
-  westAzerbaijan: { x: 100, y: 155, baseSize: 7.2, lines: ['آذربایجان', 'غربی'] },
-  eastAzerbaijan: { x: 172, y: 102, baseSize: 7.2, lines: ['آذربایجان', 'شرقی'] },
-  ardabil: { x: 232, y: 92, baseSize: 6.8 },
-  gilan: { x: 288, y: 148, baseSize: 6.8 },
-  zanjan: { x: 215, y: 180, baseSize: 7.0 },
-  kurdistan: { x: 145, y: 228, baseSize: 7.2 },
-  kermanshah: { x: 135, y: 295, baseSize: 7.2 },
-  ilam: { x: 120, y: 355, baseSize: 7.0 },
-  lorestan: { x: 212, y: 345, baseSize: 7.2 },
-  hamedan: { x: 218, y: 265, baseSize: 7.0 },
-  markazi: { x: 280, y: 282, baseSize: 7.2 },
-  qom: { x: 338, y: 278, baseSize: 6.5 },
-  tehran: { x: 348, y: 218, baseSize: 7.0 },
-  alborz: { x: 312, y: 202, baseSize: 6.0 },
-  qazvin: { x: 272, y: 212, baseSize: 6.8 },
-  mazandaran: { x: 368, y: 165, baseSize: 7.2 },
-  golestan: { x: 468, y: 145, baseSize: 7.2 },
-  semnan: { x: 450, y: 235, baseSize: 8.5 },
-  northKhorasan: { x: 555, y: 140, baseSize: 7.2, lines: ['خراسان', 'شمالی'] },
-  razaviKhorasan: { x: 635, y: 235, baseSize: 8.5, lines: ['خراسان', 'رضوی'] },
-  southKhorasan: { x: 620, y: 395, baseSize: 8.5, lines: ['خراسان', 'جنوبی'] },
-  isfahan: { x: 350, y: 365, baseSize: 8.8 },
-  chaharmahalAndBakhtiari: { x: 280, y: 410, baseSize: 6.2, lines: ['چهارمحال', 'و بختیاری'] },
-  khuzestan: { x: 210, y: 450, baseSize: 8.2 },
-  kohgiluyehAndBoyerAhmad: { x: 298, y: 460, baseSize: 6.2, lines: ['کهگیلویه و', 'بویراحمد'] },
-  bushehr: { x: 290, y: 550, baseSize: 7.2 },
-  fars: { x: 390, y: 505, baseSize: 8.8 },
-  yazd: { x: 470, y: 385, baseSize: 8.8 },
-  kerman: { x: 540, y: 500, baseSize: 9.0 },
-  hormozgan: { x: 485, y: 625, baseSize: 8.0 },
-  sistanAndBaluchestan: { x: 675, y: 535, baseSize: 8.5, lines: ['سیستان و', 'بلوچستان'] },
+// مختصات بهینه‌سازی شده و سایز فونت اختصاصی هر استان در صفحه نقشه
+const STATIC_PROVINCE_CENTERS: Record<string, { x: number; y: number; fs: number; shortName?: string }> = {
+  westAzerbaijan: { x: 95, y: 155, fs: 7.0, shortName: 'آذربایجان غ.' },
+  eastAzerbaijan: { x: 172, y: 102, fs: 7.0, shortName: 'آذربایجان ش.' },
+  ardabil: { x: 232, y: 88, fs: 6.8 },
+  gilan: { x: 288, y: 150, fs: 6.8 },
+  zanjan: { x: 215, y: 182, fs: 7.0 },
+  kurdistan: { x: 145, y: 232, fs: 7.2 },
+  kermanshah: { x: 135, y: 300, fs: 7.0 },
+  ilam: { x: 122, y: 365, fs: 6.8 },
+  lorestan: { x: 212, y: 345, fs: 7.2 },
+  hamedan: { x: 220, y: 268, fs: 6.8 },
+  markazi: { x: 285, y: 282, fs: 7.2 },
+  qom: { x: 340, y: 278, fs: 6.5 },
+  tehran: { x: 350, y: 220, fs: 6.8 },
+  alborz: { x: 312, y: 202, fs: 5.8 },
+  qazvin: { x: 272, y: 212, fs: 6.5 },
+  mazandaran: { x: 370, y: 168, fs: 7.0 },
+  golestan: { x: 470, y: 145, fs: 7.0 },
+  semnan: { x: 450, y: 238, fs: 8.0 },
+  northKhorasan: { x: 558, y: 140, fs: 7.0, shortName: 'خراسان ش.' },
+  razaviKhorasan: { x: 638, y: 235, fs: 7.5, shortName: 'خراسان رضوی' },
+  southKhorasan: { x: 625, y: 400, fs: 7.5, shortName: 'خراسان ج.' },
+  isfahan: { x: 350, y: 365, fs: 8.5 },
+  chaharmahalAndBakhtiari: { x: 282, y: 415, fs: 5.8, shortName: 'چهارمحال' },
+  khuzestan: { x: 212, y: 455, fs: 8.0 },
+  kohgiluyehAndBoyerAhmad: { x: 298, y: 462, fs: 5.8, shortName: 'کهگیلویه' },
+  bushehr: { x: 295, y: 555, fs: 7.0 },
+  fars: { x: 395, y: 510, fs: 8.5 },
+  yazd: { x: 470, y: 390, fs: 8.0 },
+  kerman: { x: 540, y: 505, fs: 8.5 },
+  hormozgan: { x: 485, y: 630, fs: 7.5 },
+  sistanAndBaluchestan: { x: 680, y: 540, fs: 7.5, shortName: 'سیستان و ب.' },
 };
 
 interface ParsedMapProvince {
@@ -171,6 +164,10 @@ export const TaminBranchesView: React.FC = () => {
     const list: ParsedMapProvince[] = [];
     const rawData = iranRawJson as Record<string, any>;
 
+    if (!rawData || typeof rawData !== 'object') {
+      return list;
+    }
+
     Object.keys(rawData).forEach((rawKey) => {
       const item = rawData[rawKey];
       if (!item) return;
@@ -187,11 +184,13 @@ export const TaminBranchesView: React.FC = () => {
       const isoId = (item.id || '').toUpperCase().trim();
       const rawKeyLower = rawKey.toLowerCase().trim();
 
-      const resolvedKey: IranProvinceKey =
+      const resolvedKey: IranProvinceKey | undefined =
         PROVINCE_MAPPER[rawKeyLower] ||
         ISO_MAPPER[isoId] ||
-        PROVINCE_MAPPER[nameEn] ||
-        (rawKey as IranProvinceKey);
+        PROVINCE_MAPPER[nameEn];
+
+      // نادیده گرفتن دریاچه‌ها یا آب‌ها که کلید استانی معتبر ندارند
+      if (!resolvedKey) return;
 
       const provinceInfo = IRAN_PROVINCES_COMPLETE.find((p) => p.mapKey === resolvedKey);
       const displayName = provinceInfo ? provinceInfo.name : item.name_fa || item.name_en || rawKey;
@@ -280,58 +279,31 @@ export const TaminBranchesView: React.FC = () => {
               })}
             </g>
 
-            {/* لایه برچسب‌های متنی با جای‌گذاری دقیق و سایز تطبیقی */}
+            {/* لایه برچسب‌های متنی ساده بدون tspan برای جلوگیری قطعی از کرش */}
             <g id="province-labels" className="pointer-events-none select-none">
               {vectorProvinces.map((item, index) => {
-                const config = STATIC_PROVINCE_CONFIG[item.mapKey];
-                if (!config) return null;
+                const conf = STATIC_PROVINCE_CENTERS[item.mapKey];
+                if (!conf) return null;
 
                 const isSelected = selectedKey === item.mapKey;
-                const fontSize = isSelected ? config.baseSize * 1.25 : config.baseSize;
-                const textColor = isSelected ? '#ffffff' : '#e2e8f0';
-                const strokeColor = isSelected ? '#0f172a' : '#020617';
-                const strokeWidth = isSelected ? 2.4 : 1.8;
-
-                if (config.lines && config.lines.length > 1) {
-                  return (
-                    <text
-                      key={`lbl-${item.mapKey}-${index}`}
-                      x={config.x}
-                      y={config.y}
-                      textAnchor="middle"
-                      dominantBaseline="central"
-                      className="font-bold pointer-events-none tracking-tight"
-                      fontSize={fontSize}
-                      fill={textColor}
-                      stroke={strokeColor}
-                      strokeWidth={strokeWidth}
-                      paintOrder="stroke fill"
-                    >
-                      <tspan x={config.x} dy="-0.55em">
-                        {config.lines[0]}
-                      </tspan>
-                      <tspan x={config.x} dy="1.15em">
-                        {config.lines[1]}
-                      </tspan>
-                    </text>
-                  );
-                }
+                const labelText = conf.shortName || item.name;
+                const currentFs = isSelected ? conf.fs + 1.5 : conf.fs;
 
                 return (
                   <text
                     key={`lbl-${item.mapKey}-${index}`}
-                    x={config.x}
-                    y={config.y}
+                    x={conf.x}
+                    y={conf.y}
                     textAnchor="middle"
-                    dominantBaseline="central"
-                    className="font-bold pointer-events-none tracking-tight"
-                    fontSize={fontSize}
-                    fill={textColor}
-                    stroke={strokeColor}
-                    strokeWidth={strokeWidth}
+                    dominantBaseline="middle"
+                    className="font-bold pointer-events-none"
+                    fontSize={currentFs}
+                    fill={isSelected ? '#ffffff' : '#cbd5e1'}
+                    stroke={isSelected ? '#0f172a' : '#020617'}
+                    strokeWidth={isSelected ? 2.5 : 1.8}
                     paintOrder="stroke fill"
                   >
-                    {item.name}
+                    {labelText}
                   </text>
                 );
               })}
