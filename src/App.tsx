@@ -10,18 +10,9 @@ import {
 
 import TaminBranchesView from './TaminBranchesView';
 import { taminProvincesData } from './data/taminData';
-import { lawsDatabase, LawItem } from './lawsData';
+import { LAWS_DATABASE, LawItem } from './lawsData';
 
 // --- رابط‌های تایپ اسکریپت ---
-interface Article {
-  number: string;
-  title: string;
-  content: string;
-  category: string;
-  tags?: string[];
-  notes?: string[];
-}
-
 interface TemplateItem {
   id: string;
   title: string;
@@ -32,7 +23,7 @@ interface TemplateItem {
   tags: string[];
 }
 
-// دیتابیس ۲۰ قالب حقوقی و اداری استاندارد
+// دیتابیس قالب‌های حقوقی و اداری استاندارد
 const TEMPLATES_DATABASE: TemplateItem[] = [
   {
     id: 'contract-fixed-term',
@@ -239,7 +230,7 @@ const TEMPLATES_DATABASE: TemplateItem[] = [
 ];
 
 export default function DadKarApp() {
-  // تب‌های اصلی ناوبری برنامه
+  // تب‌های اصلی ناوبری
   const [activeTab, setActiveTab] = useState<'calculator' | 'tamin' | 'templates' | 'laws' | 'faq'>('calculator');
   
   // لودینگ اولیه اپلیکیشن
@@ -248,7 +239,6 @@ export default function DadKarApp() {
 
   // استیت‌های بخش محاسبات
   const [activeCalc, setActiveCalc] = useState<string>('salary');
-  // پیش‌فرض ۱۰ میلیون تومان (۱۰۰ میلیون ریال)
   const [baseSalary, setBaseSalary] = useState<number>(100000000);
   const [salaryInputText, setSalaryInputText] = useState<string>('100,000,000');
   
@@ -266,12 +256,10 @@ export default function DadKarApp() {
   // استیت‌های بخش قوانین
   const [lawSearchQuery, setLawSearchQuery] = useState('');
   const [selectedLawCategory, setSelectedLawCategory] = useState<string>('all');
-  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
 
   // استیت‌های بخش قالب‌های حقوقی
   const [templateSearchQuery, setTemplateSearchQuery] = useState('');
   const [selectedTemplateCategory, setSelectedTemplateCategory] = useState<string>('all');
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateItem | null>(null);
   const [copiedTemplateId, setCopiedTemplateId] = useState<string | null>(null);
 
   // شبیه‌سازی لودینگ پویا و حرفه‌ای
@@ -289,13 +277,13 @@ export default function DadKarApp() {
     return () => clearInterval(timer);
   }, []);
 
-  // کنترل تغییر مبلغ ورودی به صورت عددی دستی تا ۱۰ میلیارد ریال
+  // کنترل تغییر مبلغ ورودی به صورت دستی تا ۱۰ میلیارد ریال
   const handleSalaryInputChange = (rawVal: string) => {
     const cleanDigits = rawVal.replace(/[^\d]/g, '');
     let num = parseInt(cleanDigits, 10);
     if (isNaN(num)) num = 0;
     
-    // سقف ۱۰ میلیارد ریال (۱۰,۰۰۰,۰۰۰,۰۰۰ ریال)
+    // سقف ۱۰ میلیارد ریال
     if (num > 10000000000) num = 10000000000;
 
     setBaseSalary(num);
@@ -307,48 +295,51 @@ export default function DadKarApp() {
     setSalaryInputText(sliderVal.toLocaleString('fa-IR'));
   };
 
-  // محاسبات جامع حقوق، دستمزد، بیمه و مستمری
-  const calculations = useMemo(() => {
-    // پایه‌ها طبق ماده ۳۵ و ۳۷ قانون کار
-    const dailyWage = baseSalary / 30;
-    const hourlyWage = baseSalary / 220; // عرف استاندارد قانون کار برای ۴۴ ساعت هفتگی
+  // پایگاه قوانین ایمن
+  const safeLawsList = useMemo(() => {
+    return Array.isArray(LAWS_DATABASE) ? LAWS_DATABASE : [];
+  }, []);
 
-    // ۱. حق سنوات پایان خدمت (ماده ۲۴ قانون کار)
+  // محاسبات جامع حقوق و دستمزد و تأمین اجتماعی
+  const calculations = useMemo(() => {
+    const dailyWage = baseSalary / 30;
+    const hourlyWage = baseSalary / 220;
+
+    // ۱. حق سنوات (ماده ۲۴ قانون کار)
     const totalWorkingDays = (years * 365) + (months * 30) + days;
     const severancePay = (baseSalary / 365) * totalWorkingDays;
 
     // ۲. اضافه کاری (ماده ۵۹ قانون کار - ۴۰٪ مازاد)
     const overtimePay = hours * hourlyWage * 1.4;
 
-    // ۳. نوبت‌کاری (مواد ۵۵ و ۵۶ قانون کار)
+    // ۳. نوبت‌کاری (مواد ۵۵ و ۵۶)
     let shiftMultiplier = 0.10;
     if (shiftType === 'morning_afternoon_night') shiftMultiplier = 0.15;
     if (shiftType === 'morning_night' || shiftType === 'afternoon_night') shiftMultiplier = 0.225;
     const shiftPay = baseSalary * shiftMultiplier;
 
-    // ۴. مانده مرخصی استحقاقی (ماده ۶۶ قانون کار - بازخرید بر اساس آخرین مزد روزانه)
+    // ۴. مانده مرخصی استحقاقی (ماده ۶۶)
     const leavePay = unworkedLeaveDays * dailyWage;
 
-    // ۵. شب‌کاری عادی غیرنوبتی (ماده ۵۸ قانون کار - ۳۵٪ مازاد)
+    // ۵. شب‌کاری عادی (ماده ۵۸ - ۳۵٪ مازاد)
     const nightPay = hours * hourlyWage * 0.35;
 
-    // ۶. پایه سنوات مصوب روزانه (مبلغ پایه روزانه مصوب سالانه ضربدر روزهای ماه)
-    const sanavatMonthly = 70000 * 30; // نرخ مبنای پایه سنوات تجمیعی
+    // ۶. پایه سنوات مصوب ماهیانه
+    const sanavatMonthly = 70000 * 30;
 
-    // ۷. حق‌بیمه اجباری ۳۰٪ قانون تأمین اجتماعی (ماده ۲۸)
+    // ۷. بیمه اجباری ۳۰٪
     const insuranceWorker = baseSalary * 0.07;
     const insuranceEmployer = baseSalary * 0.20;
     const insuranceGov = baseSalary * 0.03;
     const insuranceTotal = baseSalary * 0.30;
 
-    // ۸. بیمه اختیاری، مشاغل آزاد و زنان خانه‌دار
-    const voluntaryInsurance = baseSalary * 0.27; // بیمه اختیاری ۲۷٪ کامل
-    // مشاغل آزاد و زنان خانه‌دار (نرخ‌های ۱۲٪، ۱۴٪ و ۱۸٪)
-    const housewife12 = baseSalary * 0.12; // بازنشستگی و فوت پس از بازنشستگی
-    const housewife14 = baseSalary * 0.14; // بازنشستگی و فوت قبل و بعد از بازنشستگی
-    const housewife18 = baseSalary * 0.18; // بازنشستگی، فوت و ازکارافتادگی کلی
+    // ۸. بیمه اختیاری، مشاغل آزاد و بیمه زنان خانه‌دار
+    const voluntaryInsurance = baseSalary * 0.27;
+    const housewife12 = baseSalary * 0.12;
+    const housewife14 = baseSalary * 0.14;
+    const housewife18 = baseSalary * 0.18;
 
-    // ۹. مقرری بیمه بیکاری (جدول ماده ۷ قانون بیمه بیکاری)
+    // ۹. مقرری بیمه بیکاری (جدول ماده ۷)
     const isMarried = dependents > 0;
     let maxUnemploymentMonths = 6;
     if (unemploymentMonths >= 6 && unemploymentMonths <= 24) maxUnemploymentMonths = isMarried ? 12 : 6;
@@ -357,12 +348,10 @@ export default function DadKarApp() {
     else if (unemploymentMonths >= 181 && unemploymentMonths <= 240) maxUnemploymentMonths = isMarried ? 36 : 18;
     else if (unemploymentMonths > 240) maxUnemploymentMonths = isMarried ? 50 : 36;
 
-    // مبلغ مقرری: ۵۵٪ پایه + ۱۰٪ به ازای هر تحت تکفل تا سقف ۸۰٪ و حداقل دستمزد
     const benefitRate = Math.min(0.55 + Math.min(dependents, 4) * 0.10, 0.80);
     const monthlyUnemploymentBenefit = baseSalary * benefitRate;
 
-    // ۱۰. برآورد مستمری بازنشستگی (ماده ۷۷ قانون تأمین اجتماعی)
-    // فرمول: (میانگین دستمزد دو سال آخر ضربدر سنوات) تقسیم بر ۳۰
+    // ۱۰. برآورد مستمری بازنشستگی (ماده ۷۷)
     const pensionEstimate = (baseSalary * insuranceYears) / 30;
 
     return {
@@ -402,12 +391,10 @@ export default function DadKarApp() {
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col items-center justify-center p-6 text-white z-50 overflow-hidden" dir="rtl">
-        {/* افکت نوری پس‌زمینه */}
         <div className="absolute w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse pointer-events-none" />
         <div className="absolute -top-12 -right-12 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative flex flex-col items-center max-w-sm w-full z-10">
-          {/* نشانگر لوگو و انیمیشن مقیاس */}
           <div className="relative mb-6">
             <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 p-0.5 shadow-2xl shadow-blue-500/30 flex items-center justify-center animate-bounce">
               <div className="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center">
@@ -426,7 +413,6 @@ export default function DadKarApp() {
             دستیار هوشمند قوانین کار، تأمین اجتماعی و محاسبات حقوقی
           </p>
 
-          {/* نوار پیشرفت */}
           <div className="w-full bg-slate-800/80 rounded-full h-2.5 p-0.5 border border-slate-700 shadow-inner mb-3 overflow-hidden">
             <div 
               className="bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400 h-full rounded-full transition-all duration-300 ease-out shadow-lg shadow-blue-500/50"
@@ -437,7 +423,7 @@ export default function DadKarApp() {
           <div className="w-full flex items-center justify-between text-xs text-slate-400 font-mono">
             <span className="flex items-center gap-1.5">
               <RefreshCw className="w-3.5 h-3.5 animate-spin text-blue-400" />
-              بارگذاری موتور محاسبات...
+              بارگذاری ماژول‌ها و پایگاه قوانین...
             </span>
             <span className="font-bold text-blue-300">{loadingProgress}٪</span>
           </div>
@@ -463,7 +449,7 @@ export default function DadKarApp() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-black text-slate-900 text-lg leading-tight">دادکار</h1>
-                <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded">نسخه جامع</span>
+                <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded">نسخه ۴.۱</span>
               </div>
               <p className="text-[11px] text-slate-500">محاسبات کارگری، شعب تأمین اجتماعی و پایگاه قوانین</p>
             </div>
@@ -471,7 +457,7 @@ export default function DadKarApp() {
         </div>
       </header>
 
-      {/* محتوای اصلی بر اساس تب */}
+      {/* محتوای اصلی */}
       <main className="max-w-5xl mx-auto px-4 py-6">
 
         {/* ===================== تب ۱: محاسبات تخصصی ===================== */}
@@ -603,8 +589,6 @@ export default function DadKarApp() {
                 </button>
               ))}
             </div>
-
-            {/* کارت‌های نتایج محاسبات بر اساس انتخاب */}
 
             {/* ۱. بیمه اجباری ۳۰٪ */}
             {activeCalc === 'salary' && (
@@ -885,7 +869,6 @@ export default function DadKarApp() {
                   <h3 className="font-bold text-slate-800">برآورد مستمری بازنشستگی (ماده ۷۷ قانون تأمین اجتماعی)</h3>
                 </div>
 
-                {/* انتخاب نوع بیمه */}
                 <div className="space-y-1.5">
                   <label className="text-xs text-slate-700 font-bold block">نوع قرارداد بیمه پردازی فرد:</label>
                   <select
@@ -1094,7 +1077,7 @@ export default function DadKarApp() {
                 <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
                 <input
                   type="text"
-                  placeholder="جستجو در متن قوانین (مثال: ماده ۱۴۸، مرخصی، حق سنوات)..."
+                  placeholder="جستجو در عناوین و مفاد قوانین..."
                   value={lawSearchQuery}
                   onChange={(e) => setLawSearchQuery(e.target.value)}
                   className="w-full pl-3 pr-9 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500"
@@ -1103,18 +1086,18 @@ export default function DadKarApp() {
             </div>
 
             <div className="space-y-3">
-              {lawsDatabase
+              {safeLawsList
                 .filter(item => 
-                  item.title.includes(lawSearchQuery) || 
-                  item.content.includes(lawSearchQuery) ||
-                  item.number.includes(lawSearchQuery)
+                  (item.title && item.title.includes(lawSearchQuery)) || 
+                  (item.content && item.content.includes(lawSearchQuery)) ||
+                  (item.id && item.id.includes(lawSearchQuery))
                 )
-                .slice(0, 15)
-                .map((law, idx) => (
-                  <div key={idx} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                .slice(0, 20)
+                .map((law) => (
+                  <div key={law.id} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-black text-blue-700">{law.number}</span>
-                      <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded">{law.category}</span>
+                      <span className="text-xs font-black text-blue-700 font-mono">{law.id}</span>
+                      <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold">{law.category}</span>
                     </div>
                     <h3 className="font-bold text-sm text-slate-800">{law.title}</h3>
                     <p className="text-xs text-slate-600 leading-relaxed">{law.content}</p>
@@ -1146,7 +1129,7 @@ export default function DadKarApp() {
 
       </main>
 
-      {/* نوار پایینی ثابت (Sticky Bottom Navigation) با ۶ دکمه استاندارد */}
+      {/* نوار پایینی ثابت (Bottom Navigation) */}
       <nav className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-3 z-40">
         <div className="max-w-md mx-auto grid grid-cols-5 gap-1 text-center">
           <button
