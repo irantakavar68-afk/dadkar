@@ -1460,3 +1460,20 @@ export const TAMIN_DATA: Record<string, ProvinceBranches> = {
  * شماره تماس پاسخگویی سراسری شبانه‌روزی سازمان تأمین اجتماعی
  */
 export const TAMIN_CRM_PHONE = "1420";
+
+// تایپ‌های مورد نیاز کامپوننت
+export type IranProvinceKey = string;
+
+export interface ProvinceMapData {
+  id: string;
+  name: string;
+  branches: BranchItem[];
+}
+
+// تطبیق داده‌ها با متغیری که TaminBranchesView ایمپورت می‌کند
+export const IRAN_PROVINCES_COMPLETE: ProvinceMapData[] = Object.entries(TAMIN_DATA).map(([id, prov]) => ({
+  id,
+  name: prov.provinceName,
+  branches: prov.branches
+}));
+
