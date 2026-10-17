@@ -129,7 +129,7 @@ export default function DadKarApp() {
   const [activeTab, setActiveTab] = useState<'home' | 'calculator' | 'tamin' | 'templates' | 'laws' | 'faq' | 'contact'>('home');
 
   // --- وضعیت‌های پیشرفته تنظیمات دادکار ---
-    export type AppTheme = 'light' | 'dark' | 'sepia' | 'navy' | 'emerald';
+    type AppTheme = 'light' | 'dark' | 'sepia' | 'navy' | 'emerald';
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [appTheme, setAppTheme] = useState<AppTheme>(() => {
