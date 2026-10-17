@@ -124,17 +124,18 @@ const EMERGENCY_FALLBACK_TEMPLATES: TemplateItem[] = [
 // در صورت نبود یا خالی بودن هر نوع export، مخزن پشتیبان کامل‌تر نمایش داده می‌شود.
 const ALL_TEMPLATES: TemplateItem[] = EXTRACTED_TEMPLATES.length > 0 ? EXTRACTED_TEMPLATES : EMERGENCY_FALLBACK_TEMPLATES;
 
-export default function DadKarApp() {
+export default function App() {
   // تب‌های اصلی اپلیکیشن: اضافه شدن تب خانه (home)
   const [activeTab, setActiveTab] = useState<'home' | 'calculator' | 'tamin' | 'templates' | 'laws' | 'faq' | 'contact'>('home');
 
   // --- وضعیت‌های پیشرفته تنظیمات دادکار ---
-    type AppTheme = 'light' | 'dark' | 'sepia' | 'navy' | 'emerald';
+  type AppTheme = 'modern' | 'dark' | 'classic' | 'navy' | 'flat' | 'emerald';
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [appTheme, setAppTheme] = useState<AppTheme>(() => {
-    return (localStorage.getItem('dadkar_theme') as AppTheme) || 'light';
+    return (localStorage.getItem('dadkar_theme') as AppTheme) || 'modern';
   });
+
   const [fontFamily, setFontFamily] = useState<string>(() => {
     return localStorage.getItem('dadkar_font') || 'Vazirmatn';
   });
@@ -483,70 +484,73 @@ export default function DadKarApp() {
   }
 
   return (
-<div 
-  className={`min-h-screen pb-20 select-none transition-colors duration-200 theme-${appTheme} ${
-    highContrast ? 'force-high-contrast' : ''
-  }`} 
-  style={{ 
-    fontFamily: fontFamily,
-    fontSize: `${fontSizePx}px`
-  }}
-  dir="rtl"
->
-  {/* بارگذاری فونت‌های فارسی استاندارد و استایل‌های پنج تم کاملاً مجزا */}
-  <style>{`
+    <div 
+      className={`min-h-screen pb-20 select-none transition-all duration-200 theme-${appTheme} ${
+        highContrast ? 'force-high-contrast' : ''
+      }`} 
+      style={{ 
+        fontFamily: fontFamily,
+        ['--app-font' as any]: fontFamily,
+        ['--app-font-size' as any]: `${fontSizePx}px`,
+      }} 
+      dir="rtl"
+    >
+      <style>{`
+        /* اعمال فونت به تمام عناصر صفحه بدون استثنا */
+        .theme-modern, .theme-dark, .theme-classic, .theme-navy, .theme-flat, .theme-emerald {
+          font-family: var(--app-font), 'Tahoma', sans-serif !important;
+        }
+        .theme-modern *, .theme-dark *, .theme-classic *, .theme-navy *, .theme-flat *, .theme-emerald * {
+          font-family: inherit !important;
+        }
 
+        /* اتصال گیج اسلایدر اندازه به تمام نوشته‌ها */
+        .theme-modern body, .theme-modern p, .theme-modern span, .theme-modern div, .theme-modern input, .theme-modern button,
+        .theme-dark body, .theme-dark p, .theme-dark span, .theme-dark div, .theme-dark input, .theme-dark button,
+        .theme-classic body, .theme-classic p, .theme-classic span, .theme-classic div, .theme-classic input, .theme-classic button,
+        .theme-navy body, .theme-navy p, .theme-navy span, .theme-navy div, .theme-navy input, .theme-navy button,
+        .theme-flat body, .theme-flat p, .theme-flat span, .theme-flat div, .theme-flat input, .theme-flat button,
+        .theme-emerald body, .theme-emerald p, .theme-emerald span, .theme-emerald div, .theme-emerald input, .theme-emerald button {
+          font-size: calc(var(--app-font-size) * 0.98);
+        }
 
-    /* تم ۱: شب تاریک (دارک کهکشانی) */
-    .theme-dark { background-color: #0b0f19 !important; color: #f1f5f9 !important; }
-    .theme-dark .bg-white { background-color: #111827 !important; color: #f3f4f6 !important; border-color: #1f2937 !important; }
-    .theme-dark .bg-slate-50, .theme-dark .bg-slate-100 { background-color: #1f2937 !important; color: #e5e7eb !important; }
-    .theme-dark .text-slate-900, .theme-dark .text-slate-800, .theme-dark .text-slate-700 { color: #f9fafb !important; }
-    .theme-dark .text-slate-600, .theme-dark .text-slate-500 { color: #9ca3af !important; }
-    .theme-dark .border-slate-200, .theme-dark .border-slate-100 { border-color: #374151 !important; }
-    .theme-dark header, .theme-dark nav { background-color: rgba(17, 24, 39, 0.95) !important; border-color: #1f2937 !important; }
-    .theme-dark input:not([type="range"]), .theme-dark select { background-color: #1f2937 !important; color: #ffffff !important; border-color: #4b5563 !important; }
+        /* تم ۱: مدرن روز (زمینه کاملاً سفید و روشن) */
+        .theme-modern { background-color: #f8fafc !important; color: #0f172a !important; }
+        .theme-modern .bg-white { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
+        .theme-modern .bg-slate-50 { background-color: #f1f5f9 !important; }
 
-    /* تم ۲: کاغذی و کتابخوان (سپیا - گرم و ملایم برای چشم) */
-    .theme-sepia { background-color: #fbf0d9 !important; color: #433422 !important; }
-    .theme-sepia .bg-white { background-color: #f4e3c1 !important; color: #2d2419 !important; border-color: #e4cd9f !important; }
-    .theme-sepia .bg-slate-50, .theme-sepia .bg-slate-100 { background-color: #edd5a8 !important; color: #3c2f21 !important; }
-    .theme-sepia .text-slate-900, .theme-sepia .text-slate-800, .theme-sepia .text-slate-700 { color: #231b11 !important; }
-    .theme-sepia .text-slate-600, .theme-sepia .text-slate-500 { color: #5c4731 !important; }
-    .theme-sepia .border-slate-200, .theme-sepia .border-slate-100 { border-color: #dac092 !important; }
-    .theme-sepia header, .theme-sepia nav { background-color: rgba(244, 227, 193, 0.96) !important; border-color: #d6bc8b !important; }
-    .theme-sepia input:not([type="range"]), .theme-sepia select { background-color: #fdf6e7 !important; color: #2d2419 !important; border-color: #d6bc8b !important; }
+        /* تم ۲: دارک شبکه‌ای */
+        .theme-dark { background-color: #0b0f19 !important; color: #f1f5f9 !important; }
+        .theme-dark .bg-white { background-color: #111827 !important; color: #f3f4f6 !important; border-color: #1f2937 !important; }
+        .theme-dark .bg-slate-50, .theme-dark .bg-slate-100 { background-color: #1e293b !important; color: #e2e8f0 !important; }
+        .theme-dark input, .theme-dark select, .theme-dark textarea { background-color: #0f172a !important; color: #f8fafc !important; border-color: #334155 !important; }
 
-    /* تم ۳: لاجوردی سازمانی (سرمه‌ای اداری شیک) */
-    .theme-navy { background-color: #0d1b2a !important; color: #e0e1dd !important; }
-    .theme-navy .bg-white { background-color: #1b263b !important; color: #ffffff !important; border-color: #415a77 !important; }
-    .theme-navy .bg-slate-50, .theme-navy .bg-slate-100 { background-color: #24344d !important; color: #e0e1dd !important; }
-    .theme-navy .text-slate-900, .theme-navy .text-slate-800, .theme-navy .text-slate-700 { color: #ffffff !important; }
-    .theme-navy .text-slate-600, .theme-navy .text-slate-500 { color: #a4b3c6 !important; }
-    .theme-navy .border-slate-200, .theme-navy .border-slate-100 { border-color: #2e435e !important; }
-    .theme-navy header, .theme-navy nav { background-color: rgba(27, 38, 59, 0.96) !important; border-color: #415a77 !important; }
-    .theme-navy input:not([type="range"]), .theme-navy select { background-color: #24344d !important; color: #ffffff !important; border-color: #415a77 !important; }
+        /* تم ۳: کلاسیک اسناد (کاغذی / سپیا با کادرهای مشخص) */
+        .theme-classic { background-color: #fbf7ee !important; color: #3d2f1d !important; }
+        .theme-classic .bg-white { background-color: #f4ecdc !important; border-color: #d8c8b0 !important; border-width: 2px !important; border-radius: 8px !important; }
+        .theme-classic .bg-slate-50 { background-color: #ede3ce !important; }
+        .theme-classic button { border-radius: 6px !important; }
 
-    /* تم ۴: زمردین یشمی (سبز آرامش‌بخش تیره) */
-    .theme-emerald { background-color: #062319 !important; color: #e6f4ea !important; }
-    .theme-emerald .bg-white { background-color: #0b3829 !important; color: #ffffff !important; border-color: #165b43 !important; }
-    .theme-emerald .bg-slate-50, .theme-emerald .bg-slate-100 { background-color: #124b37 !important; color: #d1fae5 !important; }
-    .theme-emerald .text-slate-900, .theme-emerald .text-slate-800, .theme-emerald .text-slate-700 { color: #ffffff !important; }
-    .theme-emerald .text-slate-600, .theme-emerald .text-slate-500 { color: #a7f3d0 !important; }
-    .theme-emerald .border-slate-200, .theme-emerald .border-slate-100 { border-color: #1b6d51 !important; }
-    .theme-emerald header, .theme-emerald nav { background-color: rgba(11, 56, 41, 0.96) !important; border-color: #165b43 !important; }
-    .theme-emerald input:not([type="range"]), .theme-emerald select { background-color: #124b37 !important; color: #ffffff !important; border-color: #228464 !important; }
+        /* تم ۴: لاجوردی اداری (سازمانی پرکنتراست) */
+        .theme-navy { background-color: #0a1128 !important; color: #e2e8f0 !important; }
+        .theme-navy .bg-white { background-color: #1c2541 !important; color: #ffffff !important; border-color: #3a506b !important; }
+        .theme-navy .bg-slate-50, .theme-navy .bg-slate-100 { background-color: #0b132b !important; color: #e2e8f0 !important; }
+        .theme-navy input, .theme-navy select { background-color: #0b132b !important; color: #ffffff !important; border-color: #3a506b !important; }
 
-    /* اصلاح اصولی کنتراست بالا بدون فیلتر مخرب ابعاد */
-    .force-high-contrast * {
-      border-color: #000000 !important;
-      font-weight: 600 !important;
-    }
-    .theme-dark.force-high-contrast *, .theme-navy.force-high-contrast *, .theme-emerald.force-high-contrast * {
-      border-color: #ffffff !important;
-      color: #ffffff !important;
-    }
-  `}</style>
+        /* تم ۵: مینیمال فلت (بدون سایه، کاملاً تخت) */
+        .theme-flat { background-color: #ffffff !important; color: #18181b !important; }
+        .theme-flat .bg-white { background-color: #ffffff !important; border-color: #cbd5e1 !important; box-shadow: none !important; border-radius: 6px !important; }
+        .theme-flat * { box-shadow: none !important; }
+
+        /* تم ۶: زمردی ارگونومیک (کارت‌های نرم با لبه‌های منحنی عمیق) */
+        .theme-emerald { background-color: #f0fdf4 !important; color: #064e3b !important; }
+        .theme-emerald .bg-white { background-color: #ffffff !important; border-color: #a7f3d0 !important; border-radius: 24px !important; box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.1) !important; }
+        .theme-emerald button { border-radius: 16px !important; }
+
+        /* حالت کنتراست بالا */
+        .force-high-contrast * { font-weight: 700 !important; border-color: #000000 !important; }
+        .force-high-contrast.theme-dark * { border-color: #ffffff !important; }
+      `}</style>
 
 
 
@@ -574,10 +578,9 @@ export default function DadKarApp() {
             <button
               onClick={() => setIsSettingsOpen(true)}
               className={`p-2 rounded-xl transition border ${
-              appTheme === 'dark' 
-                ? 'bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700' 
-                : 'bg-white/80 text-slate-700 border-slate-200 hover:bg-slate-100 shadow-sm'
-
+                appTheme === 'dark' 
+                  ? 'bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700' 
+                  : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
               }`}
               title="تنظیمات سامانه"
               aria-label="تنظیمات"
@@ -1753,10 +1756,9 @@ export default function DadKarApp() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
           <div 
             className={`w-full max-w-md max-h-[88vh] overflow-y-auto rounded-3xl p-5 shadow-2xl border transition-all ${
-            appTheme === 'dark' 
-              ? 'bg-slate-900 border-slate-800 text-slate-100' 
-              : 'bg-white border-slate-100 text-slate-800 shadow-2xl'
-
+              appTheme === 'dark' 
+                ? 'bg-slate-900 border-slate-800 text-slate-100' 
+                : 'bg-white border-slate-200 text-slate-900'
             }`}
           >
             {/* سربرگ */}
@@ -1779,30 +1781,35 @@ export default function DadKarApp() {
             </div>
 
             <div className="space-y-5 py-4">
-            {/* ۱. انتخاب تم از بین ۵ تم کاملاً متمایز */}
-            <div>
-              <label className="block text-xs font-bold text-slate-500 mb-2">انتخاب تم رنگی نرم‌افزار (۵ تم مجزا)</label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {[
-                  { id: 'light', name: 'روز (پیش‌فرض)', bg: 'bg-white', border: 'border-slate-300' },
-                  { id: 'dark', name: 'شب کهکشانی', bg: 'bg-slate-950 text-white', border: 'border-slate-700' },
-                  { id: 'sepia', name: 'کاغذی (سپیا)', bg: 'bg-[#fbf0d9] text-[#433422]', border: 'border-[#dac092]' },
-                  { id: 'navy', name: 'لاجوردی اداری', bg: 'bg-[#0d1b2a] text-white', border: 'border-[#415a77]' },
-                  { id: 'emerald', name: 'زمردین یشمی', bg: 'bg-[#062319] text-white', border: 'border-[#1b6d51]' },
-                ].map((t) => (
-                  <button
-                    key={t.id}
-                    onClick={() => handleThemeSelect(t.id as AppTheme)}
-                    className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition ${t.bg} ${t.border} ${
-                      appTheme === t.id ? 'ring-2 ring-blue-500 shadow-md' : 'opacity-80 hover:opacity-100'
-                    }`}
-                  >
-                    <span className="w-3.5 h-3.5 rounded-full border border-current"></span>
-                    <span>{t.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+                            {/* ۱. انتخاب ساختار و تم نرم‌افزار (۶ تم متمایز) */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-2">
+                    انتخاب ساختار و تم نرم‌افزار (۶ تم مجزا)
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {[
+                      { id: 'modern', name: 'مدرن روز', bg: 'bg-white text-slate-900', border: 'border-slate-300' },
+                      { id: 'dark', name: 'تاریک شب', bg: 'bg-slate-950 text-white', border: 'border-slate-700' },
+                      { id: 'classic', name: 'کلاسیک اسناد', bg: 'bg-[#fbf7ee] text-[#3d2f1d]', border: 'border-[#d8c8b0]' },
+                      { id: 'navy', name: 'لاجوردی اداری', bg: 'bg-[#0a1128] text-white', border: 'border-[#3a506b]' },
+                      { id: 'flat', name: 'مینیمال فلت', bg: 'bg-slate-100 text-zinc-900', border: 'border-slate-400' },
+                      { id: 'emerald', name: 'زمردین ارگونومیک', bg: 'bg-[#f0fdf4] text-[#064e3b]', border: 'border-[#a7f3d0]' },
+                    ].map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => handleThemeSelect(t.id as AppTheme)}
+                        className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition ${t.bg} ${t.border} ${
+                          appTheme === t.id ? 'ring-2 ring-blue-500 shadow-md scale-[1.02]' : 'opacity-80 hover:opacity-100'
+                        }`}
+                      >
+                        <span className="w-3.5 h-3.5 rounded-full border border-current"></span>
+                        <span>{t.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
 
             {/* ۲. انتخاب از بین ۵ فونت فارسی فعال و بارگذاری‌شده */}
             <div>
