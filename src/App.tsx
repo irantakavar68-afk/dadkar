@@ -574,9 +574,10 @@ export default function DadKarApp() {
             <button
               onClick={() => setIsSettingsOpen(true)}
               className={`p-2 rounded-xl transition border ${
-                themeMode === 'dark' 
-                  ? 'bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700' 
-                  : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
+              appTheme === 'dark' 
+                ? 'bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700' 
+                : 'bg-white/80 text-slate-700 border-slate-200 hover:bg-slate-100 shadow-sm'
+
               }`}
               title="تنظیمات سامانه"
               aria-label="تنظیمات"
@@ -1752,9 +1753,10 @@ export default function DadKarApp() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
           <div 
             className={`w-full max-w-md max-h-[88vh] overflow-y-auto rounded-3xl p-5 shadow-2xl border transition-all ${
-              themeMode === 'dark' 
-                ? 'bg-slate-900 border-slate-800 text-slate-100' 
-                : 'bg-white border-slate-200 text-slate-900'
+            appTheme === 'dark' 
+              ? 'bg-slate-900 border-slate-800 text-slate-100' 
+              : 'bg-white border-slate-100 text-slate-800 shadow-2xl'
+
             }`}
           >
             {/* سربرگ */}
