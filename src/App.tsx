@@ -521,50 +521,67 @@ export default function App() {
 
 
       
-      {/* هدر اپلیکیشن */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        {/* هدر بالایی اپلیکیشن دادکار با لوگوی اختصاصی DK */}
+      <header className={`sticky top-0 z-40 transition-colors duration-300 backdrop-blur-xl border-b ${
+        appTheme === 'dark' 
+          ? 'bg-slate-900/90 border-slate-800 text-white' 
+          : 'bg-white/90 border-slate-200/80 text-slate-900'
+      }`}>
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-          <button 
+          <button
+            type="button"
             onClick={() => setActiveTab('home')}
-            className="flex items-center gap-2.5 text-right focus:outline-none"
+            className="flex items-center gap-3 text-right group focus:outline-none"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-              <Scale className="w-5 h-5" />
+            {/* مونوگرام هندسی مدرن DK با ترازوی عدالت */}
+            <div className="relative w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-700 via-indigo-600 to-sky-500 p-[1.5px] shadow-lg shadow-blue-500/25 flex-shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+                <svg viewBox="0 0 40 40" className="w-6 h-6" fill="none">
+                  <path d="M10 8H14C22 8 25 13 25 20C25 27 22 32 14 32H10V8Z" stroke="#38BDF8" strokeWidth="3.2" strokeLinejoin="round" />
+                  <path d="M18 20L28 10M18 20L29 30" stroke="#FFFFFF" strokeWidth="3.2" strokeLinecap="round" />
+                  <circle cx="28" cy="10" r="1.5" fill="#60A5FA" />
+                  <circle cx="29" cy="30" r="1.5" fill="#38BDF8" />
+                </svg>
+              </div>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-black text-slate-900 text-lg leading-tight">دادکار</span>
-                <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded">نسخه جامع</span>
+                <span className="font-black text-lg tracking-tight">دادکار</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-500 border border-blue-500/20">
+                  نسخه جامع
+                </span>
               </div>
-              <p className="text-[10px] text-slate-500">پایگاه جامع روابط کار و سازمان تأمین اجتماعی</p>
+              <p className={`text-[10px] font-medium leading-none mt-1 ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                پایگاه تخصصی روابط کار و سازمان تأمین اجتماعی
+              </p>
             </div>
           </button>
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setIsSettingsOpen(true)}
-              className={`p-2 rounded-xl transition border ${
-                appTheme === 'dark' 
-                  ? 'bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700' 
-                  : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
-              }`}
-              title="تنظیمات سامانه"
-              aria-label="تنظیمات"
+              className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-200 border ${
+                appTheme === 'dark'
+                  ? 'bg-slate-800/90 border-slate-700 text-slate-200 hover:bg-slate-700'
+                  : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
+              } active:scale-95`}
+              title="تنظیمات"
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-5 h-5" />
             </button>
-    
             <button
+              type="button"
               onClick={() => setActiveTab('calculator')}
-              className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1.5 rounded-xl font-bold transition border border-blue-200"
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-95"
             >
-              <Calculator className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">شروع محاسبات</span>
+              <Calculator className="w-4 h-4" />
+              <span>محاسبات سریع</span>
             </button>
           </div>
-
         </div>
       </header>
+
 
       {/* محتوای صفحات */}
       <main className="max-w-5xl mx-auto px-4 py-5">
@@ -1653,136 +1670,177 @@ export default function App() {
 
       </main>
 
-      {/* منوی فوتر ثابت تک‌خطی با ۶ گزینه دقیقاً در یک ردیف افقی بدون شکستن متن */}
-      <nav className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-1.5 px-2 z-40 shadow-lg">
-        <div className="max-w-md mx-auto grid grid-cols-7 gap-0.5 text-center">
-          
-          <button
-            onClick={() => setActiveTab('home')}
-            className={`flex flex-col items-center justify-center py-1 transition ${activeTab === 'home' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <Home className="w-4 h-4" />
-            <span className="text-[9px] whitespace-nowrap mt-0.5">صفحه اصلی</span>
-          </button>
+        {/* نوار ناوبری ۷ تایی پایین - تیره شدن خودکار در شب */}
+        <nav className={`fixed bottom-0 left-0 right-0 z-40 backdrop-blur-xl border-t transition-colors duration-300 py-1.5 safe-bottom ${
+          appTheme === 'dark'
+            ? 'bg-slate-900/95 border-slate-800 text-slate-400 shadow-2xl'
+            : 'bg-white/95 border-slate-200/90 text-slate-500 shadow-lg'
+        }`}>
+          <div className="max-w-md mx-auto px-1 grid grid-cols-7 gap-0.5">
+            {[
+              { id: 'home', label: 'اصلی', icon: Home },
+              { id: 'calculator', label: 'محاسبات', icon: Calculator },
+              { id: 'branches', label: 'شعب', icon: Building2 },
+              { id: 'templates', label: 'قالب‌ها', icon: FileSpreadsheet },
+              { id: 'laws', label: 'قوانین', icon: BookOpen },
+              { id: 'faq', label: 'راهنما', icon: HelpCircle },
+              { id: 'contact', label: 'ارتباط', icon: Phone },
+            ].map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setActiveTab(item.id)}
+                  className={`flex flex-col items-center justify-center py-1 px-0.5 rounded-xl transition-all duration-200 ${
+                    isActive
+                      ? 'text-blue-500 font-black'
+                      : 'hover:text-slate-700 dark:hover:text-slate-200'
+                  }`}
+                >
+                  <div className={`p-1.5 rounded-xl transition-all ${
+                    isActive ? 'bg-blue-500/15 scale-110' : ''
+                  }`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <span className="text-[10px] mt-0.5 tracking-tighter truncate max-w-full">
+                    {item.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
 
-          <button
-            onClick={() => setActiveTab('calculator')}
-            className={`flex flex-col items-center justify-center py-1 transition ${activeTab === 'calculator' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <Calculator className="w-4 h-4" />
-            <span className="text-[9px] whitespace-nowrap mt-0.5">محاسبات</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('tamin')}
-            className={`flex flex-col items-center justify-center py-1 transition ${activeTab === 'tamin' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <Building2 className="w-4 h-4" />
-            <span className="text-[9px] whitespace-nowrap mt-0.5">شعب</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('templates')}
-            className={`flex flex-col items-center justify-center py-1 transition ${activeTab === 'templates' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <FileText className="w-4 h-4" />
-            <span className="text-[9px] whitespace-nowrap mt-0.5">قالب‌ها</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('laws')}
-            className={`flex flex-col items-center justify-center py-1 transition ${activeTab === 'laws' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <BookOpen className="w-4 h-4" />
-            <span className="text-[9px] whitespace-nowrap mt-0.5">قوانین</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('faq')}
-            className={`flex flex-col items-center justify-center py-1 transition ${activeTab === 'faq' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <HelpCircle className="w-4 h-4" />
-            <span className="text-[9px] whitespace-nowrap mt-0.5">راهنما</span>
-          </button>
-              {/* دکمه هفتم: ارتباط با ما */}
-          <button
-            onClick={() => setActiveTab('contact')}
-            className={`flex flex-col items-center justify-center py-1 transition ${
-              activeTab === 'contact' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Phone className="w-5 h-5 mb-0.5" />
-            <span className="text-[9px] whitespace-nowrap">ارتباط با ما</span>
-          </button>
-
-        </div>
-      </nav>
-      {/* مدال تنظیمات حرفه‌ای */}
-      {isSettingsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className={`w-full max-w-md rounded-3xl p-6 shadow-2xl border transition-all ${
-            appTheme === 'dark' ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-100 text-slate-800'
-          }`}>
-            
-            {/* هدر مدال */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200/60 dark:border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <span className="p-2 rounded-xl bg-blue-600/10 text-blue-600 font-bold">⚙️</span>
-                <div>
-                  <h3 className="text-base font-extrabold">تنظیمات رابط کاربری</h3>
-                  <p className="text-[11px] text-slate-400">شخصی‌سازی ظاهر، قلم و ابعاد</p>
+          {/* مودال تنظیمات لوکس و اختصاصی */}
+          {isSettingsOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className={`w-full max-w-sm rounded-3xl p-5 shadow-2xl border transition-all ${
+                appTheme === 'dark' 
+                  ? 'bg-slate-900 border-slate-800 text-white' 
+                  : 'bg-white border-slate-100 text-slate-800'
+              }`}>
+                
+                {/* سربرگ مودال */}
+                <div className="flex items-center justify-between pb-3 border-b border-slate-200/60 dark:border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-blue-500 flex items-center justify-center">
+                      <Settings className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-black text-sm">تنظیمات رابط کاربری</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsSettingsOpen(false)}
+                    className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center text-xs font-bold transition-all"
+                  >
+                    ✕
+                  </button>
                 </div>
+    
+                <div className="space-y-4 mt-4">
+                  {/* ۱. پوسته نرم‌افزار */}
+                  <div>
+                    <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-2">حالت نمایش (پوسته)</label>
+                    <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl">
+                      <button
+                        type="button"
+                        onClick={() => handleThemeChange('light')}
+                        className={`py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                          appTheme === 'light'
+                            ? 'bg-white text-blue-600 shadow-sm'
+                            : 'text-slate-500 dark:text-slate-400'
+                        }`}
+                      >
+                        ☀️ روز (روشن)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleThemeChange('dark')}
+                        className={`py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                          appTheme === 'dark'
+                            ? 'bg-slate-700 text-blue-400 shadow-sm'
+                            : 'text-slate-500 dark:text-slate-400'
+                        }`}
+                      >
+                        🌙 شب (تاریک)
+                      </button>
+                    </div>
+                  </div>
+    
+                  {/* ۲. فونت قلم */}
+                  <div>
+                    <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-2">نوع قلم سامانه</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { id: 'system-ui, sans-serif', name: 'پیش‌فرض سیستم' },
+                        { id: 'Vazirmatn, Tahoma, sans-serif', name: 'وزیرمتن (رسمی)' },
+                        { id: 'Tahoma, Arial, sans-serif', name: 'تاهما (سازمانی)' },
+                        { id: 'Segoe UI, Arial, sans-serif', name: 'سگوئه (مدرن)' },
+                      ].map((f) => (
+                        <button
+                          key={f.id}
+                          type="button"
+                          onClick={() => handleFontChange(f.id)}
+                          style={{ fontFamily: f.id }}
+                          className={`p-2.5 rounded-xl border text-xs font-semibold text-center transition-all ${
+                            fontFamily === f.id
+                              ? 'border-blue-500 bg-blue-500/10 text-blue-500 font-bold'
+                              : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300'
+                          }`}
+                        >
+                          {f.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+    
+                  {/* ۳. اندازه قلم */}
+                  <div>
+                    <div className="flex justify-between items-center mb-1 text-xs font-bold">
+                      <span className="text-slate-500 dark:text-slate-400">اندازه متن‌ها</span>
+                      <span className="text-blue-500 font-mono">{fontSizePx}px</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={12}
+                      max={20}
+                      step={1}
+                      value={fontSizePx}
+                      onChange={(e) => handleFontSizePxChange(parseInt(e.target.value, 10))}
+                      className="w-full accent-blue-500 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                      <span>ریز</span>
+                      <span>استاندارد</span>
+                      <span>درشت</span>
+                    </div>
+                  </div>
+    
+                  {/* ۴. کنتراست بالا */}
+                  <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800">
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">افزایش خوانایی و کنتراست</span>
+                    <input
+                      type="checkbox"
+                      checked={highContrast}
+                      onChange={(e) => handleContrastToggle(e.target.checked)}
+                      className="w-5 h-5 accent-blue-500 rounded cursor-pointer"
+                    />
+                  </div>
+                </div>
+    
+                {/* دکمه ذخیره و بستن */}
+                <button
+                  type="button"
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="w-full mt-5 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-lg shadow-blue-500/25 active:scale-95 transition-all"
+                >
+                  ثبت و اعمال تغییرات
+                </button>
               </div>
-              <button 
-                type="button"
-                onClick={() => setIsSettingsOpen(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-red-500 transition-colors"
-              >
-                ✕
-              </button>
             </div>
-
-            <div className="space-y-6 pt-5 max-h-[70vh] overflow-y-auto px-1">
-              
-              {/* تم نرم‌افزار */}
-              <div>
-                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2.5">
-                  حالت نمایش برنامه
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => handleThemeSelect('light')}
-                    className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all ${
-                      appTheme === 'light'
-                        ? 'bg-blue-50/70 border-blue-500 ring-2 ring-blue-500/20 text-blue-900 font-bold'
-                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-lg">☀️</span>
-                      <span className="text-xs">روز (روشن)</span>
-                    </div>
-                    <span className="w-3.5 h-3.5 rounded-full border-2 border-current bg-white"></span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleThemeSelect('dark')}
-                    className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all ${
-                      appTheme === 'dark'
-                        ? 'bg-slate-800 border-blue-500 ring-2 ring-blue-500/20 text-blue-400 font-bold'
-                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-lg">🌙</span>
-                      <span className="text-xs">شب (تاریک)</span>
-                    </div>
-                    <span className="w-3.5 h-3.5 rounded-full border-2 border-current bg-slate-900"></span>
-                  </button>
-                </div>
-              </div>
+          )}
 
               {/* فونت برنامه */}
               <div>
