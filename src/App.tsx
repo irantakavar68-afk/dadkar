@@ -129,15 +129,14 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'calculator' | 'tamin' | 'templates' | 'laws' | 'faq' | 'contact'>('home');
 
   // --- وضعیت‌های پیشرفته تنظیمات دادکار ---
-  type AppTheme = 'modern' | 'dark' | 'classic' | 'navy' | 'flat' | 'emerald';
+    type AppTheme = 'light' | 'dark';
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [appTheme, setAppTheme] = useState<AppTheme>(() => {
-    return (localStorage.getItem('dadkar_theme') as AppTheme) || 'modern';
+    return (localStorage.getItem('dadkar_theme') as AppTheme) || 'light';
   });
-
   const [fontFamily, setFontFamily] = useState<string>(() => {
-    return localStorage.getItem('dadkar_font') || 'Vazirmatn';
+    return localStorage.getItem('dadkar_font') || "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
   });
   const [fontSizePx, setFontSizePx] = useState<number>(() => {
     const saved = localStorage.getItem('dadkar_font_size_px');
@@ -146,35 +145,27 @@ export default function App() {
   const [highContrast, setHighContrast] = useState<boolean>(() => {
     return localStorage.getItem('dadkar_contrast') === 'true';
   });
-  const [hapticFeedback, setHapticFeedback] = useState<boolean>(() => {
-    return localStorage.getItem('dadkar_haptic') !== 'false';
-  });
-  const [faNumbersOnly, setFaNumbersOnly] = useState<boolean>(() => {
-    return localStorage.getItem('dadkar_fa_num') === 'true';
-  });
 
   const handleThemeSelect = (theme: AppTheme) => {
     setAppTheme(theme);
     localStorage.setItem('dadkar_theme', theme);
   };
 
-  const handleContrastToggle = (val: boolean) => {
-    setHighContrast(val);
-    localStorage.setItem('dadkar_contrast', String(val));
+  const handleFontChange = (font: string) => {
+    setFontFamily(font);
+    localStorage.setItem('dadkar_font', font);
   };
 
-  const handleHapticToggle = (val: boolean) => {
-    setHapticFeedback(val);
-    localStorage.setItem('dadkar_haptic', String(val));
-    if (val && typeof window !== 'undefined' && 'vibrate' in navigator) {
-      navigator.vibrate(25);
-    }
+  const handleFontSizePxChange = (size: number) => {
+    setFontSizePx(size);
+    localStorage.setItem('dadkar_font_size_px', size.toString());
   };
 
-  const handleFaNumbersToggle = (val: boolean) => {
-    setFaNumbersOnly(val);
-    localStorage.setItem('dadkar_fa_num', String(val));
+  const handleContrastToggle = (checked: boolean) => {
+    setHighContrast(checked);
+    localStorage.setItem('dadkar_contrast', checked.toString());
   };
+
 
 
   
@@ -485,7 +476,7 @@ export default function App() {
 
   return (
     <div 
-      className={`min-h-screen pb-20 select-none transition-all duration-200 theme-${appTheme} ${
+      className={`min-h-screen pb-20 select-none transition-colors duration-200 theme-${appTheme} ${
         highContrast ? 'force-high-contrast' : ''
       }`} 
       style={{ 
@@ -496,56 +487,31 @@ export default function App() {
       dir="rtl"
     >
       <style>{`
-        /* اعمال فونت به تمام عناصر صفحه بدون استثنا */
-        .theme-modern, .theme-dark, .theme-classic, .theme-navy, .theme-flat, .theme-emerald {
-          font-family: var(--app-font), 'Tahoma', sans-serif !important;
+        /* اعمال فونت و اندازه سراسری روی تمام تگ‌ها و کلاس‌های برنامه */
+        .theme-light, .theme-dark {
+          font-family: var(--app-font) !important;
         }
-        .theme-modern *, .theme-dark *, .theme-classic *, .theme-navy *, .theme-flat *, .theme-emerald * {
+        .theme-light *, .theme-dark * {
           font-family: inherit !important;
         }
-
-        /* اتصال گیج اسلایدر اندازه به تمام نوشته‌ها */
-        .theme-modern body, .theme-modern p, .theme-modern span, .theme-modern div, .theme-modern input, .theme-modern button,
-        .theme-dark body, .theme-dark p, .theme-dark span, .theme-dark div, .theme-dark input, .theme-dark button,
-        .theme-classic body, .theme-classic p, .theme-classic span, .theme-classic div, .theme-classic input, .theme-classic button,
-        .theme-navy body, .theme-navy p, .theme-navy span, .theme-navy div, .theme-navy input, .theme-navy button,
-        .theme-flat body, .theme-flat p, .theme-flat span, .theme-flat div, .theme-flat input, .theme-flat button,
-        .theme-emerald body, .theme-emerald p, .theme-emerald span, .theme-emerald div, .theme-emerald input, .theme-emerald button {
-          font-size: calc(var(--app-font-size) * 0.98);
+        
+        .theme-light body, .theme-light p, .theme-light span, .theme-light div, .theme-light input, .theme-light button, .theme-light label,
+        .theme-dark body, .theme-dark p, .theme-dark span, .theme-dark div, .theme-dark input, .theme-dark button, .theme-dark label {
+          font-size: var(--app-font-size) !important;
         }
 
-        /* تم ۱: مدرن روز (زمینه کاملاً سفید و روشن) */
-        .theme-modern { background-color: #f8fafc !important; color: #0f172a !important; }
-        .theme-modern .bg-white { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
-        .theme-modern .bg-slate-50 { background-color: #f1f5f9 !important; }
-
-        /* تم ۲: دارک شبکه‌ای */
-        .theme-dark { background-color: #0b0f19 !important; color: #f1f5f9 !important; }
-        .theme-dark .bg-white { background-color: #111827 !important; color: #f3f4f6 !important; border-color: #1f2937 !important; }
-        .theme-dark .bg-slate-50, .theme-dark .bg-slate-100 { background-color: #1e293b !important; color: #e2e8f0 !important; }
-        .theme-dark input, .theme-dark select, .theme-dark textarea { background-color: #0f172a !important; color: #f8fafc !important; border-color: #334155 !important; }
-
-        /* تم ۳: کلاسیک اسناد (کاغذی / سپیا با کادرهای مشخص) */
-        .theme-classic { background-color: #fbf7ee !important; color: #3d2f1d !important; }
-        .theme-classic .bg-white { background-color: #f4ecdc !important; border-color: #d8c8b0 !important; border-width: 2px !important; border-radius: 8px !important; }
-        .theme-classic .bg-slate-50 { background-color: #ede3ce !important; }
-        .theme-classic button { border-radius: 6px !important; }
-
-        /* تم ۴: لاجوردی اداری (سازمانی پرکنتراست) */
-        .theme-navy { background-color: #0a1128 !important; color: #e2e8f0 !important; }
-        .theme-navy .bg-white { background-color: #1c2541 !important; color: #ffffff !important; border-color: #3a506b !important; }
-        .theme-navy .bg-slate-50, .theme-navy .bg-slate-100 { background-color: #0b132b !important; color: #e2e8f0 !important; }
-        .theme-navy input, .theme-navy select { background-color: #0b132b !important; color: #ffffff !important; border-color: #3a506b !important; }
-
-        /* تم ۵: مینیمال فلت (بدون سایه، کاملاً تخت) */
-        .theme-flat { background-color: #ffffff !important; color: #18181b !important; }
-        .theme-flat .bg-white { background-color: #ffffff !important; border-color: #cbd5e1 !important; box-shadow: none !important; border-radius: 6px !important; }
-        .theme-flat * { box-shadow: none !important; }
-
-        /* تم ۶: زمردی ارگونومیک (کارت‌های نرم با لبه‌های منحنی عمیق) */
-        .theme-emerald { background-color: #f0fdf4 !important; color: #064e3b !important; }
-        .theme-emerald .bg-white { background-color: #ffffff !important; border-color: #a7f3d0 !important; border-radius: 24px !important; box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.1) !important; }
-        .theme-emerald button { border-radius: 16px !important; }
+        /* تم روز: سفید تمیز و شفاف */
+        .theme-light { background-color: #f8fafc !important; color: #0f172a !important; }
+        .theme-light .bg-white { background-color: #ffffff !important; }
+        
+        /* تم شب: دارک استاندارد و عمیق */
+        .theme-dark { background-color: #0b0f19 !important; color: #f8fafc !important; }
+        .theme-dark .bg-white { background-color: #111827 !important; color: #f9fafb !important; border-color: #1f2937 !important; }
+        .theme-dark .bg-slate-50, .theme-dark .bg-slate-100 { background-color: #1e293b !important; color: #f1f5f9 !important; }
+        .theme-dark input, .theme-dark select, .theme-dark textarea { background-color: #0f172a !important; color: #ffffff !important; border-color: #334155 !important; }
+        .theme-dark .text-slate-800, .theme-dark .text-slate-700 { color: #f1f5f9 !important; }
+        .theme-dark .text-slate-600, .theme-dark .text-slate-500 { color: #94a3b8 !important; }
+        .theme-dark .border-slate-100, .theme-dark .border-slate-200 { border-color: #1e293b !important; }
 
         /* حالت کنتراست بالا */
         .force-high-contrast * { font-weight: 700 !important; border-color: #000000 !important; }
@@ -1751,64 +1717,156 @@ export default function App() {
 
         </div>
       </nav>
-           {/* پاپ‌آپ جامع تنظیمات حرفه‌ای دادکار */}
+        {/* پنجره مدال تنظیمات حرفه‌ای و کاربردی */}
       {isSettingsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div 
-            className={`w-full max-w-md max-h-[88vh] overflow-y-auto rounded-3xl p-5 shadow-2xl border transition-all ${
-              appTheme === 'dark' 
-                ? 'bg-slate-900 border-slate-800 text-slate-100' 
-                : 'bg-white border-slate-200 text-slate-900'
-            }`}
-          >
-            {/* سربرگ */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 sticky top-0 bg-inherit z-10">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
-                  <Settings className="w-4 h-4" />
-                </div>
+          <div className={`w-full max-w-md rounded-3xl p-6 shadow-2xl border transition-all ${
+            appTheme === 'dark' ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-100 text-slate-800'
+          }`}>
+            
+            {/* هدر مدال */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200/60 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <span className="p-2 rounded-xl bg-blue-600/10 text-blue-600 font-bold">⚙️</span>
                 <div>
-                  <h3 className="font-bold text-sm">تنظیمات پیشرفته دادکار</h3>
-                  <p className="text-[10px] text-slate-400">سفارشی‌سازی ظاهر، فونت و تجربه کاربری</p>
+                  <h3 className="text-base font-extrabold">تنظیمات رابط کاربری</h3>
+                  <p className="text-[11px] text-slate-400">شخصی‌سازی ظاهر، قلم و ابعاد</p>
                 </div>
               </div>
               <button 
                 onClick={() => setIsSettingsOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition"
+                className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-red-500 transition-colors"
               >
-                <X className="w-5 h-5" />
+                ✕
               </button>
             </div>
 
-            <div className="space-y-5 py-4">
-                            {/* ۱. انتخاب ساختار و تم نرم‌افزار (۶ تم متمایز) */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-2">
-                    انتخاب ساختار و تم نرم‌افزار (۶ تم مجزا)
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {[
-                      { id: 'modern', name: 'مدرن روز', bg: 'bg-white text-slate-900', border: 'border-slate-300' },
-                      { id: 'dark', name: 'تاریک شب', bg: 'bg-slate-950 text-white', border: 'border-slate-700' },
-                      { id: 'classic', name: 'کلاسیک اسناد', bg: 'bg-[#fbf7ee] text-[#3d2f1d]', border: 'border-[#d8c8b0]' },
-                      { id: 'navy', name: 'لاجوردی اداری', bg: 'bg-[#0a1128] text-white', border: 'border-[#3a506b]' },
-                      { id: 'flat', name: 'مینیمال فلت', bg: 'bg-slate-100 text-zinc-900', border: 'border-slate-400' },
-                      { id: 'emerald', name: 'زمردین ارگونومیک', bg: 'bg-[#f0fdf4] text-[#064e3b]', border: 'border-[#a7f3d0]' },
-                    ].map((t) => (
-                      <button
-                        key={t.id}
-                        type="button"
-                        onClick={() => handleThemeSelect(t.id as AppTheme)}
-                        className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition ${t.bg} ${t.border} ${
-                          appTheme === t.id ? 'ring-2 ring-blue-500 shadow-md scale-[1.02]' : 'opacity-80 hover:opacity-100'
-                        }`}
-                      >
-                        <span className="w-3.5 h-3.5 rounded-full border border-current"></span>
-                        <span>{t.name}</span>
-                      </button>
-                    ))}
-                  </div>
+            <div className="space-y-6 pt-5 max-h-[70vh] overflow-y-auto px-1">
+              
+              {/* ۱. تم نرم‌افزار (فقط روز و شب) */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2.5">
+                  حالت نمایش برنامه
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleThemeSelect('light')}
+                    className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all ${
+                      appTheme === 'light'
+                        ? 'bg-blue-50/70 border-blue-500 ring-2 ring-blue-500/20 text-blue-900 font-bold'
+                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-lg">☀️</span>
+                      <span className="text-xs">روز (روشن)</span>
+                    </div>
+                    <span className="w-3.5 h-3.5 rounded-full border-2 border-current bg-white"></span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleThemeSelect('dark')}
+                    className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all ${
+                      appTheme === 'dark'
+                        ? 'bg-slate-800 border-blue-500 ring-2 ring-blue-500/20 text-blue-400 font-bold'
+                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-lg">🌙</span>
+                      <span className="text-xs">شب (تاریک)</span>
+                    </div>
+                    <span className="w-3.5 h-3.5 rounded-full border-2 border-current bg-slate-900"></span>
+                  </button>
                 </div>
+              </div>
+
+              {/* ۲. فونت برنامه */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2.5">
+                  قلم نوشتاری (فونت)
+                </label>
+                <div className="space-y-1.5">
+                  {[
+                    { id: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif", name: 'سیستمی مدرن (پیش‌فرض سریع)' },
+                    { id: "'Vazirmatn', 'Vazir', 'Tahoma', sans-serif", name: 'وزیرمتن اداری (خوانا و رسمی)' },
+                    { id: "'Tahoma', 'Arial', sans-serif", name: 'تاهوما کلاسیک (استاندارد وب)' },
+                    { id: "'Segoe UI', 'Arial', sans-serif", name: 'سگو سنس (مدرن و خلوت)' },
+                  ].map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => handleFontChange(f.id)}
+                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-xs transition-all ${
+                        fontFamily === f.id
+                          ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold'
+                          : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                      }`}
+                      style={{ fontFamily: f.id }}
+                    >
+                      <span>{f.name}</span>
+                      {fontFamily === f.id && <span className="text-blue-500">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* ۳. اندازه متن برنامه */}
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/60">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">اندازه مقیاس متون</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-600 text-white font-mono font-bold">
+                    {fontSizePx}px
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={12}
+                  max={20}
+                  step={1}
+                  value={fontSizePx}
+                  onChange={(e) => handleFontSizePxChange(parseInt(e.target.value, 10))}
+                  className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                  <span>ریز (12px)</span>
+                  <span>متوسط (15px)</span>
+                  <span>درشت (20px)</span>
+                </div>
+              </div>
+
+              {/* ۴. خوانایی و کنتراست */}
+              <div className="flex items-center justify-between py-1">
+                <div>
+                  <div className="text-xs font-bold text-slate-700 dark:text-slate-200">کنتراست و ضخامت بالا</div>
+                  <div className="text-[10px] text-slate-400">پررنگ کردن خطوط و نوشته‌ها برای خوانایی بیشتر</div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={highContrast}
+                  onChange={(e) => handleContrastToggle(e.target.checked)}
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                />
+              </div>
+
+            </div>
+
+            {/* دکمه تایید */}
+            <div className="mt-6 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsSettingsOpen(false)}
+                className="w-full py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all"
+              >
+                ثبت و بستن
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
 
             {/* ۲. انتخاب از بین ۵ فونت فارسی فعال و بارگذاری‌شده */}
