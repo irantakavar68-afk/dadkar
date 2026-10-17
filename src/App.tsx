@@ -1717,7 +1717,7 @@ export default function App() {
 
         </div>
       </nav>
-        {/* پنجره مدال تنظیمات حرفه‌ای و کاربردی */}
+      {/* مدال تنظیمات حرفه‌ای */}
       {isSettingsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
           <div className={`w-full max-w-md rounded-3xl p-6 shadow-2xl border transition-all ${
@@ -1734,6 +1734,7 @@ export default function App() {
                 </div>
               </div>
               <button 
+                type="button"
                 onClick={() => setIsSettingsOpen(false)}
                 className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-red-500 transition-colors"
               >
@@ -1743,7 +1744,7 @@ export default function App() {
 
             <div className="space-y-6 pt-5 max-h-[70vh] overflow-y-auto px-1">
               
-              {/* ۱. تم نرم‌افزار (فقط روز و شب) */}
+              {/* تم نرم‌افزار */}
               <div>
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2.5">
                   حالت نمایش برنامه
@@ -1783,7 +1784,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* ۲. فونت برنامه */}
+              {/* فونت برنامه */}
               <div>
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2.5">
                   قلم نوشتاری (فونت)
@@ -1813,7 +1814,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* ۳. اندازه متن برنامه */}
+              {/* اندازه متن برنامه */}
               <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/60">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-300">اندازه مقیاس متون</span>
@@ -1837,11 +1838,11 @@ export default function App() {
                 </div>
               </div>
 
-              {/* ۴. خوانایی و کنتراست */}
+              {/* خوانایی و کنتراست */}
               <div className="flex items-center justify-between py-1">
                 <div>
                   <div className="text-xs font-bold text-slate-700 dark:text-slate-200">کنتراست و ضخامت بالا</div>
-                  <div className="text-[10px] text-slate-400">پررنگ کردن خطوط و نوشته‌ها برای خوانایی بیشتر</div>
+                  <div className="text-[10px] text-slate-400">پررنگ کردن خطوط برای خوانایی بهتر</div>
                 </div>
                 <input
                   type="checkbox"
@@ -1853,7 +1854,7 @@ export default function App() {
 
             </div>
 
-            {/* دکمه تایید */}
+            {/* پاورقی و دکمه بستن */}
             <div className="mt-6 pt-3 border-t border-slate-100 dark:border-slate-800">
               <button
                 type="button"
@@ -1868,110 +1869,13 @@ export default function App() {
         </div>
       )}
 
+    </div>
+  );
+}
 
-            {/* ۲. انتخاب از بین ۵ فونت فارسی فعال و بارگذاری‌شده */}
-            <div>
-              <label className="block text-xs font-bold text-slate-500 mb-2">نوع قلم متون (فونت)</label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {[
-                  { id: 'Vazirmatn, Vazir, Tahoma, sans-serif', name: 'وزیرمتن (اصلی)' },
-                  { id: 'Tahoma, Arial, sans-serif', name: 'تاهما (خوانا)' },
-                  { id: 'system-ui, -apple-system, sans-serif', name: 'سیستمی اندروید' },
-                  { id: 'Segoe UI, Arial, sans-serif', name: 'سگوئه (مدرن)' },
-                  { id: 'monospace', name: 'قلم فنی (کد)' },
-                ].map((f) => (
-                  <button
-                    key={f.id}
-                    onClick={() => handleFontChange(f.id)}
-                    style={{ fontFamily: f.id }}
-                    className={`py-2 px-2 rounded-xl border text-xs font-bold transition ${
-                      fontFamily === f.id
-                        ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-sm'
-                        : 'border-slate-200 text-slate-600'
-                    }`}
-                  >
-                    {f.name}
-                  </button>
-                ))}
-              </div>
-            </div>
+export default App;
 
 
-              {/* ۳. گیج اسلایدر تنظیم دستی سایز فونت */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-bold text-slate-500">اندازه قلم متون (گیج اسلایدر)</label>
-                  <span className="text-xs font-black text-blue-600 bg-blue-50 dark:bg-slate-800 px-2 py-0.5 rounded">
-                    {fontSizePx} پیکسل
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="12"
-                  max="20"
-                  step="1"
-                  value={fontSizePx}
-                  onChange={(e) => handleFontSizePxChange(parseInt(e.target.value, 10))}
-                  className="w-full accent-blue-600 cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-                  <span>بسیار ریز (۱۲)</span>
-                  <span>استاندارد (۱۴)</span>
-                  <span>بسیار خوانا (۲۰)</span>
-                </div>
-              </div>
-
-              {/* ۴. تنظیمات تکمیلی (کنتراست، بازخورد لرزشی و اعداد) */}
-              <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <label className="block text-xs font-bold text-slate-500 mb-1">امکانات تکمیلی</label>
-
-                {/* کنتراست بالا */}
-                <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <span className="text-xs font-medium">افزایش کنتراست متن‌ها (خوانایی بهتر)</span>
-                  <input
-                    type="checkbox"
-                    checked={highContrast}
-                    onChange={(e) => handleContrastToggle(e.target.checked)}
-                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
-                  />
-                </div>
-
-                {/* بازخورد لرزشی لمس */}
-                <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <span className="text-xs font-medium">بازخورد لرزشی لمس دکمه‌ها (Haptic)</span>
-                  <input
-                    type="checkbox"
-                    checked={hapticFeedback}
-                    onChange={(e) => handleHapticToggle(e.target.checked)}
-                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
-                  />
-                </div>
-
-                {/* نمایش اعداد فارسی */}
-                <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <span className="text-xs font-medium">قالب‌بندی کلیه ارقام به فارسی رسمی</span>
-                  <input
-                    type="checkbox"
-                    checked={faNumbersOnly}
-                    onChange={(e) => handleFaNumbersToggle(e.target.checked)}
-                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* پاورقی مودال */}
-            <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end">
-              <button
-                onClick={() => setIsSettingsOpen(false)}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-500/20"
-              >
-                تأیید و ذخیره تغییرات
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
 
     </div>
