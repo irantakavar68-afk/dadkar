@@ -128,7 +128,7 @@ export default function DadKarApp() {
   // تب‌های اصلی اپلیکیشن: اضافه شدن تب خانه (home)
   const [activeTab, setActiveTab] = useState<'home' | 'calculator' | 'tamin' | 'templates' | 'laws' | 'faq' | 'contact'>('home');
 
-  // --- وضعیت‌های بخش تنظیمات اپلیکیشن ---
+  // --- وضعیت‌های پیشرفته تنظیمات دادکار ---
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('dadkar_theme') as 'light' | 'dark') || 'light';
@@ -136,11 +136,22 @@ export default function DadKarApp() {
   const [fontFamily, setFontFamily] = useState<string>(() => {
     return localStorage.getItem('dadkar_font') || 'Vazirmatn';
   });
-  const [fontSizeLevel, setFontSizeLevel] = useState<'sm' | 'base' | 'lg'>(() => {
-    return (localStorage.getItem('dadkar_fontSize') as 'sm' | 'base' | 'lg') || 'base';
+  // سایز عددی فونت پایه (به پیکسل با گیج اسلایدر)
+  const [fontSizePx, setFontSizePx] = useState<number>(() => {
+    const saved = localStorage.getItem('dadkar_font_size_px');
+    return saved ? parseInt(saved, 10) : 14;
+  });
+  // سایر تنظیمات کاربردی: کنتراست بالا، ویبره کلیک، نمایش اعداد کاملاً فارسی
+  const [highContrast, setHighContrast] = useState<boolean>(() => {
+    return localStorage.getItem('dadkar_contrast') === 'true';
+  });
+  const [hapticFeedback, setHapticFeedback] = useState<boolean>(() => {
+    return localStorage.getItem('dadkar_haptic') !== 'false';
+  });
+  const [faNumbersOnly, setFaNumbersOnly] = useState<boolean>(() => {
+    return localStorage.getItem('dadkar_fa_num') === 'true';
   });
 
-  // ذخیره در localStorage و اعمال تغییرات
   const handleThemeChange = (mode: 'light' | 'dark') => {
     setThemeMode(mode);
     localStorage.setItem('dadkar_theme', mode);
@@ -151,9 +162,27 @@ export default function DadKarApp() {
     localStorage.setItem('dadkar_font', font);
   };
 
-  const handleFontSizeChange = (size: 'sm' | 'base' | 'lg') => {
-    setFontSizeLevel(size);
-    localStorage.setItem('dadkar_fontSize', size);
+  const handleFontSizePxChange = (size: number) => {
+    setFontSizePx(size);
+    localStorage.setItem('dadkar_font_size_px', size.toString());
+  };
+
+  const handleContrastToggle = (val: boolean) => {
+    setHighContrast(val);
+    localStorage.setItem('dadkar_contrast', String(val));
+  };
+
+  const handleHapticToggle = (val: boolean) => {
+    setHapticFeedback(val);
+    localStorage.setItem('dadkar_haptic', String(val));
+    if (val && typeof window !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate(25);
+    }
+  };
+
+  const handleFaNumbersToggle = (val: boolean) => {
+    setFaNumbersOnly(val);
+    localStorage.setItem('dadkar_fa_num', String(val));
   };
 
 
@@ -250,31 +279,28 @@ export default function DadKarApp() {
   const [lawVisibleCount, setLawVisibleCount] = useState<number>(10);
   const templateListRef = React.useRef<HTMLDivElement | null>(null);
 
-  // تصحیح کامل ورودی دستمزد بدون ایجاد محدودیت تک‌رقمی در هنگام تایپ
+  // اجازه خالی ماندن کادر هنگام پاک کردن بدون تبدیل ناخواسته به صفر
   const handleSalaryTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
-    // حذف کاراکترهای غیرعددی
-    const clean = raw.replace(/[^\d]/g, '');
-    const val = parseInt(clean, 10);
-    setSalaryInputText(clean ? Number(clean).toLocaleString('en-US') : '');
-    if (!isNaN(val)) {
-      if (val > MAX_SALARY_RIAL) {
-        setBaseSalary(MAX_SALARY_RIAL);
-      } else {
-        setBaseSalary(val);
-      }
-    } else {
+    const raw = e.target.value.replace(/[^\d]/g, '');
+    if (!raw) {
+      setSalaryInputText('');
       setBaseSalary(0);
+      return;
     }
+    const num = Math.min(parseInt(raw, 10), MAX_SALARY_RIAL);
+    setBaseSalary(num);
+    setSalaryInputText(num.toLocaleString('en-US'));
   };
 
   const handleSalaryTextBlur = () => {
-    if (baseSalary === 0) {
+    if (!salaryInputText || baseSalary === 0) {
       setSalaryInputText('0');
+      setBaseSalary(0);
     } else {
       setSalaryInputText(baseSalary.toLocaleString('en-US'));
     }
   };
+
 
   const handleSliderSalaryChange = (val: number) => {
     setBaseSalary(val);
@@ -457,15 +483,31 @@ export default function DadKarApp() {
   }
 
   return (
-    <div 
-      className={`min-h-screen pb-20 select-none transition-colors duration-200 ${
-        themeMode === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
-      } ${
-        fontSizeLevel === 'sm' ? 'text-xs' : fontSizeLevel === 'lg' ? 'text-base' : 'text-sm'
-      }`} 
-      style={{ fontFamily: fontFamily === 'Vazirmatn' ? "'Vazirmatn', 'Vazir', sans-serif" : fontFamily }}
-      dir="rtl"
-    >
+<div 
+  className={`min-h-screen pb-20 select-none transition-colors duration-200 ${
+    themeMode === 'dark' ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+  } ${highContrast ? 'contrast-125' : ''}`} 
+  style={{ 
+    fontFamily: fontFamily,
+    fontSize: `${fontSizePx}px`
+  }}
+  dir="rtl"
+>
+  {/* استایل کمکی برای تبدیل اجباری تمام کارت‌های سفید به تیره در حالت دارک‌مود */}
+  {themeMode === 'dark' && (
+    <style>{`
+      .dark .bg-white { background-color: #0f172a !important; color: #f1f5f9 !important; border-color: #1e293b !important; }
+      .dark .bg-slate-50 { background-color: #020617 !important; }
+      .dark .bg-slate-100 { background-color: #1e293b !important; color: #cbd5e1 !important; }
+      .dark .text-slate-900, .dark .text-slate-800, .dark .text-slate-700 { color: #f8fafc !important; }
+      .dark .text-slate-600, .dark .text-slate-500 { color: #94a3b8 !important; }
+      .dark .border-slate-200, .dark .border-slate-100 { border-color: #334155 !important; }
+      .dark input:not([type="range"]), .dark select { background-color: #1e293b !important; color: #ffffff !important; border-color: #475569 !important; }
+      .dark header { background-color: rgba(15, 23, 42, 0.95) !important; border-color: #1e293b !important; }
+      .dark nav { background-color: rgba(15, 23, 42, 0.95) !important; border-color: #1e293b !important; }
+    `}</style>
+  )}
+
 
       
       {/* هدر اپلیکیشن */}
@@ -1664,23 +1706,26 @@ export default function DadKarApp() {
 
         </div>
       </nav>
-      {/* پاپ‌آپ مودال تنظیمات حرفه‌ای سامانه */}
+           {/* پاپ‌آپ جامع تنظیمات حرفه‌ای دادکار */}
       {isSettingsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
           <div 
-            className={`w-full max-w-md rounded-3xl p-5 shadow-2xl border transition-all ${
+            className={`w-full max-w-md max-h-[88vh] overflow-y-auto rounded-3xl p-5 shadow-2xl border transition-all ${
               themeMode === 'dark' 
                 ? 'bg-slate-900 border-slate-800 text-slate-100' 
                 : 'bg-white border-slate-200 text-slate-900'
             }`}
           >
-            {/* سربرگ مودال */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+            {/* سربرگ */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 sticky top-0 bg-inherit z-10">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
                   <Settings className="w-4 h-4" />
                 </div>
-                <h3 className="font-bold text-sm">تنظیمات ظاهری سامانه</h3>
+                <div>
+                  <h3 className="font-bold text-sm">تنظیمات پیشرفته دادکار</h3>
+                  <p className="text-[10px] text-slate-400">سفارشی‌سازی ظاهر، فونت و تجربه کاربری</p>
+                </div>
               </div>
               <button 
                 onClick={() => setIsSettingsOpen(false)}
@@ -1691,9 +1736,9 @@ export default function DadKarApp() {
             </div>
 
             <div className="space-y-5 py-4">
-              {/* ۱. پوسته و حالت شب / روز */}
+              {/* ۱. پوسته تم شب و روز */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-2">حالت نمایشی (تم)</label>
+                <label className="block text-xs font-bold text-slate-500 mb-2">پوسته نمایشی (تم)</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => handleThemeChange('light')}
@@ -1720,14 +1765,16 @@ export default function DadKarApp() {
                 </div>
               </div>
 
-              {/* ۲. قلم و فونت متن‌ها (پایه وزیر) */}
+              {/* ۲. انتخاب از بین ۵ فونت کاربردی با پیش‌فرض وزیر */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-2">نوع قلم (فونت پایه)</label>
-                <div className="grid grid-cols-3 gap-2">
+                <label className="block text-xs font-bold text-slate-500 mb-2">نوع قلم و قلم‌دان (فونت)</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {[
-                    { id: 'Vazirmatn', name: 'وزیر (پیش‌فرض)' },
-                    { id: 'Tahoma, sans-serif', name: 'تاهما' },
-                    { id: 'system-ui, sans-serif', name: 'پیش‌فرض سیستم' }
+                    { id: 'Vazirmatn, Vazir, sans-serif', name: 'وزیر (اصلی)' },
+                    { id: 'IranSans, sans-serif', name: 'ایران‌سنس' },
+                    { id: 'Shabnam, sans-serif', name: 'شبنم' },
+                    { id: 'Tahoma, Arial, sans-serif', name: 'تاهما' },
+                    { id: 'system-ui, -apple-system, sans-serif', name: 'پیش‌فرض دستگاه' },
                   ].map(f => (
                     <button
                       key={f.id}
@@ -1744,27 +1791,65 @@ export default function DadKarApp() {
                 </div>
               </div>
 
-              {/* ۳. اندازه قلم متون */}
+              {/* ۳. گیج اسلایدر تنظیم دستی سایز فونت */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-2">اندازه قلم نوشته‌ها</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: 'sm', label: 'کوچک (ریز)' },
-                    { id: 'base', label: 'استاندارد' },
-                    { id: 'lg', label: 'بزرگ (خوانا)' }
-                  ].map(s => (
-                    <button
-                      key={s.id}
-                      onClick={() => handleFontSizeChange(s.id as 'sm' | 'base' | 'lg')}
-                      className={`py-2 px-2 rounded-xl border text-[11px] font-bold transition ${
-                        fontSizeLevel === s.id
-                          ? 'border-blue-600 bg-blue-50 text-blue-700 dark:bg-slate-800 dark:text-blue-400'
-                          : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
-                      }`}
-                    >
-                      {s.label}
-                    </button>
-                  ))}
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-bold text-slate-500">اندازه قلم متون (گیج اسلایدر)</label>
+                  <span className="text-xs font-black text-blue-600 bg-blue-50 dark:bg-slate-800 px-2 py-0.5 rounded">
+                    {fontSizePx} پیکسل
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="12"
+                  max="20"
+                  step="1"
+                  value={fontSizePx}
+                  onChange={(e) => handleFontSizePxChange(parseInt(e.target.value, 10))}
+                  className="w-full accent-blue-600 cursor-pointer"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                  <span>بسیار ریز (۱۲)</span>
+                  <span>استاندارد (۱۴)</span>
+                  <span>بسیار خوانا (۲۰)</span>
+                </div>
+              </div>
+
+              {/* ۴. تنظیمات تکمیلی (کنتراست، بازخورد لرزشی و اعداد) */}
+              <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <label className="block text-xs font-bold text-slate-500 mb-1">امکانات تکمیلی</label>
+
+                {/* کنتراست بالا */}
+                <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <span className="text-xs font-medium">افزایش کنتراست متن‌ها (خوانایی بهتر)</span>
+                  <input
+                    type="checkbox"
+                    checked={highContrast}
+                    onChange={(e) => handleContrastToggle(e.target.checked)}
+                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                </div>
+
+                {/* بازخورد لرزشی لمس */}
+                <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <span className="text-xs font-medium">بازخورد لرزشی لمس دکمه‌ها (Haptic)</span>
+                  <input
+                    type="checkbox"
+                    checked={hapticFeedback}
+                    onChange={(e) => handleHapticToggle(e.target.checked)}
+                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                </div>
+
+                {/* نمایش اعداد فارسی */}
+                <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <span className="text-xs font-medium">قالب‌بندی کلیه ارقام به فارسی رسمی</span>
+                  <input
+                    type="checkbox"
+                    checked={faNumbersOnly}
+                    onChange={(e) => handleFaNumbersToggle(e.target.checked)}
+                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
                 </div>
               </div>
             </div>
@@ -1775,12 +1860,13 @@ export default function DadKarApp() {
                 onClick={() => setIsSettingsOpen(false)}
                 className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-500/20"
               >
-                تأیید و ذخیره تنظیمات
+                تأیید و ذخیره تغییرات
               </button>
             </div>
           </div>
         </div>
       )}
+
 
     </div>
   );
