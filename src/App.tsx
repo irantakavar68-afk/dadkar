@@ -227,14 +227,24 @@ export default function DadKarApp() {
       setLoadingProgress((prev) => {
         if (prev >= 100) {
           clearInterval(timer);
-          setTimeout(() => setIsLoading(false), 250);
+          setTimeout(() => setIsLoading(false), 150);
           return 100;
         }
-        return prev + 12;
+        return prev + 15;
       });
-    }, 70);
-    return () => clearInterval(timer);
+    }, 60);
+
+    // زمان‌سنج نجات اضطراری: بعد از حداکثر ۱.۵ ثانیه لودینگ قطعی بسته شود
+    const safetyTimer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
+    return () => {
+      clearInterval(timer);
+      clearTimeout(safetyTimer);
+    };
   }, []);
+
 
   // بخش محاسبات: سقف دستمزد ۱۰۰,۰۰۰,۰۰۰,۰۰۰ ریال (۱۰ میلیارد تومان)
   const MAX_SALARY_RIAL = 100000000000; 
@@ -485,10 +495,7 @@ export default function DadKarApp() {
 >
   {/* بارگذاری فونت‌های فارسی استاندارد و استایل‌های پنج تم کاملاً مجزا */}
   <style>{`
-    @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
-    @import url('https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@v3.4.0/dist/font-face.css');
-    @import url('https://cdn.jsdelivr.net/gh/rastikerdar/samim-font@v4.0.5/dist/font-face.css');
-    @import url('https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@v5.0.1/dist/font-face.css');
+
 
     /* تم ۱: شب تاریک (دارک کهکشانی) */
     .theme-dark { background-color: #0b0f19 !important; color: #f1f5f9 !important; }
@@ -1799,12 +1806,12 @@ export default function DadKarApp() {
             <div>
               <label className="block text-xs font-bold text-slate-500 mb-2">نوع قلم متون (فونت)</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {[
-                  { id: 'Vazirmatn, sans-serif', name: 'وزیرمتن (اصلی)' },
-                  { id: 'Sahel, sans-serif', name: 'ساحل (کتابی)' },
-                  { id: 'Samim, sans-serif', name: 'صمیم (نرم و روان)' },
-                  { id: 'Shabnam, sans-serif', name: 'شبنم (مدرن)' },
-                  { id: 'Tahoma, Arial, sans-serif', name: 'تاهما (کلاسیک)' },
+              {[
+                  { id: 'Vazirmatn, Vazir, Tahoma, sans-serif', name: 'وزیرمتن (اصلی)' },
+                  { id: 'Tahoma, Arial, sans-serif', name: 'تاهما (خوانا)' },
+                  { id: 'system-ui, -apple-system, sans-serif', name: 'سیستمی اندروید' },
+                  { id: 'Segoe UI, Arial, sans-serif', name: 'سگوئه (مدرن)' },
+                  { id: 'monospace', name: 'قلم فنی (کد)' },
                 ].map((f) => (
                   <button
                     key={f.id}
