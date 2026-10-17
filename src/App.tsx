@@ -7,8 +7,9 @@ import {
   Percent, ArrowRight, X, ExternalLink, Sparkles, Sliders, 
   RefreshCw, Layers, Check, Info, FileSpreadsheet, Home,
   FileCheck2, ShieldAlert, Copy, Mail, Globe, MessageSquare,
-  ChevronUp
+  ChevronUp, Settings, Moon, Sun, Type
 } from 'lucide-react';
+
 
 import TaminBranchesView from './TaminBranchesView';
 import * as LawsModule from './lawsData';
@@ -127,6 +128,36 @@ export default function DadKarApp() {
   // تب‌های اصلی اپلیکیشن: اضافه شدن تب خانه (home)
   const [activeTab, setActiveTab] = useState<'home' | 'calculator' | 'tamin' | 'templates' | 'laws' | 'faq' | 'contact'>('home');
 
+  // --- وضعیت‌های بخش تنظیمات اپلیکیشن ---
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(() => {
+    return (localStorage.getItem('dadkar_theme') as 'light' | 'dark') || 'light';
+  });
+  const [fontFamily, setFontFamily] = useState<string>(() => {
+    return localStorage.getItem('dadkar_font') || 'Vazirmatn';
+  });
+  const [fontSizeLevel, setFontSizeLevel] = useState<'sm' | 'base' | 'lg'>(() => {
+    return (localStorage.getItem('dadkar_fontSize') as 'sm' | 'base' | 'lg') || 'base';
+  });
+
+  // ذخیره در localStorage و اعمال تغییرات
+  const handleThemeChange = (mode: 'light' | 'dark') => {
+    setThemeMode(mode);
+    localStorage.setItem('dadkar_theme', mode);
+  };
+
+  const handleFontChange = (font: string) => {
+    setFontFamily(font);
+    localStorage.setItem('dadkar_font', font);
+  };
+
+  const handleFontSizeChange = (size: 'sm' | 'base' | 'lg') => {
+    setFontSizeLevel(size);
+    localStorage.setItem('dadkar_fontSize', size);
+  };
+
+
+  
   // استیت‌های بنر اسلایدر صفحه اصلی
   const [activeBanner, setActiveBanner] = useState<number>(0);
   const banners = [
@@ -426,7 +457,16 @@ export default function DadKarApp() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20 select-none" dir="rtl">
+    <div 
+      className={`min-h-screen pb-20 select-none transition-colors duration-200 ${
+        themeMode === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+      } ${
+        fontSizeLevel === 'sm' ? 'text-xs' : fontSizeLevel === 'lg' ? 'text-base' : 'text-sm'
+      }`} 
+      style={{ fontFamily: fontFamily === 'Vazirmatn' ? "'Vazirmatn', 'Vazir', sans-serif" : fontFamily }}
+      dir="rtl"
+    >
+
       
       {/* هدر اپلیکیشن */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
@@ -447,13 +487,29 @@ export default function DadKarApp() {
             </div>
           </button>
 
-          <button
-            onClick={() => setActiveTab('calculator')}
-            className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1.5 rounded-xl font-bold transition border border-blue-200"
-          >
-            <Calculator className="w-3.5 h-3.5" />
-            <span>شروع محاسبات</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className={`p-2 rounded-xl transition border ${
+                themeMode === 'dark' 
+                  ? 'bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700' 
+                  : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
+              }`}
+              title="تنظیمات سامانه"
+              aria-label="تنظیمات"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+    
+            <button
+              onClick={() => setActiveTab('calculator')}
+              className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1.5 rounded-xl font-bold transition border border-blue-200"
+            >
+              <Calculator className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">شروع محاسبات</span>
+            </button>
+          </div>
+
         </div>
       </header>
 
@@ -1608,6 +1664,123 @@ export default function DadKarApp() {
 
         </div>
       </nav>
+      {/* پاپ‌آپ مودال تنظیمات حرفه‌ای سامانه */}
+      {isSettingsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div 
+            className={`w-full max-w-md rounded-3xl p-5 shadow-2xl border transition-all ${
+              themeMode === 'dark' 
+                ? 'bg-slate-900 border-slate-800 text-slate-100' 
+                : 'bg-white border-slate-200 text-slate-900'
+            }`}
+          >
+            {/* سربرگ مودال */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+                  <Settings className="w-4 h-4" />
+                </div>
+                <h3 className="font-bold text-sm">تنظیمات ظاهری سامانه</h3>
+              </div>
+              <button 
+                onClick={() => setIsSettingsOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-5 py-4">
+              {/* ۱. پوسته و حالت شب / روز */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-2">حالت نمایشی (تم)</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => handleThemeChange('light')}
+                    className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs font-bold transition ${
+                      themeMode === 'light'
+                        ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-sm'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                    }`}
+                  >
+                    <Sun className="w-4 h-4" />
+                    <span>حالت روز (روشن)</span>
+                  </button>
+                  <button
+                    onClick={() => handleThemeChange('dark')}
+                    className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs font-bold transition ${
+                      themeMode === 'dark'
+                        ? 'border-blue-500 bg-slate-800 text-blue-400 shadow-sm'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                    }`}
+                  >
+                    <Moon className="w-4 h-4" />
+                    <span>حالت شب (تیره)</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* ۲. قلم و فونت متن‌ها (پایه وزیر) */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-2">نوع قلم (فونت پایه)</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'Vazirmatn', name: 'وزیر (پیش‌فرض)' },
+                    { id: 'Tahoma, sans-serif', name: 'تاهما' },
+                    { id: 'system-ui, sans-serif', name: 'پیش‌فرض سیستم' }
+                  ].map(f => (
+                    <button
+                      key={f.id}
+                      onClick={() => handleFontChange(f.id)}
+                      className={`py-2 px-2 rounded-xl border text-[11px] font-bold transition ${
+                        fontFamily === f.id
+                          ? 'border-blue-600 bg-blue-50 text-blue-700 dark:bg-slate-800 dark:text-blue-400'
+                          : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                      }`}
+                    >
+                      {f.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* ۳. اندازه قلم متون */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-2">اندازه قلم نوشته‌ها</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'sm', label: 'کوچک (ریز)' },
+                    { id: 'base', label: 'استاندارد' },
+                    { id: 'lg', label: 'بزرگ (خوانا)' }
+                  ].map(s => (
+                    <button
+                      key={s.id}
+                      onClick={() => handleFontSizeChange(s.id as 'sm' | 'base' | 'lg')}
+                      className={`py-2 px-2 rounded-xl border text-[11px] font-bold transition ${
+                        fontSizeLevel === s.id
+                          ? 'border-blue-600 bg-blue-50 text-blue-700 dark:bg-slate-800 dark:text-blue-400'
+                          : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* پاورقی مودال */}
+            <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end">
+              <button
+                onClick={() => setIsSettingsOpen(false)}
+                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-500/20"
+              >
+                تأیید و ذخیره تنظیمات
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
