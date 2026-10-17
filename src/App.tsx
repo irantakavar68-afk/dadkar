@@ -1372,14 +1372,45 @@ export default function DadKarApp() {
                 const visibleLaws = filteredLaws.slice(0, lawVisibleCount);
                 return (
                   <>
-                    {visibleLaws.map((law, idx) => (
-                      <div key={law.id || idx} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-black text-blue-700 font-mono">{law.id || `ماده ${idx + 1}`}</span>
-                          <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold">{law.category || 'قانون کار'}</span>
-                        </div>
-                        <h3 className="font-bold text-sm text-slate-800">{law.title || law.subject}</h3>
-                        <p className="text-xs text-slate-600 leading-relaxed">{law.content}</p>
+                   {visibleLaws.map((law, idx) => {
+                      // استخراج شماره و ارجاع فارسی
+                      const idStr = String(law.id || '');
+                      const numMatch = idStr.match(/\d+/);
+                      const numFa = numMatch ? Number(numMatch[0]).toLocaleString('fa-IR') : `${idx + 1}`.replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[+d]);
+                      
+                      let refName = 'قانون کار';
+                      let catFa = 'قانون کار';
+                      if (idStr.startsWith('tam-') || idStr.startsWith('ss-') || law.category === 'tamin') {
+                        refName = 'قانون تأمین اجتماعی';
+                        catFa = 'تأمین اجتماعی';
+                      } else if (idStr.startsWith('unemp-') || law.category === 'unemployment') {
+                        refName = 'قانون بیمه بیکاری';
+                        catFa = 'بیمه بیکاری';
+                      } else if (idStr.startsWith('crt-') || law.category === 'court') {
+                        refName = 'آرای دیوان و مراجع حل اختلاف';
+                        catFa = 'مراجع حل اختلاف';
+                      }
+                    
+                      const subtitle = `ماده ${numFa} ${refName}`;
+                      const displayTitle = (law.title && !/^[a-z]+-\d+$/i.test(law.title) && !/^[a-z_]+$/i.test(law.title))
+                        ? law.title
+                        : (law.subject && !/^[a-z_]+$/i.test(law.subject))
+                          ? law.subject
+                          : subtitle;
+                    
+                      return (
+                        <div key={law.id || idx} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded-full font-bold">
+                              {catFa}
+                            </span>
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-sm text-slate-800">{displayTitle}</h3>
+                            <p className="text-[11px] text-slate-400 font-medium mt-0.5">{subtitle}</p>
+                          </div>
+                          <p className="text-xs text-slate-600 leading-relaxed">{law.content}</p>
+
                         {/* هشتگ‌های کلیک‌پذیر قوانین برای فیلتر آنی */}
                         {law.tags && law.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 pt-1">
@@ -1516,7 +1547,7 @@ export default function DadKarApp() {
 
       {/* منوی فوتر ثابت تک‌خطی با ۶ گزینه دقیقاً در یک ردیف افقی بدون شکستن متن */}
       <nav className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-1.5 px-2 z-40 shadow-lg">
-        <div className="max-w-md mx-auto grid grid-cols-6 gap-0.5 text-center">
+        <div className="max-w-md mx-auto grid grid-cols-7 gap-0.5 text-center">
           
           <button
             onClick={() => setActiveTab('home')}
@@ -1564,6 +1595,16 @@ export default function DadKarApp() {
           >
             <HelpCircle className="w-4 h-4" />
             <span className="text-[9px] whitespace-nowrap mt-0.5">راهنما</span>
+          </button>
+              {/* دکمه هفتم: ارتباط با ما */}
+          <button
+            onClick={() => setActiveTab('contact')}
+            className={`flex flex-col items-center justify-center py-1 transition ${
+              activeTab === 'contact' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Phone className="w-5 h-5 mb-0.5" />
+            <span className="text-[9px] whitespace-nowrap">ارتباط با ما</span>
           </button>
 
         </div>
