@@ -1410,27 +1410,26 @@ export default function DadKarApp() {
                             <p className="text-[11px] text-slate-400 font-medium mt-0.5">{subtitle}</p>
                           </div>
                           <p className="text-xs text-slate-600 leading-relaxed">{law.content}</p>
+                    
+                          {/* هشتگ‌های قوانین */}
+                          {law.tags && law.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              {law.tags.map((tag: string, tIdx: number) => (
+                                <button
+                                  key={tIdx}
+                                  onClick={() => { setLawSearchQuery(tag); setLawVisibleCount(10); }}
+                                  className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md hover:bg-blue-100 hover:text-blue-700 transition"
+                                >
+                                  #{tag}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
 
-                        {/* هشتگ‌های کلیک‌پذیر قوانین برای فیلتر آنی */}
-                        {law.tags && law.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 pt-1">
-                            {law.tags.map((tag: string, tIdx: number) => (
-                              <button
-                                key={tIdx}
-                                onClick={() => { setLawSearchQuery(tag); setLawVisibleCount(10); }}
-                                className={`text-[10px] px-2 py-0.5 rounded-md transition ${
-                                  lawSearchQuery === tag
-                                    ? 'bg-blue-600 text-white font-bold'
-                                    : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-600'
-                                }`}
-                              >
-                                #{tag}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+
 
                     {filteredLaws.length === 0 && (
                       <div className="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-slate-500">
