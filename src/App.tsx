@@ -216,24 +216,25 @@ export default function App() {
     const [isLoading, setIsLoading] = useState(true);
     
     useEffect(() => {
-      const totalDuration = 4000; // ۴۰۰۰ میلی‌ثانیه معادل ۴ ثانیه
-      const intervalTime = 40;    // هر ۴۰ میلی‌ثانیه یک بار درصد به‌روز می‌شود
-      const step = 100 / (totalDuration / intervalTime); // ۱ درصد در هر گام
+      const duration = 4000; // دقیقاً ۴ ثانیه زمان بارگذاری
+      const interval = 40;   // بروزرسانی روان هر ۴۰ میلی‌ثانیه یک بار
+      const increment = 100 / (duration / interval);
     
       const timer = setInterval(() => {
         setLoadingProgress((prev) => {
-          const next = prev + step;
+          const next = prev + increment;
           if (next >= 100) {
             clearInterval(timer);
-            setTimeout(() => setIsLoading(false), 200); // پایان لودینگ
+            setTimeout(() => setIsLoading(false), 250);
             return 100;
           }
           return next;
         });
-      }, intervalTime);
+      }, interval);
     
       return () => clearInterval(timer);
     }, []);
+
 
 
 
