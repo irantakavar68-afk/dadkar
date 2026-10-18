@@ -77,7 +77,7 @@ jobs:
           </html>
           EOF
 
-      - name: Setup Capacitor and Generate App Icons
+      - name: Setup Capacitor and Generate App Icons & Splash
         run: |
           npm install @capacitor/core@5.7.4 @capacitor/cli@5.7.4 @capacitor/android@5.7.4
           
@@ -86,20 +86,28 @@ jobs:
             "appId": "ir.dadkar.app",
             "appName": "دادکار",
             "webDir": "dist",
-            "bundledWebRuntime": false
+            "bundledWebRuntime": false,
+            "plugins": {
+              "SplashScreen": {
+                "launchShowDuration": 1500,
+                "launchAutoHide": true,
+                "backgroundColor": "#090d16",
+                "androidSplashResourceName": "splash"
+              }
+            }
           }
           EOF
 
           npx cap add android
 
-          # تبدیل فایل icon.svg به تمام سایزهای آیکون اندروید با librsvg
+          # ساخت آیکون‌ها و اسپلش‌اسکرین از روی icon.svg
           if [ -f "icon.svg" ]; then
-            sudo apt-get update && sudo apt-get install -y librsvg2-bin
+            sudo apt-get update && sudo apt-get install -y librsvg2-bin imagemagick
             
             RES_DIR="android/app/src/main/res"
             
+            # تولید آیکون‌های لانچر
             declare -A SIZES=( ["mipmap-mdpi"]=48 ["mipmap-hdpi"]=72 ["mipmap-xhdpi"]=96 ["mipmap-xxhdpi"]=144 ["mipmap-xxxhdpi"]=192 )
-            
             for DIR in "${!SIZES[@]}"; do
               SIZE="${SIZES[$DIR]}"
               TARGET_DIR="$RES_DIR/$DIR"
@@ -108,7 +116,18 @@ jobs:
               rsvg-convert -w "$SIZE" -h "$SIZE" icon.svg -o "$TARGET_DIR/ic_launcher_round.png"
               rsvg-convert -w "$SIZE" -h "$SIZE" icon.svg -o "$TARGET_DIR/ic_launcher_foreground.png"
             done
-            echo "Custom DK icons successfully generated for all Android densities."
+
+            # تولید و جایگزینی تصویر اسپلش‌اسکرین نیتیو با پس‌زمینه منطبق و لوگوی مونوگرام
+            rsvg-convert -w 512 -h 512 icon.svg -o /tmp/logo512.png
+            convert -size 1080x1920 xc:"#090d16" /tmp/logo512.png -gravity center -composite /tmp/splash_rendered.png
+
+            for SPLASH_DIR in $(find "$RES_DIR" -type d -name "drawable*"); do
+              if [ -f "$SPLASH_DIR/splash.png" ]; then
+                cp /tmp/splash_rendered.png "$SPLASH_DIR/splash.png"
+              fi
+            done
+            cp /tmp/splash_rendered.png "$RES_DIR/drawable/splash.png" || true
+            echo "Launcher icons and native splash screens replaced successfully."
           fi
 
           npx cap sync android
