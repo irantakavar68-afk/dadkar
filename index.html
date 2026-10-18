@@ -4,16 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>دادکار | پایگاه جامع روابط کار و تأمین اجتماعی</title>
-    
-    <!-- تنظیم رنگ نوار وضعیت موبایل هماهنگ با تم اپلیکیشن -->
+
+    <!-- اتصال فایل مانیفست نصبی اندروید (الزامی برای تغییر آیکون گوشی) -->
+    <link rel="manifest" href="/manifest.json?v=2" />
+
+    <!-- تنظیمات رنگ نوار وضعیت و هویت اپ در گوشی -->
     <meta name="theme-color" content="#090d16" />
     <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="دادکار" />
 
-    <!-- آیکون رسمی مونوگرام DK (بدون نیاز به فایل خارجی) -->
+    <!-- آیکون‌های استاندارد مرورگر و موبایل با نسخه کش‌شکن -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=2" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon-512.png?v=2" />
+
+    <!-- بک‌آپ وکتور در صورت پشتیبانی مرورگر مدرن -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23020617'/%3E%3Cstop offset='50%25' stop-color='%230b1329'/%3E%3Cstop offset='100%25' stop-color='%23030712'/%3E%3C/linearGradient%3E%3ClinearGradient id='br' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2338bdf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%231d4ed8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='115' fill='url(%23bg)'/%3E%3Crect x='10' y='10' width='492' height='492' rx='105' fill='none' stroke='url(%23br)' stroke-width='16' opacity='0.9'/%3E%3Cg%3E%3Cpath d='M140 110 H220 C310 110 350 160 350 256 C350 352 310 402 220 402 H140 Z' fill='none' stroke='%2338bdf8' stroke-width='38' stroke-linejoin='round'/%3E%3Cpath d='M245 256 L375 125 M245 256 L385 390' fill='none' stroke='%23ffffff' stroke-width='36' stroke-linecap='round'/%3E%3Ccircle cx='375' cy='125' r='18' fill='%2360a5fa'/%3E%3Ccircle cx='385' cy='390' r='18' fill='%2338bdf8'/%3E%3C/g%3E%3C/svg%3E" />
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23020617'/%3E%3Cstop offset='50%25' stop-color='%230b1329'/%3E%3Cstop offset='100%25' stop-color='%23030712'/%3E%3C/linearGradient%3E%3ClinearGradient id='br' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2338bdf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%231d4ed8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='115' fill='url(%23bg)'/%3E%3Crect x='10' y='10' width='492' height='492' rx='105' fill='none' stroke='url(%23br)' stroke-width='16' opacity='0.9'/%3E%3Cg%3E%3Cpath d='M140 110 H220 C310 110 350 160 350 256 C350 352 310 402 220 402 H140 Z' fill='none' stroke='%2338bdf8' stroke-width='38' stroke-linejoin='round'/%3E%3Cpath d='M245 256 L375 125 M245 256 L385 390' fill='none' stroke='%23ffffff' stroke-width='36' stroke-linecap='round'/%3E%3Ccircle cx='375' cy='125' r='18' fill='%2360a5fa'/%3E%3Ccircle cx='385' cy='390' r='18' fill='%2338bdf8'/%3E%3C/g%3E%3C/svg%3E" />
 
     <!-- CDN استایل و فونت وزیرمتن -->
     <script src="https://cdn.tailwindcss.com"></script>
