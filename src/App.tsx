@@ -486,83 +486,120 @@ export default function App() {
       }} 
       dir="rtl"
     >
+        {/* سیستم استایل مینیمال، تایپوگرافی استاندارد و دارک‌مود عمیق */}
       <style>{`
-        /* اعمال فونت و اندازه سراسری روی تمام تگ‌ها و کلاس‌های برنامه */
-        .theme-light, .theme-dark {
-          font-family: var(--app-font) !important;
+        :root {
+          --app-font: ${fontFamily};
+          --app-font-size: ${fontSizePx}px;
         }
-        .theme-light *, .theme-dark * {
-          font-family: inherit !important;
+        body, #root {
+          font-family: var(--app-font), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-size: var(--app-font-size);
+          letter-spacing: -0.02em;
+          -webkit-font-smoothing: antialiased;
         }
-        
-        .theme-light body, .theme-light p, .theme-light span, .theme-light div, .theme-light input, .theme-light button, .theme-light label,
-        .theme-dark body, .theme-dark p, .theme-dark span, .theme-dark div, .theme-dark input, .theme-dark button, .theme-dark label {
-          font-size: var(--app-font-size) !important;
+        .theme-light {
+          background-color: #f8fafc;
+          color: #0f172a;
         }
-
-        /* تم روز: سفید تمیز و شفاف */
-        .theme-light { background-color: #f8fafc !important; color: #0f172a !important; }
-        .theme-light .bg-white { background-color: #ffffff !important; }
-        
-        /* تم شب: دارک استاندارد و عمیق */
-        .theme-dark { background-color: #0b0f19 !important; color: #f8fafc !important; }
-        .theme-dark .bg-white { background-color: #111827 !important; color: #f9fafb !important; border-color: #1f2937 !important; }
-        .theme-dark .bg-slate-50, .theme-dark .bg-slate-100 { background-color: #1e293b !important; color: #f1f5f9 !important; }
-        .theme-dark input, .theme-dark select, .theme-dark textarea { background-color: #0f172a !important; color: #ffffff !important; border-color: #334155 !important; }
-        .theme-dark .text-slate-800, .theme-dark .text-slate-700 { color: #f1f5f9 !important; }
-        .theme-dark .text-slate-600, .theme-dark .text-slate-500 { color: #94a3b8 !important; }
-        .theme-dark .border-slate-100, .theme-dark .border-slate-200 { border-color: #1e293b !important; }
-
-        /* حالت کنتراست بالا */
-        .force-high-contrast * { font-weight: 700 !important; border-color: #000000 !important; }
-        .force-high-contrast.theme-dark * { border-color: #ffffff !important; }
+        .theme-dark {
+          background-color: #090d16;
+          color: #f1f5f9;
+        }
+        .theme-dark .bg-white {
+          background-color: #111827 !important;
+          border-color: #1e293b !important;
+        }
+        .theme-dark .text-slate-900, .theme-dark .text-slate-800, .theme-dark .text-slate-700 {
+          color: #f1f5f9 !important;
+        }
+        .theme-dark .text-slate-600, .theme-dark .text-slate-500 {
+          color: #94a3b8 !important;
+        }
+        .theme-dark .bg-slate-50, .theme-dark .bg-slate-100 {
+          background-color: #0f172a !important;
+          border-color: #1e293b !important;
+        }
+        .theme-dark input, .theme-dark select, .theme-dark textarea {
+          background-color: #0d1322 !important;
+          border-color: #334155 !important;
+          color: #ffffff !important;
+        }
+        .force-high-contrast {
+          font-weight: 600 !important;
+        }
+        .force-high-contrast .theme-light * {
+          border-color: #000000 !important;
+        }
+        .force-high-contrast .theme-dark * {
+          border-color: #38bdf8 !important;
+        }
       `}</style>
 
 
 
+
       
-      {/* هدر اپلیکیشن */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+      {/* هدر مینیمال شیشه‌ای با مونوگرام اختصاصی DK */}
+      <header className={`sticky top-0 z-40 transition-colors duration-300 backdrop-blur-xl border-b ${
+        appTheme === 'dark' 
+          ? 'bg-slate-950/80 border-slate-800/80 text-white' 
+          : 'bg-white/85 border-slate-200/80 text-slate-900'
+      }`}>
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-          <button 
+          <button
+            type="button"
             onClick={() => setActiveTab('home')}
-            className="flex items-center gap-2.5 text-right focus:outline-none"
+            className="flex items-center gap-3 text-right group focus:outline-none"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-              <Scale className="w-5 h-5" />
+            {/* لوگوی مونوگرام مهندسی DK با حاشیه درخشان نئونی */}
+            <div className="relative w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-700 via-indigo-600 to-sky-400 p-[1.5px] shadow-lg shadow-blue-500/20 flex-shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+                <svg viewBox="0 0 40 40" className="w-6 h-6" fill="none">
+                  {/* نماد حرف D به شکل سپر قانونی */}
+                  <path d="M10 8H14C22 8 25 13 25 20C25 27 22 32 14 32H10V8Z" stroke="#38BDF8" strokeWidth="3" strokeLinejoin="round" />
+                  {/* شاخه‌های مورب نماد حرف K */}
+                  <path d="M18 20L28 10M18 20L29 30" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
+                  <circle cx="28" cy="10" r="1.5" fill="#60A5FA" />
+                  <circle cx="29" cy="30" r="1.5" fill="#38BDF8" />
+                </svg>
+              </div>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-black text-slate-900 text-lg leading-tight">دادکار</span>
-                <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded">نسخه جامع</span>
+                <span className="font-black text-lg tracking-tight">دادکار</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                  نسخه جامع
+                </span>
               </div>
-              <p className="text-[10px] text-slate-500">پایگاه جامع روابط کار و سازمان تأمین اجتماعی</p>
+              <p className={`text-[11px] font-medium leading-none mt-1 ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                سامانه هوشمند روابط کار و قوانین تأمین اجتماعی
+              </p>
             </div>
           </button>
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setIsSettingsOpen(true)}
-              className={`p-2 rounded-xl transition border ${
-                appTheme === 'dark' 
-                  ? 'bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700' 
-                  : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
-              }`}
-              title="تنظیمات سامانه"
-              aria-label="تنظیمات"
+              className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-200 border ${
+                appTheme === 'dark'
+                  ? 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
+                  : 'bg-slate-100/80 border-slate-200 text-slate-700 hover:bg-slate-200'
+              } active:scale-95`}
+              title="تنظیمات"
             >
               <Settings className="w-4 h-4" />
             </button>
-    
             <button
+              type="button"
               onClick={() => setActiveTab('calculator')}
-              className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1.5 rounded-xl font-bold transition border border-blue-200"
+              className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-blue-500/25 transition-all active:scale-95"
             >
-              <Calculator className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">شروع محاسبات</span>
+              <Calculator className="w-4 h-4" />
+              <span>محاسبات سریع</span>
             </button>
           </div>
-
         </div>
       </header>
 
@@ -1653,70 +1690,49 @@ export default function App() {
 
       </main>
 
-      {/* منوی فوتر ثابت تک‌خطی با ۶ گزینه دقیقاً در یک ردیف افقی بدون شکستن متن */}
-      <nav className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-1.5 px-2 z-40 shadow-lg">
-        <div className="max-w-md mx-auto grid grid-cols-7 gap-0.5 text-center">
-          
-          <button
-            onClick={() => setActiveTab('home')}
-            className={`flex flex-col items-center justify-center py-1 transition ${activeTab === 'home' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <Home className="w-4 h-4" />
-            <span className="text-[9px] whitespace-nowrap mt-0.5">صفحه اصلی</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('calculator')}
-            className={`flex flex-col items-center justify-center py-1 transition ${activeTab === 'calculator' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <Calculator className="w-4 h-4" />
-            <span className="text-[9px] whitespace-nowrap mt-0.5">محاسبات</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('tamin')}
-            className={`flex flex-col items-center justify-center py-1 transition ${activeTab === 'tamin' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <Building2 className="w-4 h-4" />
-            <span className="text-[9px] whitespace-nowrap mt-0.5">شعب</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('templates')}
-            className={`flex flex-col items-center justify-center py-1 transition ${activeTab === 'templates' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <FileText className="w-4 h-4" />
-            <span className="text-[9px] whitespace-nowrap mt-0.5">قالب‌ها</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('laws')}
-            className={`flex flex-col items-center justify-center py-1 transition ${activeTab === 'laws' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <BookOpen className="w-4 h-4" />
-            <span className="text-[9px] whitespace-nowrap mt-0.5">قوانین</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('faq')}
-            className={`flex flex-col items-center justify-center py-1 transition ${activeTab === 'faq' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <HelpCircle className="w-4 h-4" />
-            <span className="text-[9px] whitespace-nowrap mt-0.5">راهنما</span>
-          </button>
-              {/* دکمه هفتم: ارتباط با ما */}
-          <button
-            onClick={() => setActiveTab('contact')}
-            className={`flex flex-col items-center justify-center py-1 transition ${
-              activeTab === 'contact' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Phone className="w-5 h-5 mb-0.5" />
-            <span className="text-[9px] whitespace-nowrap">ارتباط با ما</span>
-          </button>
-
+      {/* نوار ناوبری پایین با هماهنگی کامل تم روشن/تاریک */}
+      <nav className={`fixed bottom-0 left-0 right-0 z-40 backdrop-blur-xl border-t transition-colors duration-300 py-1.5 safe-bottom ${
+        appTheme === 'dark'
+          ? 'bg-slate-950/90 border-slate-800/80 text-slate-400 shadow-2xl'
+          : 'bg-white/90 border-slate-200/80 text-slate-500 shadow-lg'
+      }`}>
+        <div className="max-w-md mx-auto px-1 grid grid-cols-7 gap-0.5">
+          {[
+            { id: 'home', label: 'اصلی', icon: Home },
+            { id: 'calculator', label: 'محاسبات', icon: Calculator },
+            { id: 'tamin', label: 'شعب', icon: Building2 },
+            { id: 'templates', label: 'قالب‌ها', icon: FileSpreadsheet },
+            { id: 'laws', label: 'قوانین', icon: BookOpen },
+            { id: 'faq', label: 'راهنما', icon: HelpCircle },
+            { id: 'contact', label: 'ارتباط', icon: Phone },
+          ].map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setActiveTab(item.id)}
+                className={`flex flex-col items-center justify-center py-1 px-0.5 rounded-xl transition-all duration-200 ${
+                  isActive
+                    ? 'text-blue-500 font-black'
+                    : 'hover:text-slate-700 dark:hover:text-slate-200'
+                }`}
+              >
+                <div className={`p-1.5 rounded-xl transition-all ${
+                  isActive ? 'bg-blue-500/15 scale-110' : ''
+                }`}>
+                  <Icon className="w-4 h-4" />
+                </div>
+                <span className="text-[10px] mt-0.5 tracking-tighter truncate max-w-full">
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </nav>
+
        {/* مودال تنظیمات لوکس و اختصاصی */}
       {isSettingsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
