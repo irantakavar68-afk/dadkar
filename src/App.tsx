@@ -211,32 +211,30 @@ export default function App() {
     return () => clearInterval(slideTimer);
   }, [banners.length]);
 
-  // لودینگ اولیه منحصر به فرد و مدرن
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [loadingProgress, setLoadingProgress] = useState<number>(0);
+    // نمونه بهینه برای لودینگ ۴ ثانیه‌ای نرم:
+    const [loadingProgress, setLoadingProgress] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
+    
+    useEffect(() => {
+      const totalDuration = 4000; // ۴۰۰۰ میلی‌ثانیه معادل ۴ ثانیه
+      const intervalTime = 40;    // هر ۴۰ میلی‌ثانیه یک بار درصد به‌روز می‌شود
+      const step = 100 / (totalDuration / intervalTime); // ۱ درصد در هر گام
+    
+      const timer = setInterval(() => {
+        setLoadingProgress((prev) => {
+          const next = prev + step;
+          if (next >= 100) {
+            clearInterval(timer);
+            setTimeout(() => setIsLoading(false), 200); // پایان لودینگ
+            return 100;
+          }
+          return next;
+        });
+      }, intervalTime);
+    
+      return () => clearInterval(timer);
+    }, []);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setLoadingProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(timer);
-          setTimeout(() => setIsLoading(false), 150);
-          return 100;
-        }
-        return prev + 15;
-      });
-    }, 60);
-
-    // زمان‌سنج نجات اضطراری: بعد از حداکثر ۱.۵ ثانیه لودینگ قطعی بسته شود
-    const safetyTimer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-
-    return () => {
-      clearInterval(timer);
-      clearTimeout(safetyTimer);
-    };
-  }, []);
 
 
   // بخش محاسبات: سقف دستمزد ۱۰,۰۰۰,۰۰۰,۰۰۰ ریال (۱ میلیارد تومان)
