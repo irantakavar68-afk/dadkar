@@ -135,9 +135,10 @@ export default function App() {
   const [appTheme, setAppTheme] = useState<AppTheme>(() => {
     return (localStorage.getItem('dadkar_theme') as AppTheme) || 'light';
   });
-  const [fontFamily, setFontFamily] = useState<string>(() => {
-    return localStorage.getItem('dadkar_font') || "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
-  });
+  const [fontFamily, setFontFamily] = useState<string>(
+    () => localStorage.getItem('dadkar_font') || 'Vazirmatn, Tahoma, sans-serif'
+  );
+
   const [fontSizePx, setFontSizePx] = useState<number>(() => {
     const saved = localStorage.getItem('dadkar_font_size_px');
     return saved ? parseInt(saved, 10) : 14;
@@ -238,10 +239,10 @@ export default function App() {
   }, []);
 
 
-  // بخش محاسبات: سقف دستمزد ۱۰۰,۰۰۰,۰۰۰,۰۰۰ ریال (۱۰ میلیارد تومان)
-  const MAX_SALARY_RIAL = 100000000000; 
+  // بخش محاسبات: سقف دستمزد ۱۰,۰۰۰,۰۰۰,۰۰۰ ریال (۱ میلیارد تومان)
+  const MAX_SALARY_RIAL = 10000000000;
   const [baseSalary, setBaseSalary] = useState<number>(100000000); // پیش‌فرض ۱۰ میلیون تومان
-  const [salaryInputText, setSalaryInputText] = useState<string>('100000000');
+  const [salaryInputText, setSalaryInputText] = useState<string>('100,000,000');
 
   const [activeCalc, setActiveCalc] = useState<string>('salary');
   const [years, setYears] = useState<number>(1);
@@ -285,13 +286,15 @@ export default function App() {
   };
 
   const handleSalaryTextBlur = () => {
-    if (!salaryInputText || baseSalary === 0) {
-      setSalaryInputText('0');
-      setBaseSalary(0);
-    } else {
-      setSalaryInputText(baseSalary.toLocaleString('en-US'));
+    if (!salaryInputText || salaryInputText.trim() === '') {
+      return; // در صورت خالی بودن، به صفر تحمیلی تبدیل نمی‌شود
+    }
+    const num = parseInt(salaryInputText.replace(/[^\d]/g, ''), 10);
+    if (!isNaN(num) && num > 0) {
+      setSalaryInputText(num.toLocaleString('en-US'));
     }
   };
+
 
 
   const handleSliderSalaryChange = (val: number) => {
@@ -750,7 +753,7 @@ export default function App() {
               <div className="space-y-1">
                 <span className="text-[10px] bg-blue-700/60 px-2 py-0.5 rounded font-bold">مبنای استناد</span>
                 <h4 className="text-xs font-bold">محاسبات بر اساس آخرین بخشنامه مصوب شورای عالی کار</h4>
-                <p className="text-[10px] text-blue-200">سقف ورودی دستمزد تا ۱۰ میلیارد تومان (۱۰۰ میلیارد ریال)</p>
+                <p className="text-[10px] text-blue-200">سقف ورودی دستمزد تا ۱ میلیارد تومان (۱۰ میلیارد ریال)</p>
               </div>
               <button 
                 onClick={() => setActiveTab('calculator')}
@@ -783,8 +786,8 @@ export default function App() {
               {/* ورودی دستی اصلاح‌شده بدون قفل‌شدن عدد یا تک‌رقمی ماندن */}
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center text-xs text-slate-600 font-medium">
-                  <label htmlFor="salaryInput">وارد کردن مبلغ به ریال (سقف ۱۰ میلیارد تومان = ۱۰۰,۰۰۰,۰۰۰,۰۰۰ ریال):</label>
-                  <span className="text-[11px] text-slate-400 font-mono">حداکثر ۱۰۰ میلیارد ریال</span>
+                  <label htmlFor="salaryInput">وارد کردن مبلغ به ریال (سقف ۱ میلیارد تومان = ۱۰,۰۰۰,۰۰۰,۰۰۰ ریال):</label>
+                  <span className="text-[11px] text-slate-400 font-mono">حداکثر ۱۰ میلیارد ریال</span>
                 </div>
                 <div className="relative">
                   <input
@@ -1766,7 +1769,7 @@ export default function App() {
                 <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl">
                   <button
                     type="button"
-                    onClick={() => handleThemeChange('light')}
+                    onClick={() => handleThemeSelect('light')}
                     className={`py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
                       appTheme === 'light'
                         ? 'bg-white text-blue-600 shadow-sm'
@@ -1777,7 +1780,7 @@ export default function App() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleThemeChange('dark')}
+                     onClick={() => handleThemeSelect('dark')}
                     className={`py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
                       appTheme === 'dark'
                         ? 'bg-slate-700 text-blue-400 shadow-sm'
@@ -1794,10 +1797,8 @@ export default function App() {
                 <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-2">نوع قلم سامانه</label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { id: 'system-ui, sans-serif', name: 'پیش‌فرض سیستم' },
-                    { id: 'Vazirmatn, Tahoma, sans-serif', name: 'وزیرمتن (رسمی)' },
-                    { id: 'Tahoma, Arial, sans-serif', name: 'تاهما (سازمانی)' },
-                    { id: 'Segoe UI, Arial, sans-serif', name: 'سگوئه (مدرن)' },
+                    { id: 'Vazirmatn, Tahoma, sans-serif', name: 'وزیرمتن (پیش‌فرض اپلیکیشن)' },
+                    { id: 'system-ui, -apple-system, sans-serif', name: 'قلم استاندارد سیستم' },
                   ].map((f) => (
                     <button
                       key={f.id}
@@ -1815,6 +1816,7 @@ export default function App() {
                   ))}
                 </div>
               </div>
+
 
               {/* ۳. اندازه قلم */}
               <div>
