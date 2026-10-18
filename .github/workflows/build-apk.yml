@@ -64,7 +64,7 @@ jobs:
                   font-family: 'Vazirmatn', sans-serif;
                   margin: 0;
                   padding: 0;
-                  background-color: #0f172a;
+                  background-color: #090d16;
                   -webkit-user-select: none;
                   user-select: none;
                 }
@@ -77,10 +77,11 @@ jobs:
           </html>
           EOF
 
-      - name: Setup Capacitor and Generate App Icons & Splash
+      - name: Setup Capacitor and Generate App Assets
         run: |
           npm install @capacitor/core@5.7.4 @capacitor/cli@5.7.4 @capacitor/android@5.7.4
           
+          # تنظیم نمایش اولیه دقیقاً ۲ ثانیه برای لوگو قبل از لودینگ
           cat << 'EOF' > capacitor.config.json
           {
             "appId": "ir.dadkar.app",
@@ -89,7 +90,7 @@ jobs:
             "bundledWebRuntime": false,
             "plugins": {
               "SplashScreen": {
-                "launchShowDuration": 1500,
+                "launchShowDuration": 2000,
                 "launchAutoHide": true,
                 "backgroundColor": "#090d16",
                 "androidSplashResourceName": "splash"
@@ -100,13 +101,11 @@ jobs:
 
           npx cap add android
 
-          # ساخت آیکون‌ها و اسپلش‌اسکرین از روی icon.svg
+          # تزریق و تبدیل دقیق icon.svg به آیکون‌های لانچر و اسپلش‌اسکرین
           if [ -f "icon.svg" ]; then
             sudo apt-get update && sudo apt-get install -y librsvg2-bin imagemagick
-            
             RES_DIR="android/app/src/main/res"
-            
-            # تولید آیکون‌های لانچر
+
             declare -A SIZES=( ["mipmap-mdpi"]=48 ["mipmap-hdpi"]=72 ["mipmap-xhdpi"]=96 ["mipmap-xxhdpi"]=144 ["mipmap-xxxhdpi"]=192 )
             for DIR in "${!SIZES[@]}"; do
               SIZE="${SIZES[$DIR]}"
@@ -117,7 +116,6 @@ jobs:
               rsvg-convert -w "$SIZE" -h "$SIZE" icon.svg -o "$TARGET_DIR/ic_launcher_foreground.png"
             done
 
-            # تولید و جایگزینی تصویر اسپلش‌اسکرین نیتیو با پس‌زمینه منطبق و لوگوی مونوگرام
             rsvg-convert -w 512 -h 512 icon.svg -o /tmp/logo512.png
             convert -size 1080x1920 xc:"#090d16" /tmp/logo512.png -gravity center -composite /tmp/splash_rendered.png
 
@@ -127,19 +125,45 @@ jobs:
               fi
             done
             cp /tmp/splash_rendered.png "$RES_DIR/drawable/splash.png" || true
-            echo "Launcher icons and native splash screens replaced successfully."
           fi
 
           npx cap sync android
 
-      - name: Build APK with Gradle
+      - name: Generate Official Release Keystore & Build Signed Release APK
         run: |
           cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          # ایجاد کلید رسمی Release معتبر اختصاصی دادکار
+          keytool -genkeypair -v -keystore release.keystore -alias dadkar -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass "DadKarSecureKey2026" -keypass "DadKarSecureKey2026" \
+            -dname "CN=Seyed Hossein Hejazi, OU=IT, O=DadKar, L=Isfahan, ST=Isfahan, C=IR"
 
-      - name: Upload Finished APK
+          # تنظیم Gradle برای امضای اتوماتیک با فایل Keystore اختصاصی
+          cat << 'EOF' >> app/build.gradle
+
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file('../release.keystore')
+                      storePassword 'DadKarSecureKey2026'
+                      keyAlias 'dadkar'
+                      keyPassword 'DadKarSecureKey2026'
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                      minifyEnabled false
+                      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                  }
+              }
+          }
+          EOF
+
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Upload Finished Signed APK
         uses: actions/upload-artifact@v4
         with:
           name: DadKar-Release-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/release/app-release.apk
