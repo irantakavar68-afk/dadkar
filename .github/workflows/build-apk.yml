@@ -27,7 +27,6 @@ jobs:
           npm init -y
           npm install react react-dom lucide-react typescript @types/react @types/react-dom esbuild
 
-          # پیدا کردن فایل سورس اصلی
           SOURCE_FILE=""
           if [ -f "src/App.tsx" ]; then SOURCE_FILE="src/App.tsx";
           elif [ -f "App.tsx" ]; then SOURCE_FILE="App.tsx";
@@ -36,7 +35,6 @@ jobs:
 
           mkdir -p dist src
           
-          # ساخت فایل نقطه ورودی
           cat << 'EOF' > src/entry.tsx
           import React from 'react';
           import ReactDOM from 'react-dom/client';
@@ -50,10 +48,8 @@ jobs:
 
           cp "$SOURCE_FILE" src/AppSource.tsx
 
-          # کامپایل فوق‌سریع کدهای تایپ‌اسکریپت به جاوااسکریپت استاندارد مرورگر
           npx esbuild src/entry.tsx --bundle --minify --loader:.tsx=tsx --outfile=dist/bundle.js --define:process.env.NODE_ENV='"production"'
 
-          # ساخت فایل index.html نهایی در dist
           cat << 'EOF' > dist/index.html
           <!DOCTYPE html>
           <html lang="fa" dir="rtl">
@@ -81,12 +77,11 @@ jobs:
           </html>
           EOF
 
-      - name: Setup Capacitor and Sync Android
+      - name: Setup Capacitor and Generate App Icons
         run: |
           npm install @capacitor/core@5.7.4 @capacitor/cli@5.7.4 @capacitor/android@5.7.4
-          npm install -g capacitor-assets || true
           
-          cat <<EOF > capacitor.config.json
+          cat << 'EOF' > capacitor.config.json
           {
             "appId": "ir.dadkar.app",
             "appName": "دادکار",
@@ -94,50 +89,26 @@ jobs:
             "bundledWebRuntime": false
           }
           EOF
-          
+
           npx cap add android
 
-          # تزریق خودکار icon.svg به منابع آیکون اندروید (mipmap)
+          # تبدیل فایل icon.svg به تمام سایزهای آیکون اندروید با librsvg
           if [ -f "icon.svg" ]; then
-            echo "Injecting custom DK icon into Android mipmap..."
-            python3 -c "
-import os
-import xml.etree.ElementTree as ET
-
-# تبدیل SVG به پوشه mipmap-anydpi-v26 برای اندروید
-os.makedirs('android/app/src/main/res/mipmap-anydpi-v26', exist_ok=True)
-os.makedirs('android/app/src/main/res/drawable', exist_ok=True)
-
-with open('icon.svg', 'r') as f:
-    svg_content = f.read()
-
-with open('android/app/src/main/res/drawable/ic_launcher_background.xml', 'w') as f:
-    f.write('''<?xml version=\"1.0\" encoding=\"utf-8\"?>
-<vector xmlns:android=\"http://schemas.android.com/apk/res/android\"
-    android:width=\"512dp\"
-    android:height=\"512dp\"
-    android:viewportWidth=\"512\"
-    android:viewportHeight=\"512\">
-  <path android:fillColor=\"#020617\" android:pathData=\"M0,0h512v512h-512z\"/>
-</vector>''')
-
-with open('android/app/src/main/res/drawable/ic_launcher_foreground.svg', 'w') as f:
-    f.write(svg_content)
-
-# تعریف xml برای آیکون تطبیقی اندروید (Adaptive Icon)
-adaptive_xml = '''<?xml version=\"1.0\" encoding=\"utf-8\"?>
-<adaptive-icon xmlns:android=\"http://schemas.android.com/apk/res/android\">
-    <background android:drawable=\"@drawable/ic_launcher_background\"/>
-    <foreground android:drawable=\"@drawable/ic_launcher_foreground\"/>
-</adaptive-icon>'''
-
-with open('android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml', 'w') as f:
-    f.write(adaptive_xml)
-
-with open('android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml', 'w') as f:
-    f.write(adaptive_xml)
-print('Icon injected successfully.')
-"
+            sudo apt-get update && sudo apt-get install -y librsvg2-bin
+            
+            RES_DIR="android/app/src/main/res"
+            
+            declare -A SIZES=( ["mipmap-mdpi"]=48 ["mipmap-hdpi"]=72 ["mipmap-xhdpi"]=96 ["mipmap-xxhdpi"]=144 ["mipmap-xxxhdpi"]=192 )
+            
+            for DIR in "${!SIZES[@]}"; do
+              SIZE="${SIZES[$DIR]}"
+              TARGET_DIR="$RES_DIR/$DIR"
+              mkdir -p "$TARGET_DIR"
+              rsvg-convert -w "$SIZE" -h "$SIZE" icon.svg -o "$TARGET_DIR/ic_launcher.png"
+              rsvg-convert -w "$SIZE" -h "$SIZE" icon.svg -o "$TARGET_DIR/ic_launcher_round.png"
+              rsvg-convert -w "$SIZE" -h "$SIZE" icon.svg -o "$TARGET_DIR/ic_launcher_foreground.png"
+            done
+            echo "Custom DK icons successfully generated for all Android densities."
           fi
 
           npx cap sync android
