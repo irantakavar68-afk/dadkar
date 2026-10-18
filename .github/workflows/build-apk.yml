@@ -84,6 +84,8 @@ jobs:
       - name: Setup Capacitor and Sync Android
         run: |
           npm install @capacitor/core@5.7.4 @capacitor/cli@5.7.4 @capacitor/android@5.7.4
+          npm install -g capacitor-assets || true
+          
           cat <<EOF > capacitor.config.json
           {
             "appId": "ir.dadkar.app",
@@ -92,7 +94,52 @@ jobs:
             "bundledWebRuntime": false
           }
           EOF
+          
           npx cap add android
+
+          # تزریق خودکار icon.svg به منابع آیکون اندروید (mipmap)
+          if [ -f "icon.svg" ]; then
+            echo "Injecting custom DK icon into Android mipmap..."
+            python3 -c "
+import os
+import xml.etree.ElementTree as ET
+
+# تبدیل SVG به پوشه mipmap-anydpi-v26 برای اندروید
+os.makedirs('android/app/src/main/res/mipmap-anydpi-v26', exist_ok=True)
+os.makedirs('android/app/src/main/res/drawable', exist_ok=True)
+
+with open('icon.svg', 'r') as f:
+    svg_content = f.read()
+
+with open('android/app/src/main/res/drawable/ic_launcher_background.xml', 'w') as f:
+    f.write('''<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<vector xmlns:android=\"http://schemas.android.com/apk/res/android\"
+    android:width=\"512dp\"
+    android:height=\"512dp\"
+    android:viewportWidth=\"512\"
+    android:viewportHeight=\"512\">
+  <path android:fillColor=\"#020617\" android:pathData=\"M0,0h512v512h-512z\"/>
+</vector>''')
+
+with open('android/app/src/main/res/drawable/ic_launcher_foreground.svg', 'w') as f:
+    f.write(svg_content)
+
+# تعریف xml برای آیکون تطبیقی اندروید (Adaptive Icon)
+adaptive_xml = '''<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<adaptive-icon xmlns:android=\"http://schemas.android.com/apk/res/android\">
+    <background android:drawable=\"@drawable/ic_launcher_background\"/>
+    <foreground android:drawable=\"@drawable/ic_launcher_foreground\"/>
+</adaptive-icon>'''
+
+with open('android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml', 'w') as f:
+    f.write(adaptive_xml)
+
+with open('android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml', 'w') as f:
+    f.write(adaptive_xml)
+print('Icon injected successfully.')
+"
+          fi
+
           npx cap sync android
 
       - name: Build APK with Gradle
