@@ -11,6 +11,55 @@ import {
 } from 'lucide-react';
 
 
+import { User, Settings } from 'lucide-react';
+import { AuthProfileModals, UserProfile } from './AuthProfileModals';
+
+// درون بدنه کامپوننت App:
+const [token, setToken] = useState<string | null>(localStorage.getItem('dadkar_token'));
+const [user, setUser] = useState<UserProfile | null>(() => {
+  const saved = localStorage.getItem('dadkar_user');
+  return saved ? JSON.parse(saved) : null;
+});
+const [showProfileModal, setShowProfileModal] = useState(false);
+
+// در بخش هدر کنار دکمه تنظیمات (Settings):
+<div className="flex items-center gap-2">
+  {/* دکمه پروفایل جدید */}
+  <button
+    onClick={() => setShowProfileModal(true)}
+    className="p-2.5 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200/50 dark:border-slate-700/50 text-slate-700 dark:text-slate-200 hover:text-blue-500 shadow-sm transition"
+    title="پروفایل کاربری"
+  >
+    <User size={20} />
+  </button>
+
+  {/* دکمه چرخ‌دنده تنظیمات موجود */}
+  <button
+    onClick={() => setShowSettings(true)}
+    className="p-2.5 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200/50 dark:border-slate-700/50 text-slate-700 dark:text-slate-200 hover:text-blue-500 shadow-sm transition"
+  >
+    <Settings size={20} />
+  </button>
+</div>
+
+{/* درج مودال‌های احراز هویت و پروفایل در انتهای بدنه کامپوننت */}
+<AuthProfileModals
+  user={user}
+  token={token}
+  onLoginSuccess={(u, t) => { setUser(u); setToken(t); }}
+  onProfileUpdate={(u) => setUser(u)}
+  showProfileModal={showProfileModal}
+  setShowProfileModal={setShowProfileModal}
+/>
+
+
+
+
+
+
+
+
+
 import TaminBranchesView from './TaminBranchesView';
 import * as LawsModule from './lawsData';
 
