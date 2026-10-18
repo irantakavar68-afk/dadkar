@@ -1001,35 +1001,50 @@ export default function App() {
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="text-xs text-slate-500 block mb-1">تعداد سال:</label>
-                    <input 
-                      type="number" 
-                      min="0" 
-                      value={years} 
-                      onChange={(e) => setYears(Math.max(0, parseInt(e.target.value) || 0))}
-                      className="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center" 
-                    />
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={years === 0 ? '' : years}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setYears(val === '' ? 0 : Math.max(0, parseInt(val, 10) || 0));
+                        }}
+                        className="w-full px-3 py-2 text-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+
                   </div>
                   <div>
                     <label className="text-xs text-slate-500 block mb-1">تعداد ماه:</label>
-                    <input 
-                      type="number" 
-                      min="0" 
-                      max="11" 
-                      value={months} 
-                      onChange={(e) => setMonths(Math.max(0, parseInt(e.target.value) || 0))}
-                      className="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center" 
-                    />
+                      <input
+                          type="number"
+                          min="0"
+                          max="11"
+                          placeholder="0"
+                          value={months === 0 ? '' : months}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setMonths(val === '' ? 0 : Math.min(11, Math.max(0, parseInt(val, 10) || 0)));
+                          }}
+                          className="w-full px-3 py-2 text-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                        />
+
                   </div>
                   <div>
                     <label className="text-xs text-slate-500 block mb-1">تعداد روز:</label>
-                    <input 
-                      type="number" 
-                      min="0" 
-                      max="30" 
-                      value={days} 
-                      onChange={(e) => setDays(Math.max(0, parseInt(e.target.value) || 0))}
-                      className="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center" 
-                    />
+                      <input
+                        type="number"
+                        min="0"
+                        max="30"
+                        placeholder="0"
+                        value={days === 0 ? '' : days}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setDays(val === '' ? 0 : Math.min(30, Math.max(0, parseInt(val, 10) || 0)));
+                        }}
+                        className="w-full px-3 py-2 text-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+
                   </div>
                 </div>
                 <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-center justify-between">
@@ -1048,13 +1063,18 @@ export default function App() {
                 </div>
                 <div>
                   <label className="text-xs text-slate-500 block mb-1">تعداد ساعات اضافه کاری در ماه:</label>
-                  <input 
-                    type="number" 
-                    min="0" 
-                    value={hours} 
-                    onChange={(e) => setHours(Math.max(0, parseInt(e.target.value) || 0))}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center" 
-                  />
+                     <input
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={hours === 0 ? '' : hours}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setHours(val === '' ? 0 : Math.max(0, parseInt(val, 10) || 0));
+                        }}
+                        className="w-full px-3 py-2 text-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+
                 </div>
                 <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 flex items-center justify-between">
                   <span className="text-xs text-indigo-900 font-bold">فوق‌العاده کل اضافه‌کاری:</span>
@@ -1123,14 +1143,19 @@ export default function App() {
                 </div>
                 <div>
                   <label className="text-xs text-slate-500 block mb-1">تعداد روزهای استفاده‌نشده:</label>
-                  <input 
-                    type="number" 
-                    min="0" 
-                    max="30"
-                    value={unworkedLeaveDays} 
-                    onChange={(e) => setUnworkedLeaveDays(Math.max(0, parseInt(e.target.value) || 0))}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center" 
-                  />
+                    <input
+                      type="number"
+                      min="0"
+                      max="30"
+                      placeholder="0"
+                      value={unworkedLeaveDays === 0 ? '' : unworkedLeaveDays}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setUnworkedLeaveDays(val === '' ? 0 : Math.min(30, Math.max(0, parseInt(val, 10) || 0)));
+                      }}
+                      className="w-full px-3 py-2 text-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+
                 </div>
                 <div className="bg-teal-50 p-4 rounded-xl border border-teal-200 flex items-center justify-between">
                   <span className="text-xs text-teal-950 font-bold">مبلغ بازخرید مرخصی:</span>
@@ -1148,14 +1173,19 @@ export default function App() {
                 </div>
                 <div>
                   <label className="text-xs text-slate-600 font-bold block mb-1">تعداد سال‌های اشتغال در کارگاه فعلی (بیش از یک سال):</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="35"
-                    value={workHistoryYears}
-                    onChange={(e) => setWorkHistoryYears(Math.max(0, parseInt(e.target.value) || 0))}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center"
-                  />
+                    <input
+                      type="number"
+                      min="0"
+                      max="35"
+                      placeholder="0"
+                      value={workHistoryYears === 0 ? '' : workHistoryYears}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setWorkHistoryYears(val === '' ? 0 : Math.min(35, Math.max(0, parseInt(val, 10) || 0)));
+                      }}
+                      className="w-full px-3 py-2 text-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+
                 </div>
                 <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 flex items-center justify-between">
                   <span className="text-xs text-blue-950 font-bold">پایه سنوات ماهانه (۳۰ روزه):</span>
