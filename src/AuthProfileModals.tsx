@@ -1158,10 +1158,6 @@ export const AuthProfileModals: React.FC<Props> = ({
             )}
           </div>
 
-          <button disabled={saveLoading} onClick={handleSaveProfile}
-            className="w-full mt-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition">
-            <Save size={18} />{saveLoading ? 'در حال ذخیره‌سازی...' : 'ذخیره مشخصات'}
-          </button>
 
         {/* دکمه ذخیره مشخصات */}
         <button disabled={saveLoading} onClick={handleSaveProfile}
