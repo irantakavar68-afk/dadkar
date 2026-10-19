@@ -436,6 +436,22 @@ export const AuthProfileModals: React.FC<Props> = ({
   const [formData, setFormData] = useState<UserProfile>(user || emptyForm);
   const [customIndustry, setCustomIndustry] = useState('');
   const [isOtherIndustry, setIsOtherIndustry] = useState(false);
+    // --- تایمر ۹۰ ثانیه‌ای ارسال مجدد OTP ---
+  const [resendTimer, setResendTimer] = useState<number>(90);
+
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+    const interval = setInterval(() => {
+      setResendTimer((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [resendTimer]);
+
+  const formatTimer = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   // بررسی نام کاربری
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
@@ -501,31 +517,39 @@ export const AuthProfileModals: React.FC<Props> = ({
   };
 
   // ---- ارسال پیامک OTP ----
-  const handleSendOtp = async (isForgot = false) => {
-    if (!mobile.match(/^09\d{9}$/)) {
-      setMsgType('error');
-      setMsg('شماره موبایل باید ۱۱ رقمی و با ۰۹ شروع شود.');
+  const handleSendOtp = async (isForgot = false, channel: 'sms' | 'voice' = 'sms') => {
+    if (resendTimer > 0 && channel === 'sms') return;
+    if (!mobile || !/^09\d{9}$/.test(mobile)) {
+      setMsg({ type: 'err', text: 'شماره موبایل نامعتبر است (مثال: 09123456789)' });
       return;
     }
     setLoading(true);
-    setMsg('');
+    setMsg(null);
     try {
-      const data = await post(isForgot ? 'forgot_password' : 'send_otp', { mobile });
-      if (data.status === 'success') {
-        setStep(isForgot ? 'reset' : 'code');
-        setOtpCode('');
+      const actionName = channel === 'voice' 
+        ? 'send_otp_voice' 
+        : (isForgot ? 'forgot_password' : 'send_otp');
+
+      const data = await post(actionName, { mobile });
+      if (data.success) {
+        setResendTimer(90); // ریست شدن تایمر روی ۹۰ ثانیه
+        setMsg({ 
+          type: 'ok', 
+          text: channel === 'voice' 
+            ? 'درخواست تماس ثبت شد؛ لطفاً پاسخ دهید.' 
+            : (data.message || 'کد تأیید ارسال شد.') 
+        });
+        if (!isForgot) setStep('code');
       } else {
-        setMsgType('error');
-        setMsg(data.message || 'خطا در ارسال پیامک');
+        setMsg({ type: 'err', text: data.error || 'خطا در ارسال کد' });
       }
-    } catch (err) {
-      console.error('Send OTP Error:', err);
-      setMsgType('error');
-      setMsg('خطای ارتباط با سرور (جزئیات در Console مرورگر)');
+    } catch {
+      setMsg({ type: 'err', text: 'خطا در برقراری ارتباط با سرور' });
     } finally {
       setLoading(false);
     }
   };
+
 
 
   // ---- بررسی کد تایید ----
@@ -757,27 +781,47 @@ export const AuthProfileModals: React.FC<Props> = ({
         )}
 
 
-          {/* ۳. ثبت‌نام: ورود کد تأیید */}
+              {/* ۳. ثبت‌نام: ورود کد تأیید */}
           {step === 'code' && (
             <>
-              <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">کد تأیید پیامک‌شده</h2>
+              <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">کد تأیید هویت</h2>
               <p className="text-xs text-center text-slate-500 mb-4">کد ۵ رقمی ارسال‌شده به شماره {mobile} را وارد کنید:</p>
               <input dir="ltr" inputMode="numeric" maxLength={6} placeholder="• • • • •" value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center text-2xl font-mono tracking-widest dark:text-white mb-4 border border-blue-400" />
+                className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center text-2xl font-mono tracking-widest dark:text-white mb-4 border border-blue-400 focus:outline-none" />
               <button disabled={loading} onClick={handleVerifyOtp}
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25">
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-colors">
                 <CheckCircle size={18} />{loading ? 'در حال احراز هویت...' : 'تأیید و ادامه'}
               </button>
-              <div className="flex justify-between items-center text-xs mt-3">
-                <button onClick={() => setStep('mobile')} className="text-slate-400 hover:underline">ویرایش شماره موبایل</button>
-                <button onClick={() => handleSendOtp(false)} className="text-blue-500 hover:underline flex items-center gap-1">
-                  <RefreshCw size={12} /> ارسال مجدد کد
+
+              <div className="flex justify-between items-center text-xs mt-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button onClick={() => setStep('mobile')} className="text-slate-400 hover:underline">
+                  ویرایش شماره موبایل
                 </button>
+
+                {resendTimer > 0 ? (
+                  <span className="text-slate-400 flex items-center gap-1 font-mono">
+                    ارسال مجدد ({formatTimer(resendTimer)})
+                  </span>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={() => handleSendOtp(false, 'sms')} 
+                      className="text-blue-500 hover:underline flex items-center gap-1 font-bold">
+                      <RefreshCw size={12} /> ارسال مجدد پیامک
+                    </button>
+                    <button 
+                      onClick={() => handleSendOtp(false, 'voice')} 
+                      className="text-amber-500 hover:underline flex items-center gap-1 font-bold">
+                      📞 تماس صوتی
+                    </button>
+                  </div>
+                )}
               </div>
               <Msg />
             </>
           )}
+
 
           {/* ۴. فرم جامع عضویت دادکار (کاربر جدید) */}
           {step === 'register' && (
