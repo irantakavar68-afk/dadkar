@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { User, Phone, KeyRound, CheckCircle, Save, X, Copy } from 'lucide-react';
 
 // آدرس دامنه هاست خود را اینجا جایگزین کنید
-const API_URL = "https://yourdomain.com/api/auth.php";
+const API_URL = "https://daadkaar.ir/api/auth.php";
 
 export interface UserProfile {
   user_code: string;
