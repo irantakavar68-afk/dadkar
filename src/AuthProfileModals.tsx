@@ -7,7 +7,7 @@ import {
 const API_URL = "https://daadkaar.ir/api/auth.php";
 
 // ۸ آواتار وکتور استاندارد، مدرن و پرسنلی (SVG درون‌برنامه‌ای با وضوح بالا)
-const AVATAR_SVGS = [
+export const AVATAR_SVGS = [
   { id: '0', title: 'کارشناس مرد ۱', svg: (
     <svg viewBox="0 0 100 100" className="w-full h-full">
       <circle cx="50" cy="50" r="48" fill="#E0F2FE" />
@@ -1162,6 +1162,36 @@ export const AuthProfileModals: React.FC<Props> = ({
             className="w-full mt-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition">
             <Save size={18} />{saveLoading ? 'در حال ذخیره‌سازی...' : 'ذخیره مشخصات'}
           </button>
+
+        {/* دکمه ذخیره مشخصات */}
+        <button disabled={saveLoading} onClick={handleSaveProfile}
+          className="w-full mt-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition">
+          <Save size={18} />{saveLoading ? 'در حال ذخیره‌سازی...' : 'ذخیره مشخصات'}
+        </button>
+
+        {/* دکمه خروج از حساب کاربری */}
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm('آیا قصد خروج از حساب کاربری را دارید؟')) {
+              localStorage.removeItem('dadkar_token');
+              localStorage.removeItem('dadkar_user');
+              onLoginSuccess(null as any, null as any);
+              setShowProfileModal(false);
+            }
+          }}
+          className="w-full mt-2 py-2.5 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 rounded-xl text-sm font-medium hover:bg-rose-100 dark:hover:bg-rose-900/40 transition flex items-center justify-center gap-2"
+        >
+          <span>خروج از حساب کاربری</span>
+        </button>
+
+        {saveMsg && (
+          <p className="mt-3 text-center text-sm font-medium text-emerald-600 dark:text-emerald-400">
+            {saveMsg}
+          </p>
+        )}
+
+
           
           {saveMsg && (
             <p className="text-xs text-center mt-2 text-emerald-500 font-bold bg-emerald-50 dark:bg-emerald-950/30 py-2 rounded-xl">
