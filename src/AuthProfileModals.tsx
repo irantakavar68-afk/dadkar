@@ -501,53 +501,80 @@ export const AuthProfileModals: React.FC<Props> = ({
   };
 
   // ---- ارسال پیامک OTP ----
-  const handleSendOtp = async (isForgot = false) => {
-    if (!mobile.match(/^09\d{9}$/)) { setMsgType('error'); setMsg('شماره موبایل باید ۱۱ رقمی و با ۰۹ شروع شود.'); return; }
-    setLoading(true); setMsg('');
+  const handleSendOtp = async (isForgot: boolean = false) => {
+    if (!/^09\d{9}$/.test(mobile)) {
+      setMsg('شماره موبایل باید ۱۱ رقمی و با ۰۹ شروع شود.');
+      setMsgType('error');
+      return;
+    }
+    setLoading(true);
+    setMsg('');
     try {
       const data = await post(isForgot ? 'forgot_password' : 'send_otp', { mobile });
-      if (data.status === 'success') { 
-        setStep(isForgot ? 'reset' : 'code'); 
-        setOtpCode(''); 
-      } else { 
-        setMsgType('error'); 
-        setMsg(data.message || 'خطا در ارسال پیامک'); 
+      if (data.status === 'success') {
+        setStep(isForgot ? 'reset' : 'code');
+        setOtpCode('');
+        setMsg(isForgot ? 'کد بازیابی ارسال شد.' : 'کد تأیید پیامک شد.');
+        setMsgType('success');
+      } else {
+        // اگر قبلاً ثبت نام کرده باشد، پیام دقیق نمایش داده می‌شود
+        setMsg(data.message || 'خطا در ارسال پیامک');
+        setMsgType('error');
       }
-    } catch { setMsgType('error'); setMsg('خطای ارتباط با سرور'); }
-    finally { setLoading(false); }
+    } catch {
+      setMsg('خطای ارتباط با سرور.');
+      setMsgType('error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // ---- بررسی کد تایید ----
-  const handleVerifyOtp = async () => {
-    if (otpCode.length < 4) { setMsgType('error'); setMsg('کد پیامک‌شده را کامل وارد کنید.'); return; }
-    setLoading(true); setMsg('');
+   const handleVerifyOtp = async () => {
+    if (otpCode.length < 4) {
+      setMsg('کد تأیید را کامل وارد کنید.');
+      setMsgType('error');
+      return;
+    }
+    setLoading(true);
+    setMsg('');
     try {
       const data = await post('verify_otp', { mobile, code: otpCode });
       if (data.status === 'success') {
+        // ذخیره موقت توکن احراز هویت برای مرحله تکمیل ثبت نام
         setSessionToken(data.token);
         localStorage.setItem('dadkar_token', data.token);
 
-        // اگر قبلاً ثبت‌نام تکمیل شده بود، مستقیم لاگین شود
-        if (data.is_registered && data.user?.username) {
-          localStorage.setItem('dadkar_user', JSON.stringify(data.user));
-          onLoginSuccess(data.user, data.token);
-        } else {
-          // کاربر جدید -> ورود به فرم تکمیل عضویت با توکن معتبر
-          setFormData({ 
-            ...emptyForm, 
-            mobile, 
-            user_code: data.user?.user_code || '',
-            ...(data.user || {}) 
-          });
-          setStep('register');
-        }
-      } else { 
-        setMsgType('error'); 
-        setMsg(data.message || 'کد تایید نادرست یا منقضی شده است.'); 
+        // پیش‌فرض اطلاعات در فرم عضویت
+        setFormData(prev => ({
+          ...prev,
+          mobile: mobile,
+          user_code: data.user?.user_code || prev.user_code || 'DK-' + Math.floor(10000 + Math.random() * 90000),
+          avatar_id: data.user?.avatar_id || '0',
+          first_name: data.user?.first_name || '',
+          last_name: data.user?.last_name || '',
+          marital_status: data.user?.marital_status || 'single',
+          children_count: data.user?.children_count ?? 0,
+          company_name: data.user?.company_name || '',
+          industry_field: data.user?.industry_field || 'other',
+        }));
+
+        // الزام به پر کردن فرم عضویت قبل از ورود به سامانه
+        setStep('register');
+        setMsg('شماره تأیید شد. لطفاً فرم عضویت و اطلاعات اولیه را تکمیل کنید.');
+        setMsgType('success');
+      } else {
+        setMsg(data.message || 'کد تایید نادرست یا منقضی شده است.');
+        setMsgType('error');
       }
-    } catch { setMsgType('error'); setMsg('خطای ارتباط با سرور'); }
-    finally { setLoading(false); }
+    } catch {
+      setMsg('خطای ارتباط با سرور.');
+      setMsgType('error');
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   // ---- تکمیل ثبت‌نام اولیه ----
   const handleRegister = async () => {
@@ -577,17 +604,28 @@ export const AuthProfileModals: React.FC<Props> = ({
 
       // اکشن رسمی بک‌اند: save_profile
       const data = await post('save_profile', payload);
-      if (data.status === 'success') {
-        const fullUser = { ...formData, mobile, industry_field: finalIndustry };
+           if (data.status === 'success') {
+        const fullUser = data.user || { ...formData, mobile, username, industry_field: finalIndustry };
         localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
-        onLoginSuccess(fullUser, activeToken || '');
+        onLoginSuccess(fullUser, activeToken || tokenToUse || '');
+        setMsg('عضویت شما با موفقیت تکمیل شد. خوش آمدید!');
+        setMsgType('success');
+        // بستن مودال و انتقال به داخل سامانه
+        setTimeout(() => {
+          setShowProfileModal(false);
+        }, 1000);
       } else { 
         setMsgType('error'); 
         setMsg(data.message || 'خطا در ثبت اطلاعات عضویت'); 
       }
-    } catch { setMsgType('error'); setMsg('خطای ارتباط با سرور'); }
-    finally { setLoading(false); }
+    } catch { 
+      setMsgType('error'); 
+      setMsg('خطای ارتباط با سرور'); 
+    } finally { 
+      setLoading(false); 
+    }
   };
+
 
   // ---- بازیابی رمز عبور ----
   const handleResetPassword = async () => {
@@ -683,25 +721,42 @@ export const AuthProfileModals: React.FC<Props> = ({
           )}
 
           {/* ۲. ثبت‌نام: مرحله دریافت موبایل */}
-          {step === 'mobile' && (
-            <>
-              <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">عضویت جدید</h2>
-              <p className="text-xs text-center text-slate-500 dark:text-slate-400 mb-5">شماره موبایل خود را وارد کنید تا کد تأیید پیامک شود.</p>
-              <div className="space-y-4">
-                <input type="tel" dir="ltr" maxLength={11} placeholder="09xxxxxxxxx" value={mobile}
-                  onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center font-mono text-lg dark:text-white border border-transparent focus:border-blue-500" />
-                <button disabled={loading} onClick={() => handleSendOtp(false)}
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-lg shadow-blue-500/25">
-                  {loading ? 'در حال ارسال پیامک...' : 'ارسال کد تأیید پیامکی'}
-                </button>
-                <button onClick={() => setStep('login')} className="w-full text-center text-xs text-slate-500 hover:text-blue-500">
-                  قبلاً ثبت‌نام کرده‌اید؟ ورود با رمز
-                </button>
-              </div>
-              <Msg />
-            </>
-          )}
+        {step === 'mobile' && (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">عضویت جدید</h3>
+              <p className="text-xs text-slate-500 mt-1">شماره موبایل خود را وارد کنید تا کد تأیید پیامک شود.</p>
+            </div>
+            <div>
+              <input
+                type="tel"
+                dir="ltr"
+                maxLength={11}
+                placeholder="09xxxxxxxxx"
+                value={mobile}
+                onChange={e => setMobile(e.target.value.replace(/\D/g, ''))}
+                className="w-full text-center text-lg tracking-widest font-mono py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <button
+              disabled={loading}
+              onClick={() => handleSendOtp(false)}
+              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition shadow-lg shadow-blue-500/25"
+            >
+              {loading ? 'در حال بررسی و ارسال پیامک...' : 'ارسال کد تأیید پیامکی'}
+            </button>
+            <div className="flex items-center justify-between text-xs pt-2">
+              <button onClick={() => { setStep('login'); setMsg(''); }} className="text-slate-500 hover:text-blue-600 transition">
+                ورود با نام کاربری و رمز
+              </button>
+              <button onClick={() => { setStep('forgot'); setMsg(''); }} className="text-amber-600 hover:underline">
+                بازیابی رمز عبور
+              </button>
+            </div>
+            <Msg />
+          </div>
+        )}
+
 
           {/* ۳. ثبت‌نام: ورود کد تأیید */}
           {step === 'code' && (
