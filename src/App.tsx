@@ -12,6 +12,7 @@ import {
 
 import { User } from 'lucide-react';
  import { AuthProfileModals, UserProfile } from './AuthProfileModals';
+import { AuthProfileModals, AVATAR_SVGS } from './AuthProfileModals';
 
 import TaminBranchesView from './TaminBranchesView';
 import * as LawsModule from './lawsData';
@@ -592,18 +593,25 @@ export default function App() {
 
           <div className="flex items-center gap-2">
 
-            {/* دکمه پروفایل کاربری */}
-            <button
-              onClick={() => setShowProfileModal(true)}
-              className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-300 active:scale-95 ${
-                appTheme === 'dark'
-                  ? 'bg-slate-800/80 text-blue-400 hover:bg-slate-700/80 border border-slate-700/60'
-                  : 'bg-slate-100 text-blue-600 hover:bg-slate-200 border border-slate-200'
-              }`}
-              title="پروفایل کاربری"
-            >
+          {/* دکمه پروفایل و آواتار کاربری */}
+          <button
+            onClick={() => setShowProfileModal(true)}
+            className={`w-10 h-10 rounded-2xl flex items-center justify-center overflow-hidden transition-all duration-300 active:scale-95 ${
+              appTheme === 'dark'
+                ? 'bg-slate-800/80 text-blue-400 hover:bg-slate-700/80 border border-slate-700/60'
+                : 'bg-slate-100 text-blue-600 hover:bg-slate-200 border border-slate-200'
+            }`}
+            title={user ? `پروفایل: ${user.first_name || user.username || 'کاربر دادکار'}` : 'پروفایل کاربری'}
+          >
+            {user ? (
+              <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
+                {AVATAR_SVGS.find(a => a.id === (user.avatar_id ?? '0'))?.svg || <User className="w-5 h-5" />}
+              </div>
+            ) : (
               <User className="w-4 h-4" />
-            </button>
+            )}
+          </button>
+
 
             
             <button
