@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 import { User } from 'lucide-react';
-import { AuthProfileModals, UserProfile } from './AuthProfileModals';
+// import { AuthProfileModals, UserProfile } from './AuthProfileModals';
 
 import TaminBranchesView from './TaminBranchesView';
 import * as LawsModule from './lawsData';
@@ -1917,7 +1917,7 @@ export default function App() {
           </div>
         </div>
       )}
-            {/* مودال‌های احراز هویت و مشخصات کاربری */}
+            {/* مودال‌های احراز هویت و مشخصات کاربری 
         <AuthProfileModals
           user={user}
           token={token}
@@ -1926,7 +1926,7 @@ export default function App() {
           showProfileModal={showProfileModal}
           setShowProfileModal={setShowProfileModal}
         />
-
+*/}
     </div>
   );
 }
