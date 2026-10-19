@@ -501,10 +501,10 @@ export const AuthProfileModals: React.FC<Props> = ({
   };
 
   // ---- ارسال پیامک OTP ----
-  const handleSendOtp = async (isForgot: boolean = false) => {
-    if (!/^09\d{9}$/.test(mobile)) {
-      setMsg('شماره موبایل باید ۱۱ رقمی و با ۰۹ شروع شود.');
+  const handleSendOtp = async (isForgot = false) => {
+    if (!mobile.match(/^09\d{9}$/)) {
       setMsgType('error');
+      setMsg('شماره موبایل باید ۱۱ رقمی و با ۰۹ شروع شود.');
       return;
     }
     setLoading(true);
@@ -514,20 +514,19 @@ export const AuthProfileModals: React.FC<Props> = ({
       if (data.status === 'success') {
         setStep(isForgot ? 'reset' : 'code');
         setOtpCode('');
-        setMsg(isForgot ? 'کد بازیابی ارسال شد.' : 'کد تأیید پیامک شد.');
-        setMsgType('success');
       } else {
-        // اگر قبلاً ثبت نام کرده باشد، پیام دقیق نمایش داده می‌شود
-        setMsg(data.message || 'خطا در ارسال پیامک');
         setMsgType('error');
+        setMsg(data.message || 'خطا در ارسال پیامک');
       }
-    } catch {
-      setMsg('خطای ارتباط با سرور.');
+    } catch (err) {
+      console.error('Send OTP Error:', err);
       setMsgType('error');
+      setMsg('خطای ارتباط با سرور (جزئیات در Console مرورگر)');
     } finally {
       setLoading(false);
     }
   };
+
 
   // ---- بررسی کد تایید ----
    const handleVerifyOtp = async () => {
