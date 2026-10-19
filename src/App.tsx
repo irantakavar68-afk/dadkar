@@ -10,55 +10,8 @@ import {
   ChevronUp, Settings, Moon, Sun, Type
 } from 'lucide-react';
 
-
-import { User, Settings } from 'lucide-react';
+import { User } from 'lucide-react';
 import { AuthProfileModals, UserProfile } from './AuthProfileModals';
-
-// درون بدنه کامپوننت App:
-const [token, setToken] = useState<string | null>(localStorage.getItem('dadkar_token'));
-const [user, setUser] = useState<UserProfile | null>(() => {
-  const saved = localStorage.getItem('dadkar_user');
-  return saved ? JSON.parse(saved) : null;
-});
-const [showProfileModal, setShowProfileModal] = useState(false);
-
-// در بخش هدر کنار دکمه تنظیمات (Settings):
-<div className="flex items-center gap-2">
-  {/* دکمه پروفایل جدید */}
-  <button
-    onClick={() => setShowProfileModal(true)}
-    className="p-2.5 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200/50 dark:border-slate-700/50 text-slate-700 dark:text-slate-200 hover:text-blue-500 shadow-sm transition"
-    title="پروفایل کاربری"
-  >
-    <User size={20} />
-  </button>
-
-  {/* دکمه چرخ‌دنده تنظیمات موجود */}
-  <button
-    onClick={() => setShowSettings(true)}
-    className="p-2.5 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200/50 dark:border-slate-700/50 text-slate-700 dark:text-slate-200 hover:text-blue-500 shadow-sm transition"
-  >
-    <Settings size={20} />
-  </button>
-</div>
-
-{/* درج مودال‌های احراز هویت و پروفایل در انتهای بدنه کامپوننت */}
-<AuthProfileModals
-  user={user}
-  token={token}
-  onLoginSuccess={(u, t) => { setUser(u); setToken(t); }}
-  onProfileUpdate={(u) => setUser(u)}
-  showProfileModal={showProfileModal}
-  setShowProfileModal={setShowProfileModal}
-/>
-
-
-
-
-
-
-
-
 
 import TaminBranchesView from './TaminBranchesView';
 import * as LawsModule from './lawsData';
@@ -195,6 +148,14 @@ export default function App() {
   const [highContrast, setHighContrast] = useState<boolean>(() => {
     return localStorage.getItem('dadkar_contrast') === 'true';
   });
+
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('dadkar_token'));
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    const saved = localStorage.getItem('dadkar_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
 
   const handleThemeSelect = (theme: AppTheme) => {
     setAppTheme(theme);
@@ -630,6 +591,21 @@ export default function App() {
           </button>
 
           <div className="flex items-center gap-2">
+
+            {/* دکمه پروفایل کاربری */}
+            <button
+              onClick={() => setShowProfileModal(true)}
+              className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-300 active:scale-95 ${
+                appTheme === 'dark'
+                  ? 'bg-slate-800/80 text-blue-400 hover:bg-slate-700/80 border border-slate-700/60'
+                  : 'bg-slate-100 text-blue-600 hover:bg-slate-200 border border-slate-200'
+              }`}
+              title="پروفایل کاربری"
+            >
+              <User className="w-4 h-4" />
+            </button>
+
+            
             <button
               type="button"
               onClick={() => setIsSettingsOpen(true)}
@@ -1941,6 +1917,15 @@ export default function App() {
           </div>
         </div>
       )}
+            {/* مودال‌های احراز هویت و مشخصات کاربری */}
+        <AuthProfileModals
+          user={user}
+          token={token}
+          onLoginSuccess={(u, t) => { setUser(u); setToken(t); }}
+          onProfileUpdate={(u) => setUser(u)}
+          showProfileModal={showProfileModal}
+          setShowProfileModal={setShowProfileModal}
+        />
 
     </div>
   );
