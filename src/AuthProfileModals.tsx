@@ -652,9 +652,11 @@ export const AuthProfileModals: React.FC<Props> = ({
       console.error('Save Profile Error:', err); // برای مشاهده خطای دقیق در کنسول فشرده F12
       setMsgType('error'); 
       setMsg('خطای ارتباط با سرور'); 
-    } finally { 
-      setLoading(false); 
+    } finally {
+      setLoading(false);
     }
+  }; // <--- این آکولاد و نقطه ویرگول پایانی handleRegister گم شده است
+
 
 
 
