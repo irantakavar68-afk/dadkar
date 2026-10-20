@@ -517,36 +517,31 @@ export const AuthProfileModals: React.FC<Props> = ({
   };
 
   // ---- ارسال پیامک OTP ----
-  const handleSendOtp = async (isForgot = false, channel: 'sms' | 'voice' = 'sms') => {
-    if (resendTimer > 0 && channel === 'sms') return;
-    if (!mobile || !/^09\d{9}$/.test(mobile)) {
-      setMsg({ type: 'err', text: 'شماره موبایل نامعتبر است (مثال: 09123456789)' });
+  const handleSendOtp = async (isForgot = false) => {
+    if (!mobile.match(/^09\d{9}$/)) {
+      setMsgType('error'); 
+      setMsg('شماره موبایل باید ۱۱ رقمی و با ۰۹ شروع شود.'); 
       return;
     }
-    setLoading(true);
-    setMsg(null);
+    setLoading(true); 
+    setMsg('');
     try {
-      const actionName = channel === 'voice' 
-        ? 'send_otp_voice' 
-        : (isForgot ? 'forgot_password' : 'send_otp');
-
-      const data = await post(actionName, { mobile });
-      if (data.success) {
-        setResendTimer(90); // ریست شدن تایمر روی ۹۰ ثانیه
-        setMsg({ 
-          type: 'ok', 
-          text: channel === 'voice' 
-            ? 'درخواست تماس ثبت شد؛ لطفاً پاسخ دهید.' 
-            : (data.message || 'کد تأیید ارسال شد.') 
-        });
-        if (!isForgot) setStep('code');
+      // حتماً اینجا اکشن باید دقیقاً 'send_otp' باشد (نه نام اشتباه)
+      const data = await post(isForgot ? 'forgot_password' : 'send_otp', { mobile });
+      
+      if (data.status === 'success') {
+        setStep(isForgot ? 'reset' : 'code');
+        setOtpCode('');
       } else {
-        setMsg({ type: 'err', text: data.error || 'خطا در ارسال کد' });
+        setMsgType('error');
+        setMsg(data.message || 'خطا در ارسال پیامک');
       }
-    } catch {
-      setMsg({ type: 'err', text: 'خطا در برقراری ارتباط با سرور' });
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      console.error('Send OTP Error:', err);
+      setMsgType('error'); 
+      setMsg('خطای ارتباط با سرور (جزئیات در Console مرورگر)');
+    } finally { 
+      setLoading(false); 
     }
   };
 
