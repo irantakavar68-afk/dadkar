@@ -487,13 +487,17 @@ export const AuthProfileModals: React.FC<Props> = ({
     checkTimeoutRef.current = setTimeout(async () => {
       try {
         const res = await post('check_username', { username: cleaned, token: sessionToken || token });
-        if (res.extra?.available || res.status === 'success') {
+        // بررسی دقیق فیلد available که از بک‌اند برمی‌گردد
+        const isAvailable = res.available === true || res.extra?.available === true;
+        
+        if (isAvailable) {
           setUsernameStatus('available');
-          setUsernameMsg('این نام کاربری آزاد است');
+          setUsernameMsg(res.message || 'این نام کاربری آزاد است.');
         } else {
           setUsernameStatus('taken');
-          setUsernameMsg(res.message || 'این نام کاربری قبلاً انتخاب شده است');
+          setUsernameMsg(res.message || 'این نام کاربری قبلاً انتخاب شده است.');
         }
+
       } catch {
         setUsernameStatus('idle');
         setUsernameMsg('');
@@ -946,18 +950,26 @@ export const AuthProfileModals: React.FC<Props> = ({
 
               {/* سطر تکرار رمز عبور */}
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">تکرار رمز عبور</label>
-                <input 
-                  dir="ltr" 
-                  type="password" 
-                  placeholder="تکرار رمز عبور فوق" 
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className={`w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm text-left dark:text-white border ${
-                    confirmPassword && confirmPassword !== formData.password ? 'border-rose-500' : 'border-transparent'
-                  }`} 
-                />
+                <label className="block text-xs text-slate-400 mb-1">تکرار رمز عبور</label>
+                <div className="relative">
+                  <input
+                    dir="ltr"
+                    type={showPwd ? 'text' : 'password'}
+                    placeholder="تکرار رمز عبور فوق"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className={`w-full bg-slate-900 border rounded-xl px-4 py-3 text-slate-100 focus:outline-none ${
+                      confirmPassword && confirmPassword !== formData.password
+                        ? 'border-rose-500'
+                        : 'border-slate-700 focus:border-cyan-500'
+                    }`}
+                  />
+                </div>
+                {confirmPassword && confirmPassword !== formData.password && (
+                  <span className="text-[11px] text-rose-400 mt-1 block">رمز عبور و تکرار آن همخوانی ندارند.</span>
+                )}
               </div>
+
 
               {/* تاریخ تولد، وضعیت تأهل و تعداد فرزند */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -978,16 +990,21 @@ export const AuthProfileModals: React.FC<Props> = ({
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">تعداد فرزند</label>
-                  <input 
-                    type="number" 
-                    min={0} 
-                    max={15} 
-                    value={formData.children_count ?? 0}
-                    onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value || '0', 10) })}
-                    className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm text-center font-mono dark:text-white"
-                  />
+                  <label className="block text-xs text-slate-400 mb-1">تعداد فرزندان</label>
+                  <select
+                    value={formData.children_count}
+                    onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value) || 0 })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-cyan-500"
+                  >
+                    <option value={0}>۰ (بدون فرزند)</option>
+                    {[...Array(10)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {i + 1} فرزند
+                      </option>
+                    ))}
+                  </select>
                 </div>
+
               </div>
 
               {/* تاریخ شروع بیمه و حقوق */}
