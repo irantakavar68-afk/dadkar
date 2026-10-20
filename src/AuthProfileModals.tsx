@@ -522,82 +522,79 @@ export const AuthProfileModals: React.FC<Props> = ({
 
   // ---- ارسال پیامک OTP ----
   const handleSendOtp = async (isForgot = false, channel: 'sms' | 'voice' = 'sms') => {
-    const mobile = formData.mobile.trim();
-    if (!mobile || !/^09\d{9}$/.test(mobile)) {
-      setAuthError('لطفاً شماره موبایل معتبر وارد کنید (مثال: 09123456789)');
-      return;
-    }
     setLoading(true);
-    setAuthError(null);
-  
-    // انتخاب اکشن بر اساس کانال انتخابی (پیامک یا تماس صوتی)
-    const actionName = channel === 'voice' ? 'send_voice_otp' : (isForgot ? 'forgot_password' : 'send_otp');
-  
-    const res = await post(actionName, { mobile, is_forgot: isForgot });
-    setLoading(false);
-  
-    if (res.status === 'success') {
-      setAuthStep('code');
-      setOtpCountdown(120); // تایمر ۲ دقیقه‌ای
-      // پیام موفقیت
-    } else {
-      // اگر کاربر قبلاً ثبت‌نام کرده بود
-      if (res.extra?.code === 'ALREADY_REGISTERED') {
-        setAuthError('شما قبلاً در سامانه ثبت‌نام کرده‌اید. لطفاً وارد شوید.');
+    setMsg('');
+    try {
+      const actionName = channel === 'voice' 
+        ? 'send_voice_otp' 
+        : (isForgot ? 'forgot_password' : 'send_otp');
+
+      const data = await post(actionName, { mobile, is_forgot: isForgot });
+      
+      if (data.status === 'success') {
+        setResendTimer(90); // هماهنگ با تایمر کامپوننت
+        setStep(isForgot ? 'reset' : 'code');
+        setMsg(data.message || (channel === 'voice' ? 'کد تأیید صوتی ارسال شد.' : 'کد تأیید پیامکی ارسال شد.'));
+        setMsgType('success');
       } else {
-        setAuthError(res.message || 'خطا در ارسال کد تأیید');
+        setMsgType('error');
+        setMsg(data.message || 'خطا در ارسال کد تأیید');
       }
+    } catch (err) {
+      console.error('Send OTP Error:', err);
+      setMsgType('error');
+      setMsg('خطای ارتباط با سرور');
+    } finally {
+      setLoading(false);
     }
   };
+
 
 
 
 
   // ---- بررسی کد تایید ----
-   const handleVerifyOtp = async () => {
-    if (otpCode.length < 4) {
-      setMsg('کد تأیید را کامل وارد کنید.');
+  const handleVerifyOtp = async () => {
+    if (!otpCode || otpCode.length < 4) {
       setMsgType('error');
+      setMsg('لطفاً کد تایید ۴ رقمی را کامل وارد کنید.');
       return;
     }
     setLoading(true);
     setMsg('');
     try {
-      const data = await post('verify_otp', { mobile, code: otpCode });
+      const data = await post('verify_otp', { mobile: formData.mobile || mobile, code: otpCode });
+      
       if (data.status === 'success') {
-        // ذخیره موقت توکن احراز هویت برای مرحله تکمیل ثبت نام
-        setSessionToken(data.token);
-        localStorage.setItem('dadkar_token', data.token);
-
-        // پیش‌فرض اطلاعات در فرم عضویت
-        setFormData(prev => ({
-          ...prev,
-          mobile: mobile,
-          user_code: data.user?.user_code || prev.user_code || 'DK-' + Math.floor(10000 + Math.random() * 90000),
-          avatar_id: data.user?.avatar_id || '0',
-          first_name: data.user?.first_name || '',
-          last_name: data.user?.last_name || '',
-          marital_status: data.user?.marital_status || 'single',
-          children_count: data.user?.children_count ?? 0,
-          company_name: data.user?.company_name || '',
-          industry_field: data.user?.industry_field || 'other',
-        }));
-
-        // الزام به پر کردن فرم عضویت قبل از ورود به سامانه
-        setStep('register');
-        setMsg('شماره تأیید شد. لطفاً فرم عضویت و اطلاعات اولیه را تکمیل کنید.');
-        setMsgType('success');
+        const tokenVal = data.extra?.token || data.token || '';
+        setSessionToken(tokenVal);
+        localStorage.setItem('dadkar_token', tokenVal);
+        
+        if (data.is_registered) {
+          const fullUser = data.extra?.user || data.user || {};
+          localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
+          onLoginSuccess(fullUser, tokenVal);
+          setMsg('با موفقیت وارد شدید!');
+          setMsgType('success');
+          setTimeout(() => setShowProfileModal(false), 1000);
+        } else {
+          setStep('register');
+          setMsg('کد تأیید شد. لطفاً اطلاعات پروفایل را تکمیل کنید.');
+          setMsgType('success');
+        }
       } else {
-        setMsg(data.message || 'کد تایید نادرست یا منقضی شده است.');
         setMsgType('error');
+        setMsg(data.message || 'کد تأیید نامعتبر است.');
       }
-    } catch {
-      setMsg('خطای ارتباط با سرور.');
+    } catch (err) {
+      console.error('Verify OTP Error:', err);
       setMsgType('error');
+      setMsg('خطای ارتباط با سرور');
     } finally {
       setLoading(false);
     }
   };
+
 
 
   // ---- تکمیل ثبت‌نام اولیه ----
