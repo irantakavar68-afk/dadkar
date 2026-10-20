@@ -521,33 +521,35 @@ export const AuthProfileModals: React.FC<Props> = ({
   };
 
   // ---- ارسال پیامک OTP ----
-  const handleSendOtp = async (isForgot = false) => {
-    if (!mobile.match(/^09\d{9}$/)) {
-      setMsgType('error'); 
-      setMsg('شماره موبایل باید ۱۱ رقمی و با ۰۹ شروع شود.'); 
+  const handleSendOtp = async (isForgot = false, channel: 'sms' | 'voice' = 'sms') => {
+    const mobile = formData.mobile.trim();
+    if (!mobile || !/^09\d{9}$/.test(mobile)) {
+      setAuthError('لطفاً شماره موبایل معتبر وارد کنید (مثال: 09123456789)');
       return;
     }
-    setLoading(true); 
-    setMsg('');
-    try {
-      // حتماً اینجا اکشن باید دقیقاً 'send_otp' باشد (نه نام اشتباه)
-      const data = await post(isForgot ? 'forgot_password' : 'send_otp', { mobile });
-      
-      if (data.status === 'success') {
-        setStep(isForgot ? 'reset' : 'code');
-        setOtpCode('');
+    setLoading(true);
+    setAuthError(null);
+  
+    // انتخاب اکشن بر اساس کانال انتخابی (پیامک یا تماس صوتی)
+    const actionName = channel === 'voice' ? 'send_voice_otp' : (isForgot ? 'forgot_password' : 'send_otp');
+  
+    const res = await post(actionName, { mobile, is_forgot: isForgot });
+    setLoading(false);
+  
+    if (res.status === 'success') {
+      setAuthStep('code');
+      setOtpCountdown(120); // تایمر ۲ دقیقه‌ای
+      // پیام موفقیت
+    } else {
+      // اگر کاربر قبلاً ثبت‌نام کرده بود
+      if (res.extra?.code === 'ALREADY_REGISTERED') {
+        setAuthError('شما قبلاً در سامانه ثبت‌نام کرده‌اید. لطفاً وارد شوید.');
       } else {
-        setMsgType('error');
-        setMsg(data.message || 'خطا در ارسال پیامک');
+        setAuthError(res.message || 'خطا در ارسال کد تأیید');
       }
-    } catch (err) {
-      console.error('Send OTP Error:', err);
-      setMsgType('error'); 
-      setMsg('خطای ارتباط با سرور (جزئیات در Console مرورگر)');
-    } finally { 
-      setLoading(false); 
     }
   };
+
 
 
 
@@ -613,7 +615,8 @@ export const AuthProfileModals: React.FC<Props> = ({
       setMsgType('error'); setMsg('رمز عبور و تکرار آن همخوانی ندارند.'); return;
     }
 
-    setLoading(true); setMsg('');
+    setLoading(true); 
+    setMsg('');
     try {
       const activeToken = sessionToken || localStorage.getItem('dadkar_token');
       const finalIndustry = isOtherIndustry ? customIndustry : formData.industry_field;
@@ -624,15 +627,20 @@ export const AuthProfileModals: React.FC<Props> = ({
         token: activeToken
       };
 
-      // اکشن رسمی بک‌اند: save_profile
       const data = await post('save_profile', payload);
-           if (data.status === 'success') {
-        const fullUser = data.user || { ...formData, mobile, username, industry_field: finalIndustry };
+
+      if (data.status === 'success') {
+        const fullUser = data.user || data.extra?.user || { ...formData, mobile, username, industry_field: finalIndustry };
         localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
-        onLoginSuccess(fullUser, activeToken || tokenToUse || '');
+        
+        // اصلاح نام متغیر توکن (جایگزین tokenToUse مجهول)
+        const finalToken = data.extra?.token || data.token || activeToken || '';
+        localStorage.setItem('dadkar_token', finalToken);
+
+        onLoginSuccess(fullUser, finalToken);
         setMsg('عضویت شما با موفقیت تکمیل شد. خوش آمدید!');
         setMsgType('success');
-        // بستن مودال و انتقال به داخل سامانه
+        
         setTimeout(() => {
           setShowProfileModal(false);
         }, 1000);
@@ -640,13 +648,14 @@ export const AuthProfileModals: React.FC<Props> = ({
         setMsgType('error'); 
         setMsg(data.message || 'خطا در ثبت اطلاعات عضویت'); 
       }
-    } catch { 
+    } catch (err) { 
+      console.error('Save Profile Error:', err); // برای مشاهده خطای دقیق در کنسول فشرده F12
       setMsgType('error'); 
       setMsg('خطای ارتباط با سرور'); 
     } finally { 
       setLoading(false); 
     }
-  };
+
 
 
   // ---- بازیابی رمز عبور ----
@@ -803,18 +812,25 @@ export const AuthProfileModals: React.FC<Props> = ({
                     ارسال مجدد ({formatTimer(resendTimer)})
                   </span>
                 ) : (
-                  <div className="flex items-center gap-3">
-                    <button 
-                      onClick={() => handleSendOtp(false, 'sms')} 
-                      className="text-blue-500 hover:underline flex items-center gap-1 font-bold">
-                      <RefreshCw size={12} /> ارسال مجدد پیامک
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      type="button"
+                      disabled={otpCountdown > 0}
+                      onClick={() => handleSendOtp(false, 'sms')}
+                      className="flex-1 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-xs text-slate-700 dark:text-slate-300 disabled:opacity-50"
+                    >
+                      {otpCountdown > 0 ? `ارسال مجدد (${Math.floor(otpCountdown / 60)}:${(otpCountdown % 60).toString().padStart(2, '0')})` : 'ارسال مجدد پیامک'}
                     </button>
-                    <button 
-                      onClick={() => handleSendOtp(false, 'voice')} 
-                      className="text-amber-500 hover:underline flex items-center gap-1 font-bold">
+                    <button
+                      type="button"
+                      disabled={otpCountdown > 0}
+                      onClick={() => handleSendOtp(false, 'voice')}
+                      className="px-4 py-2 rounded-xl bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 text-xs disabled:opacity-50"
+                    >
                       📞 تماس صوتی
                     </button>
                   </div>
+
                 )}
               </div>
               <Msg />
@@ -950,25 +966,33 @@ export const AuthProfileModals: React.FC<Props> = ({
 
               {/* سطر تکرار رمز عبور */}
               <div>
-                <label className="block text-xs text-slate-400 mb-1">تکرار رمز عبور</label>
+                <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">تکرار رمز عبور</label>
                 <div className="relative">
                   <input
                     dir="ltr"
-                    type={showPwd ? 'text' : 'password'}
+                    type={showConfirmPwd ? 'text' : 'password'}
                     placeholder="تکرار رمز عبور فوق"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={`w-full bg-slate-900 border rounded-xl px-4 py-3 text-slate-100 focus:outline-none ${
+                    className={`w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm text-left dark:text-white border ${
                       confirmPassword && confirmPassword !== formData.password
                         ? 'border-rose-500'
-                        : 'border-slate-700 focus:border-cyan-500'
-                    }`}
+                        : 'border-transparent focus:border-cyan-500'
+                    } focus:outline-none`}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPwd(!showConfirmPwd)}
+                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  >
+                    {showConfirmPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
                 {confirmPassword && confirmPassword !== formData.password && (
-                  <span className="text-[11px] text-rose-400 mt-1 block">رمز عبور و تکرار آن همخوانی ندارند.</span>
+                  <span className="text-[11px] text-rose-500 mt-1 block">رمز عبور و تکرار آن همخوانی ندارند.</span>
                 )}
               </div>
+
 
 
               {/* تاریخ تولد، وضعیت تأهل و تعداد فرزند */}
@@ -989,12 +1013,13 @@ export const AuthProfileModals: React.FC<Props> = ({
                     <option value="divorced">مطلقه</option>
                   </select>
                 </div>
+
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">تعداد فرزندان</label>
+                  <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">تعداد فرزندان</label>
                   <select
                     value={formData.children_count}
                     onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-cyan-500"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white border border-transparent focus:border-cyan-500 focus:outline-none"
                   >
                     <option value={0}>۰ (بدون فرزند)</option>
                     {[...Array(10)].map((_, i) => (
@@ -1004,6 +1029,7 @@ export const AuthProfileModals: React.FC<Props> = ({
                     ))}
                   </select>
                 </div>
+
 
               </div>
 
