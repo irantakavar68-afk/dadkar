@@ -789,52 +789,83 @@ export const AuthProfileModals: React.FC<Props> = ({
 
 
               {/* ۳. ثبت‌نام: ورود کد تأیید */}
-          {step === 'code' && (
-            <>
-              <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">کد تأیید هویت</h2>
-              <p className="text-xs text-center text-slate-500 mb-4">کد ۵ رقمی ارسال‌شده به شماره {mobile} را وارد کنید:</p>
-              <input dir="ltr" inputMode="numeric" maxLength={6} placeholder="• • • • •" value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center text-2xl font-mono tracking-widest dark:text-white mb-4 border border-blue-400 focus:outline-none" />
-              <button disabled={loading} onClick={handleVerifyOtp}
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-colors">
-                <CheckCircle size={18} />{loading ? 'در حال احراز هویت...' : 'تأیید و ادامه'}
-              </button>
-
-              <div className="flex justify-between items-center text-xs mt-4 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <button onClick={() => setStep('mobile')} className="text-slate-400 hover:underline">
-                  ویرایش شماره موبایل
-                </button>
-
-                {resendTimer > 0 ? (
-                  <span className="text-slate-400 flex items-center gap-1 font-mono">
-                    ارسال مجدد ({formatTimer(resendTimer)})
-                  </span>
-                ) : (
-                  <div className="flex gap-2 mt-3">
-                    <button
-                      type="button"
-                      disabled={otpCountdown > 0}
-                      onClick={() => handleSendOtp(false, 'sms')}
-                      className="flex-1 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-xs text-slate-700 dark:text-slate-300 disabled:opacity-50"
-                    >
-                      {otpCountdown > 0 ? `ارسال مجدد (${Math.floor(otpCountdown / 60)}:${(otpCountdown % 60).toString().padStart(2, '0')})` : 'ارسال مجدد پیامک'}
-                    </button>
-                    <button
-                      type="button"
-                      disabled={otpCountdown > 0}
-                      onClick={() => handleSendOtp(false, 'voice')}
-                      className="px-4 py-2 rounded-xl bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 text-xs disabled:opacity-50"
-                    >
-                      📞 تماس صوتی
-                    </button>
-                  </div>
-
-                )}
-              </div>
-              <Msg />
-            </>
+       {step === 'code' && (
+      <div className="space-y-4">
+        <div className="text-center space-y-1">
+          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">تأیید شماره موبایل</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            کد ارسال شده به شماره <span className="font-mono font-bold">{mobile}</span> را وارد کنید.
+          </p>
+        </div>
+    
+        <div>
+          <input
+            type="text"
+            maxLength={6}
+            value={otpCode}
+            onChange={(e) => setOtpCode(e.target.value)}
+            placeholder="کد تایید ۵ یا ۶ رقمی"
+            className="w-full px-4 py-3 text-center text-xl tracking-widest font-mono bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
+          />
+        </div>
+    
+        <button
+          type="button"
+          disabled={loading}
+          onClick={handleVerifyOtp}
+          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-medium transition-all shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2"
+        >
+          {loading ? (
+            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+          ) : (
+            <span>تایید و ادامه</span>
           )}
+        </button>
+    
+        <div className="flex items-center justify-between text-sm pt-2">
+          <button
+            type="button"
+            onClick={() => setStep('mobile')}
+            className="text-blue-600 dark:text-blue-400 hover:underline text-xs"
+          >
+            ویرایش شماره موبایل
+          </button>
+    
+          {/* بخش تایمر و دکمه‌های ارسال مجدد پیامک یا تماس صوتی (اصلاح شده با resendTimer) */}
+          {resendTimer > 0 ? (
+            <span className="text-slate-400 flex items-center gap-1 font-mono text-xs">
+              ارسال مجدد ({formatTimer(resendTimer)})
+            </span>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={resendTimer > 0}
+                onClick={() => handleSendOtp(false, 'sms')}
+                className="text-xs py-1.5 px-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl transition-all font-medium"
+              >
+                ارسال مجدد پیامک
+              </button>
+              <button
+                type="button"
+                disabled={resendTimer > 0}
+                onClick={() => handleSendOtp(false, 'voice')}
+                className="text-xs py-1.5 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 rounded-xl transition-all font-medium border border-amber-500/20 flex items-center gap-1"
+              >
+                📞 تماس صوتی
+              </button>
+            </div>
+          )}
+        </div>
+    
+        {msg && (
+          <div className={`p-3 rounded-xl text-sm text-center ${msgType === 'success' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300'}`}>
+            {msg}
+          </div>
+        )}
+      </div>
+    )}
+
 
 
           {/* ۴. فرم جامع عضویت دادکار (کاربر جدید) */}
