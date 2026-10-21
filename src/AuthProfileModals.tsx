@@ -8,87 +8,40 @@ import {
 const API_URL = "https://daadkaar.ir/api/auth.php";
 
 // ۸ آواتار وکتور استاندارد، مدرن و پرسنلی (SVG درون‌برنامه‌ای با وضوح بالا)
+// آواتارهای شیشه‌ای سه‌بعدی (Glassmorphic 3D Gradient) — بدون SVG، با گرادیان و درخشش
 export const AVATAR_SVGS = [
-  { id: '0', title: 'کارشناس مرد ۱', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#E0F2FE" />
-      <circle cx="50" cy="38" r="18" fill="#FBBF24" />
-      <path d="M50 20 C36 20 33 32 33 36 C38 34 46 32 50 32 C56 32 63 34 67 36 C67 32 64 20 50 20 Z" fill="#334155" />
-      <path d="M26 84 C26 68 36 60 50 60 C64 60 74 68 74 84 Z" fill="#0284C7" />
-      <polygon points="50,60 45,74 50,78 55,74" fill="#E2E8F0" />
-      <polygon points="48,74 52,74 51,88 49,88" fill="#BE123C" />
-    </svg>
-  )},
-  { id: '1', title: 'کارشناس مرد ۲', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#F1F5F9" />
-      <circle cx="50" cy="38" r="18" fill="#FCD34D" />
-      <path d="M33 34 C33 22 42 18 50 18 C58 18 67 22 67 34 C67 36 64 30 50 30 C36 30 33 36 33 34 Z" fill="#1E293B" />
-      <path d="M26 84 C26 66 37 58 50 58 C63 58 74 66 74 84 Z" fill="#334155" />
-      <polygon points="50,58 43,84 57,84" fill="#0EA5E9" />
-    </svg>
-  )},
-  { id: '2', title: 'مهندس / تکنسین', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#FEF3C7" />
-      <circle cx="50" cy="40" r="17" fill="#FDE68A" />
-      <path d="M28 36 C28 22 40 18 50 18 C60 18 72 22 72 36 C75 36 76 39 74 41 C70 42 30 42 26 41 C24 39 25 36 28 36 Z" fill="#F59E0B" />
-      <rect x="47" y="16" width="6" height="10" rx="3" fill="#D97706" />
-      <path d="M24 84 C24 66 36 60 50 60 C64 60 76 66 76 84 Z" fill="#D97706" />
-      <rect x="42" y="60" width="16" height="24" fill="#1E293B" />
-    </svg>
-  )},
-  { id: '3', title: 'کارشناس خانم ۱', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#FCE7F3" />
-      <path d="M26 84 C26 64 32 54 35 48 C32 38 34 26 50 26 C66 26 68 38 65 48 C68 54 74 64 74 84 Z" fill="#1E293B" />
-      <ellipse cx="50" cy="44" rx="13" ry="16" fill="#FDE68A" />
-      <path d="M37 38 C42 42 58 42 63 38 C60 30 40 30 37 38 Z" fill="#0F172A" />
-      <path d="M36 84 C38 68 44 60 50 60 C56 60 62 68 64 84 Z" fill="#4338CA" />
-    </svg>
-  )},
-  { id: '4', title: 'کارشناس خانم ۲', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#EDE9FE" />
-      <path d="M26 84 C26 64 32 54 35 48 C32 38 34 26 50 26 C66 26 68 38 65 48 C68 54 74 64 74 84 Z" fill="#312E81" />
-      <ellipse cx="50" cy="44" rx="13" ry="16" fill="#FCD34D" />
-      <path d="M34 84 C37 66 43 58 50 58 C57 58 63 66 66 84 Z" fill="#059669" />
-    </svg>
-  )},
-  { id: '5', title: 'مدیر ارشد', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#DCFCE7" />
-      <circle cx="50" cy="38" r="18" fill="#FCD34D" />
-      <path d="M33 30 C35 20 45 16 50 16 C60 16 68 22 67 30 C60 26 40 24 33 30 Z" fill="#475569" />
-      <rect x="38" y="36" width="9" height="7" rx="2" fill="none" stroke="#0F172A" strokeWidth="2" />
-      <rect x="53" y="36" width="9" height="7" rx="2" fill="none" stroke="#0F172A" strokeWidth="2" />
-      <line x1="47" y1="39" x2="53" y2="39" stroke="#0F172A" strokeWidth="2" />
-      <path d="M24 84 C24 64 35 56 50 56 C65 56 76 64 76 84 Z" fill="#0F172A" />
-      <polygon points="50,56 46,74 50,78 54,74" fill="#F8FAFC" />
-      <polygon points="49,74 51,74 51,84 49,84" fill="#2563EB" />
-    </svg>
-  )},
-  { id: '6', title: 'توسعه‌دهنده / IT', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#E0E7FF" />
-      <circle cx="50" cy="38" r="18" fill="#FDE68A" />
-      <path d="M30 40 C30 24 40 20 50 20 C60 20 70 24 70 40" fill="none" stroke="#4F46E5" strokeWidth="4" />
-      <rect x="28" y="34" width="6" height="12" rx="3" fill="#4338CA" />
-      <rect x="66" y="34" width="6" height="12" rx="3" fill="#4338CA" />
-      <path d="M26 84 C26 66 38 60 50 60 C62 60 74 66 74 84 Z" fill="#4F46E5" />
-    </svg>
-  )},
-  { id: '7', title: 'پزشک / درمانگر', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#CCFBF1" />
-      <circle cx="50" cy="38" r="18" fill="#FCD34D" />
-      <path d="M34 30 C38 20 55 20 66 30 C60 26 40 26 34 30 Z" fill="#64748B" />
-      <path d="M26 84 C26 66 37 60 50 60 C63 60 74 66 74 84 Z" fill="#0D9488" />
-      <path d="M42 60 C42 70 58 70 58 60" fill="none" stroke="#E2E8F0" strokeWidth="3" />
-      <circle cx="50" cy="72" r="4" fill="#94A3B8" />
-    </svg>
-  )}
-];
+  { id: '0', title: 'کارشناس مرد ۱', gradient: 'linear-gradient(135deg,#3b82f6 0%,#6366f1 50%,#0ea5e9 100%)', glow: 'rgba(59,130,246,0.55)', glyph: '👤' },
+  { id: '1', title: 'کارشناس مرد ۲', gradient: 'linear-gradient(135deg,#0f172a 0%,#334155 50%,#64748b 100%)', glow: 'rgba(51,65,85,0.55)', glyph: '🧑‍💼' },
+  { id: '2', title: 'مهندس / تکنسین', gradient: 'linear-gradient(135deg,#f59e0b 0%,#fbbf24 50%,#f97316 100%)', glow: 'rgba(245,158,11,0.55)', glyph: '🛠️' },
+  { id: '3', title: 'کارشناس خانم ۱', gradient: 'linear-gradient(135deg,#ec4899 0%,#8b5cf6 50%,#6366f1 100%)', glow: 'rgba(236,72,153,0.5)', glyph: '👩‍💼' },
+  { id: '4', title: 'کارشناس خانم ۲', gradient: 'linear-gradient(135deg,#10b981 0%,#14b8a6 50%,#06b6d4 100%)', glow: 'rgba(16,185,129,0.5)', glyph: '👩‍🔬' },
+  { id: '5', title: 'مدیر ارشد', gradient: 'linear-gradient(135deg,#1e3a8a 0%,#4338ca 50%,#7c3aed 100%)', glow: 'rgba(67,56,202,0.55)', glyph: '👔' },
+  { id: '6', title: 'توسعه‌دهنده / IT', gradient: 'linear-gradient(135deg,#06b6d4 0%,#3b82f6 50%,#8b5cf6 100%)', glow: 'rgba(6,182,212,0.5)', glyph: '💻' },
+  { id: '7', title: 'پزشک / درمانگر', gradient: 'linear-gradient(135deg,#14b8a6 0%,#0ea5e9 50%,#22d3ee 100%)', glow: 'rgba(20,184,166,0.5)', glyph: '🩺' },
+  { id: '8', title: 'کارآفرین', gradient: 'linear-gradient(135deg,#f43f5e 0%,#f97316 50%,#eab308 100%)', glow: 'rgba(244,63,94,0.5)', glyph: '🚀' },
+  { id: '9', title: 'مشاور حقوقی', gradient: 'linear-gradient(135deg,#475569 0%,#0f172a 50%,#312e81 100%)', glow: 'rgba(30,41,59,0.55)', glyph: '⚖️' },
+  { id: '10', title: 'هنرمند / طراح', gradient: 'linear-gradient(135deg,#a855f7 0%,#ec4899 50%,#f472b6 100%)', glow: 'rgba(168,85,247,0.5)', glyph: '🎨' },
+  { id: '11', title: 'کارشناس تبلیغات', gradient: 'linear-gradient(135deg,#22c55e 0%,#84cc16 50%,#eab308 100%)', glow: 'rgba(34,197,94,0.5)', glyph: '📣' }
+] as const;
+
+// رندر آواتار شیشه‌ای سه‌بعدی با گرادیان، هایلایت شیشه‌ای و هاله نور
+export const GlassAvatar: React.FC<{ id: string; className?: string; glyphSize?: string }> = ({ id, className = 'w-12 h-12', glyphSize = 'text-xl' }) => {
+  const av = AVATAR_SVGS.find(a => a.id === id) || AVATAR_SVGS[0];
+  return (
+    <div
+      className={`relative rounded-2xl flex items-center justify-center overflow-hidden ${className}`}
+      style={{
+        background: av.gradient,
+        boxShadow: `0 8px 20px -6px ${av.glow}, 0 0 14px -2px ${av.glow}, inset 0 1.5px 2px rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.25)`
+      }}
+    >
+      {/* هایلایت شیشه‌ای بالای آواتار */}
+      <div className="absolute inset-x-0 top-0 h-1/2 rounded-t-2xl" style={{ background: 'linear-gradient(180deg,rgba(255,255,255,0.35) 0%,rgba(255,255,255,0) 100%)' }} />
+      <div className="absolute -left-1 -top-2 w-1/2 h-1/2 rounded-full blur-md opacity-60" style={{ background: 'radial-gradient(circle,rgba(255,255,255,0.5),transparent 70%)' }} />
+      <span className={`relative z-10 drop-shadow-md ${glyphSize}`}>{av.glyph}</span>
+    </div>
+  );
+};
 
 // بیش از ۸۰ حوزه فعالیت اقتصادی و صنعتی
 const INDUSTRIES = [
@@ -149,6 +102,16 @@ const INDUSTRIES = [
   'خدمات عمومی و دولتی',
   'سایر'
 ];
+
+// گزینه‌های تعداد فرزند با برچسب فارسی (۰ تا ۱۰)
+const CHILDREN_OPTIONS = [
+  { value: 0, label: 'بدون فرزند' },
+  ...Array.from({ length: 10 }, (_, i) => ({ value: i + 1, label: `${toPersianDigits(i + 1)} فرزند` }))
+];
+
+const toPersianDigits = (n: number | string) =>
+  String(n).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+
 
 const J_MONTHS = [
   'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
@@ -481,6 +444,20 @@ export const AuthProfileModals: React.FC<Props> = ({
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // تشخیص «سایر» بودن حوزه فعالیت هنگام باز شدن مودال پروفایل
+  useEffect(() => {
+    if (!showProfileModal) return;
+    const current = (formData.industry_field || '').trim();
+    const known = !current || INDUSTRIES.includes(current);
+    if (known) {
+      setIsOtherIndustry(false);
+    } else {
+      setIsOtherIndustry(true);
+      setCustomIndustry(current);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showProfileModal]);
+
   useEffect(() => {
     if (resendTimer <= 0) return;
     const interval = setInterval(() => {
@@ -501,6 +478,7 @@ export const AuthProfileModals: React.FC<Props> = ({
 
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
+  const [uploadError, setUploadError] = useState('');
 
   const post = async (action: string, body: object) => {
     const res = await fetch(`${API_URL}?action=${action}`, {
@@ -551,19 +529,27 @@ export const AuthProfileModals: React.FC<Props> = ({
     if (!file.type.startsWith('image/')) {
       setMsgType('error');
       setMsg('لطفاً فقط فایل تصویری معتبر انتخاب کنید.');
+      setUploadError('لطفاً فقط فایل تصویری معتبر انتخاب کنید.');
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
       setMsgType('error');
       setMsg('حداکثر حجم تصویر ۲ مگابایت است.');
+      setUploadError('حداکثر حجم تصویر ۲ مگابایت است.');
       return;
     }
+
+    setUploadError('');
 
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = reader.result as string;
       setFormData(prev => ({ ...prev, avatar_image: base64, avatar_id: 'custom' }));
+      setUploadError('');
+    };
+    reader.onerror = () => {
+      setUploadError('خواندن فایل تصویری با خطا مواجه شد.');
     };
     reader.readAsDataURL(file);
   };
@@ -631,9 +617,9 @@ export const AuthProfileModals: React.FC<Props> = ({
   // بررسی کد تایید (رفع باگ فریز و صفحه تیره)
   const handleVerifyOtp = async () => {
     const cleanOtp = otpCode.replace(/\D/g, '');
-    if (!cleanOtp || cleanOtp.length < 4) {
+    if (!/^[0-9]{4,6}$/.test(cleanOtp)) {
       setMsgType('error');
-      setMsg('لطفاً کد تایید ۴ رقمی را کامل وارد کنید.');
+      setMsg('کد تایید باید بین ۴ تا ۶ رقم باشد.');
       return;
     }
     setLoading(true);
@@ -677,6 +663,12 @@ export const AuthProfileModals: React.FC<Props> = ({
   const handleRegister = async () => {
     if (!formData.username || formData.username.length < 3) {
       setMsgType('error'); setMsg('تعیین نام کاربری معتبر (حداقل ۳ حرف) الزامی است.'); return;
+    }
+    if (usernameStatus === 'checking') {
+      setMsgType('error'); setMsg('لطفاً تا پایان استعلام نام کاربری صبر کنید.'); return;
+    }
+    if (usernameStatus !== 'available') {
+      setMsgType('error'); setMsg('نام کاربری هنوز تأیید نشده است.'); return;
     }
     if (usernameStatus === 'taken') {
       setMsgType('error'); setMsg('لطفاً یک نام کاربری آزاد انتخاب کنید.'); return;
@@ -728,8 +720,8 @@ export const AuthProfileModals: React.FC<Props> = ({
   // بازیابی رمز عبور
   const handleResetPassword = async () => {
     const cleanOtp = otpCode.replace(/\D/g, '');
-    if (cleanOtp.length < 4 || password.length < 6) { 
-      setMsgType('error'); setMsg('کد و رمز جدید (حداقل ۶ کاراکتر) را وارد کنید.'); return; 
+    if (!/^[0-9]{4,6}$/.test(cleanOtp) || password.length < 6) { 
+      setMsgType('error'); setMsg('کد تایید (۴ تا ۶ رقم) و رمز جدید (حداقل ۶ کاراکتر) را کامل وارد کنید.'); return; 
     }
     setLoading(true); setMsg('');
     try {
@@ -797,7 +789,7 @@ export const AuthProfileModals: React.FC<Props> = ({
     }
     return (
       <div className={`${sizeClass} rounded-2xl p-1 bg-white/80 dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden`}>
-        {selectedAvatarObj.svg}
+        <GlassAvatar id={selectedAvatarObj.id} className="w-full h-full" />
       </div>
     );
   };
@@ -856,7 +848,7 @@ export const AuthProfileModals: React.FC<Props> = ({
                 <div className="flex justify-end">
                   <button 
                     type="button"
-                    onClick={() => { setStep('forgot'); setMsg(''); }}
+                    onClick={() => { setStep('forgot'); setOtpCode(''); setResendTimer(90); setMsg(''); }}
                     className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
                   >
                     رمز عبور را فراموش کرده‌اید؟
@@ -959,7 +951,7 @@ export const AuthProfileModals: React.FC<Props> = ({
                   <GlassInput
                     dir="ltr"
                     maxLength={6}
-                    placeholder="— — — —"
+                    placeholder="— — — — — —"
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
                     className="text-center font-mono text-2xl tracking-[0.5em] font-bold py-3.5"
@@ -970,14 +962,25 @@ export const AuthProfileModals: React.FC<Props> = ({
                   {resendTimer > 0 ? (
                     <span>ارسال مجدد تا <span className="font-mono text-blue-600 dark:text-blue-400 font-bold">{formatTimer(resendTimer)}</span></span>
                   ) : (
-                    <button
-                      type="button"
-                      disabled={loading}
-                      onClick={() => handleSendOtp(false, 'sms')}
-                      className="text-blue-600 dark:text-blue-400 hover:underline font-semibold"
-                    >
-                      ارسال مجدد پیامک
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() => handleSendOtp(false, 'sms')}
+                        className="text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+                      >
+                        ارسال مجدد پیامک
+                      </button>
+                      <span className="text-slate-300 dark:text-slate-600">|</span>
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() => handleSendOtp(false, 'voice')}
+                        className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
+                      >
+                        دریافت تماس صوتی
+                      </button>
+                    </div>
                   )}
                   <button
                     type="button"
@@ -992,7 +995,7 @@ export const AuthProfileModals: React.FC<Props> = ({
 
                 <button
                   type="button"
-                  disabled={loading || otpCode.length < 4}
+                  disabled={loading || !/^[0-9]{4,6}$/.test(otpCode)}
                   onClick={handleVerifyOtp}
                   className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 active:scale-[0.98] transition-all disabled:opacity-50"
                 >
@@ -1067,9 +1070,7 @@ export const AuthProfileModals: React.FC<Props> = ({
                             }`}
                             title={av.title}
                           >
-                            <div className="w-10 h-10 mx-auto rounded-xl overflow-hidden bg-white dark:bg-slate-800 p-0.5">
-                              {av.svg}
-                            </div>
+                            <GlassAvatar id={av.id} className="w-10 h-10 mx-auto" glyphSize="text-base" />
                           </button>
                         );
                       })}
@@ -1185,6 +1186,34 @@ export const AuthProfileModals: React.FC<Props> = ({
                   />
                 )}
 
+                {/* وضعیت تأهل و تعداد فرزند */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">وضعیت تأهل</label>
+                    <select 
+                      value={formData.marital_status}
+                      onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as 'single' | 'married' | 'divorced' })}
+                      className="w-full px-4 py-3 text-sm rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-slate-700/80 text-slate-800 dark:text-slate-100 shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                    >
+                      <option value="single">مجرد</option>
+                      <option value="married">متأهل</option>
+                      <option value="divorced">مطلقه</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">تعداد فرزند</label>
+                    <select 
+                      value={formData.children_count ?? 0}
+                      onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value, 10) })}
+                      className="w-full px-4 py-3 text-sm text-center rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-slate-700/80 text-slate-800 dark:text-slate-100 shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                    >
+                      {CHILDREN_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
                 <Msg />
 
                 <button
@@ -1231,6 +1260,15 @@ export const AuthProfileModals: React.FC<Props> = ({
 
                 <button
                   type="button"
+                  disabled={loading || mobile.length < 11}
+                  onClick={() => handleSendOtp(true, 'voice')}
+                  className="w-full py-2.5 bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl text-xs font-medium flex items-center justify-center gap-2 transition"
+                >
+                  <span>دریافت کد بازیابی از طریق تماس صوتی</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => { setStep('login'); setMsg(''); }}
                   className="w-full text-center text-xs text-slate-500 dark:text-slate-400 hover:underline pt-2 block"
                 >
@@ -1250,7 +1288,7 @@ export const AuthProfileModals: React.FC<Props> = ({
                 <GlassInput
                   dir="ltr"
                   maxLength={6}
-                  placeholder="کد ۴ رقمی پیامک شده"
+                  placeholder="کد ۴ تا ۶ رقمی پیامک شده"
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
                   className="text-center font-mono tracking-widest text-lg"
@@ -1269,7 +1307,7 @@ export const AuthProfileModals: React.FC<Props> = ({
 
                 <button
                   type="button"
-                  disabled={loading || otpCode.length < 4 || password.length < 6}
+                  disabled={loading || otpCode.length !== 4 || password.length < 6}
                   onClick={handleResetPassword}
                   className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 active:scale-[0.98] transition-all disabled:opacity-50"
                 >
@@ -1390,13 +1428,37 @@ export const AuthProfileModals: React.FC<Props> = ({
                     }`}
                     title={av.title}
                   >
-                    <div className="w-9 h-9 mx-auto rounded-xl overflow-hidden bg-white dark:bg-slate-800 p-0.5">
-                      {av.svg}
-                    </div>
+                    <GlassAvatar id={av.id} className="w-9 h-9 mx-auto" glyphSize="text-sm" />
                   </button>
                 );
               })}
             </div>
+
+            {uploadError && (
+              <p className="mt-2 text-center text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 py-2 rounded-2xl">
+                {uploadError}
+              </p>
+            )}
+          </div>
+
+          {/* نام کاربری (قابل ویرایش با استعلام آنلاین) */}
+          <div>
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">نام کاربری (حداقل ۳ حرف انگلیسی)</label>
+            <GlassInput
+              dir="ltr"
+              placeholder="مثال: seyed_hejazi"
+              value={formData.username || ''}
+              onChange={(e) => handleUsernameChange(e.target.value)}
+              icon={<User size={18} />}
+            />
+            {usernameMsg && (
+              <p className={`text-[11px] mt-1 font-medium ${
+                usernameStatus === 'available' ? 'text-emerald-500' :
+                usernameStatus === 'taken' ? 'text-rose-500' : 'text-slate-400'
+              }`}>
+                {usernameMsg}
+              </p>
+            )}
           </div>
 
           {/* نام و نام خانوادگی */}
@@ -1437,14 +1499,15 @@ export const AuthProfileModals: React.FC<Props> = ({
             </div>
             <div>
               <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">تعداد فرزند</label>
-              <input 
-                type="number" 
-                min={0} 
-                max={15} 
+              <select 
                 value={formData.children_count ?? 0}
-                onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value || '0', 10) })}
-                className="w-full px-3 py-2.5 rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-slate-700/80 text-sm font-mono text-center dark:text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/40" 
-              />
+                onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value, 10) })}
+                className="w-full px-3 py-2.5 rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-slate-700/80 text-sm text-center dark:text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/40" 
+              >
+                {CHILDREN_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -1522,7 +1585,8 @@ export const AuthProfileModals: React.FC<Props> = ({
               if (window.confirm('آیا قصد خروج از حساب کاربری را دارید؟')) {
                 localStorage.removeItem('dadkar_token');
                 localStorage.removeItem('dadkar_user');
-                onLoginSuccess(null as any, null as any);
+                const clearedUser: UserProfile = { ...emptyForm, user_code: '', mobile: '' };
+                onLoginSuccess(clearedUser, '');
                 setShowProfileModal(false);
               }
             }}
