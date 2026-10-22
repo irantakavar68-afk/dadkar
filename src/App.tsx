@@ -1933,7 +1933,7 @@ export default function App() {
         </div>
       )}
             {/* مودال‌های احراز هویت و مشخصات کاربری */}
-        <AuthProfileModals
+     <AuthProfileModals
           user={user}
           token={token}
           onLoginSuccess={(u, t) => { setUser(u); setToken(t); }}
@@ -1941,6 +1941,7 @@ export default function App() {
           showProfileModal={showProfileModal}
           setShowProfileModal={setShowProfileModal}
         />
+
 
     </div>
   );
