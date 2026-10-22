@@ -11,8 +11,8 @@ import {
 } from 'lucide-react';
 
 import { User } from 'lucide-react';
- import { AuthProfileModals, UserProfile } from './AuthProfileModals';
-import { AuthProfileModals, AVATAR_SVGS } from './AuthProfileModals';
+import { AuthProfileModals, UserProfile, AVATAR_SVGS } from './AuthProfileModals';
+
 
 import TaminBranchesView from './TaminBranchesView';
 import * as LawsModule from './lawsData';
@@ -151,10 +151,17 @@ export default function App() {
   });
 
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('dadkar_token'));
-  const [user, setUser] = useState<UserProfile | null>(() => {
-    const saved = localStorage.getItem('dadkar_user');
-    return saved ? JSON.parse(saved) : null;
+  const [user, setUser] = useState<UserProfile | null> (() => {
+    try {
+      const saved = localStorage.getItem('dadkar_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      console.error("Storage parse error:", e);
+      localStorage.removeItem('dadkar_user');
+      return null;
+    }
   });
+
   const [showProfileModal, setShowProfileModal] = useState(false);
 
 
