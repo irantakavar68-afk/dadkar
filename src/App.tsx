@@ -17,35 +17,17 @@ import { AuthProfileModals, UserProfile, AVATAR_SVGS } from './AuthProfileModals
 import TaminBranchesView from './TaminBranchesView';
 import * as LawsModule from './lawsData';
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-
-interface Props { children: ReactNode; }
-interface State { hasError: boolean; error: Error | null; }
-
-export class ErrorBoundary extends Component<Props, State> {
-  public state: State = { hasError: false, error: null };
-
-  public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
-  }
-
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
-  }
-
-  public render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ padding: 20, background: '#fee', color: '#900', direction: 'ltr', zIndex: 99999, position: 'fixed', inset: 0, overflow: 'auto' }}>
-          <h2>Runtime Crash Detected:</h2>
-          <pre>{this.state.error?.toString()}</pre>
-          <pre>{this.state.error?.stack}</pre>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
+// قرار دادن این کد در بالاترین خط App.tsx برای مهار و نمایش خطای سفید/تیره شدن صفحه
+if (typeof window !== 'undefined') {
+  window.onerror = function(msg, url, lineNo, columnNo, error) {
+    const div = document.createElement('div');
+    div.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:black;color:red;padding:20px;z-index:999999;font-size:14px;overflow:auto;direction:ltr;';
+    div.innerHTML = `<h3>Runtime Error:</h3><p>${msg}</p><p>Line: ${lineNo}, Col: ${columnNo}</p><pre>${error ? error.stack : ''}</pre>`;
+    document.body.appendChild(div);
+    return false;
+  };
 }
+
 
 
 
