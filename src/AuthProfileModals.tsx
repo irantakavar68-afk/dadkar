@@ -599,60 +599,78 @@ export const AuthProfileModals: React.FC<Props> = ({
 
   // ---- تکمیل ثبت‌نام اولیه ----
   const handleRegister = async () => {
-    if (!formData.username || formData.username.length < 3) {
-      setMsgType('error'); setMsg('تعیین نام کاربری معتبر (حداقل ۳ حرف) الزامی است.'); return;
-    }
-    if (usernameStatus === 'taken') {
-      setMsgType('error'); setMsg('لطفاً یک نام کاربری آزاد انتخاب کنید.'); return;
-    }
-    if (!formData.password || formData.password.length < 6) {
-      setMsgType('error'); setMsg('رمز عبور باید حداقل ۶ کاراکتر باشد.'); return;
-    }
-    if (formData.password !== confirmPassword) {
-      setMsgType('error'); setMsg('رمز عبور و تکرار آن همخوانی ندارند.'); return;
+    // تولید نام کاربری خودکار در صورتی که کاربر آن را پر نکرده باشد
+    let finalUsername = (formData.username || '').trim();
+    if (!finalUsername || finalUsername.length < 3) {
+      finalUsername = 'user_' + (formData.mobile || mobile || Math.floor(100000 + Math.random() * 900000));
     }
 
-    setLoading(true); 
+    if (usernameStatus === 'taken') {
+      setMsgType('error');
+      setMsg('لطفاً یک نام کاربری آزاد انتخاب کنید.');
+      return;
+    }
+
+    if (!formData.password || formData.password.length < 6) {
+      setMsgType('error');
+      setMsg('رمز عبور باید حداقل ۶ کاراکتر باشد.');
+      return;
+    }
+
+    if (formData.password !== confirmPassword) {
+      setMsgType('error');
+      setMsg('رمز عبور و تکرار آن همخوانی ندارند.');
+      return;
+    }
+
+    setLoading(true);
     setMsg('');
+
     try {
       const activeToken = sessionToken || localStorage.getItem('dadkar_token');
       const finalIndustry = isOtherIndustry ? customIndustry : formData.industry_field;
-
       const payload = {
         ...formData,
+        username: finalUsername,
+        mobile: formData.mobile || mobile,
         industry_field: finalIndustry,
         token: activeToken
       };
 
       const data = await post('save_profile', payload);
 
-      if (data.status === 'success') {
-        const fullUser = data.user || data.extra?.user || { ...formData, mobile, username, industry_field: finalIndustry };
-        localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
-        
-        // اصلاح نام متغیر توکن (جایگزین tokenToUse مجهول)
-        const finalToken = data.extra?.token || data.token || activeToken || '';
-        localStorage.setItem('dadkar_token', finalToken);
-
-        onLoginSuccess(fullUser, finalToken);
-        setMsg('عضویت شما با موفقیت تکمیل شد. خوش آمدید!');
+      if (data.status === 'success' || data.success) {
         setMsgType('success');
-        
+        setMsg('عضویت شما با موفقیت تکمیل شد.');
+        const fullUser = data.user || data.extra?.user || {
+          ...formData,
+          username: finalUsername,
+          mobile: formData.mobile || mobile,
+          industry_field: finalIndustry
+        };
+        localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
+        const finalToken = data.token || data.extra?.token || activeToken;
+        if (finalToken) {
+          localStorage.setItem('dadkar_token', finalToken);
+        }
+        onLoginSuccess(fullUser, finalToken || '');
         setTimeout(() => {
           setShowProfileModal(false);
+          setStep('profile');
         }, 1000);
-      } else { 
-        setMsgType('error'); 
-        setMsg(data.message || 'خطا در ثبت اطلاعات عضویت'); 
+      } else {
+        setMsgType('error');
+        setMsg(data.message || 'خطا در ثبت اطلاعات.');
       }
-    } catch (err) { 
-      console.error('Save Profile Error:', err); // برای مشاهده خطای دقیق در کنسول فشرده F12
-      setMsgType('error'); 
-      setMsg('خطای ارتباط با سرور'); 
+    } catch (e) {
+      setMsgType('error');
+      setMsg('خطا در برقراری ارتباط با سرور.');
     } finally {
       setLoading(false);
     }
-  }; // <--- این آکولاد و نقطه ویرگول پایانی handleRegister گم شده است
+  };
+
+  // <--- این آکولاد و نقطه ویرگول پایانی handleRegister گم شده است
 
 
 
