@@ -598,9 +598,20 @@ export const AuthProfileModals: React.FC<Props> = ({
 
 
   // ---- تکمیل ثبت‌نام اولیه ----
-  const handleRegister = async () => {
-    // تولید خودکار نام کاربری از روی شماره موبایل پشت صحنه (چون فیلدی روی صفحه نیست)
-    const autoUsername = 'user_' + (formData.mobile || mobile || Math.floor(100000 + Math.random() * 900000));
+   const handleRegister = async () => {
+    // 1. بررسی دقیق نام کاربری
+    const cleanedUsername = (formData.username || '').trim();
+    if (!cleanedUsername || cleanedUsername.length < 3) {
+      setMsgType('error');
+      setMsg('تعیین نام کاربری معتبر (حداقل ۳ کاراکتر انگلیسی) الزامی است.');
+      return;
+    }
+
+    if (usernameStatus === 'taken') {
+      setMsgType('error');
+      setMsg('لطفاً یک نام کاربری آزاد انتخاب کنید.');
+      return;
+    }
 
     if (!formData.password || formData.password.length < 6) {
       setMsgType('error');
@@ -618,15 +629,15 @@ export const AuthProfileModals: React.FC<Props> = ({
     setMsg('');
 
     try {
-      const activeToken = sessionToken || localStorage.getItem('dadkar_token');
+      const sessionToken = sessionToken || localStorage.getItem('dadkar_token');
       const finalIndustry = isOtherIndustry ? customIndustry : formData.industry_field;
       
       const payload = {
         ...formData,
-        username: autoUsername, // ارسال نام کاربری خودکار به سرور
+        username: cleanedUsername,
         mobile: formData.mobile || mobile,
         industry_field: finalIndustry,
-        token: activeToken
+        token: sessionToken
       };
 
       const data = await post('save_profile', payload);
@@ -636,12 +647,12 @@ export const AuthProfileModals: React.FC<Props> = ({
         setMsg('عضویت شما با موفقیت تکمیل شد.');
         const fullUser = data.user || data.extra?.user || {
           ...formData,
-          username: autoUsername,
+          username: cleanedUsername,
           mobile: formData.mobile || mobile,
           industry_field: finalIndustry
         };
         localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
-        const finalToken = data.token || data.extra?.token || activeToken;
+        const finalToken = data.token || data.extra?.token || sessionToken;
         if (finalToken) {
           localStorage.setItem('dadkar_token', finalToken);
         }
@@ -661,6 +672,7 @@ export const AuthProfileModals: React.FC<Props> = ({
       setLoading(false);
     }
   };
+
 
 
   // <--- این آکولاد و نقطه ویرگول پایانی handleRegister گم شده است
