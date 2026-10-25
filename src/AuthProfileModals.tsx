@@ -1,49 +1,100 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   User, KeyRound, CheckCircle, Save, X, Copy, Calendar, 
-  Lock, LogIn, Check, AlertCircle, RefreshCw, Eye, EyeOff, ShieldCheck,
-  Upload, Trash2, Image as ImageIcon
+  Lock, LogIn, Check, AlertCircle, RefreshCw, Eye, EyeOff, ShieldCheck
 } from 'lucide-react';
 
 const API_URL = "https://daadkaar.ir/api/auth.php";
 
 // ۸ آواتار وکتور استاندارد، مدرن و پرسنلی (SVG درون‌برنامه‌ای با وضوح بالا)
-// آواتارهای شیشه‌ای سه‌بعدی (Glassmorphic 3D Gradient) — بدون SVG، با گرادیان و درخشش
 export const AVATAR_SVGS = [
-  { id: '0', title: 'کارشناس مرد ۱', gradient: 'linear-gradient(135deg,#3b82f6 0%,#6366f1 50%,#0ea5e9 100%)', glow: 'rgba(59,130,246,0.55)', glyph: '👤' },
-  { id: '1', title: 'کارشناس مرد ۲', gradient: 'linear-gradient(135deg,#0f172a 0%,#334155 50%,#64748b 100%)', glow: 'rgba(51,65,85,0.55)', glyph: '🧑‍💼' },
-  { id: '2', title: 'مهندس / تکنسین', gradient: 'linear-gradient(135deg,#f59e0b 0%,#fbbf24 50%,#f97316 100%)', glow: 'rgba(245,158,11,0.55)', glyph: '🛠️' },
-  { id: '3', title: 'کارشناس خانم ۱', gradient: 'linear-gradient(135deg,#ec4899 0%,#8b5cf6 50%,#6366f1 100%)', glow: 'rgba(236,72,153,0.5)', glyph: '👩‍💼' },
-  { id: '4', title: 'کارشناس خانم ۲', gradient: 'linear-gradient(135deg,#10b981 0%,#14b8a6 50%,#06b6d4 100%)', glow: 'rgba(16,185,129,0.5)', glyph: '👩‍🔬' },
-  { id: '5', title: 'مدیر ارشد', gradient: 'linear-gradient(135deg,#1e3a8a 0%,#4338ca 50%,#7c3aed 100%)', glow: 'rgba(67,56,202,0.55)', glyph: '👔' },
-  { id: '6', title: 'توسعه‌دهنده / IT', gradient: 'linear-gradient(135deg,#06b6d4 0%,#3b82f6 50%,#8b5cf6 100%)', glow: 'rgba(6,182,212,0.5)', glyph: '💻' },
-  { id: '7', title: 'پزشک / درمانگر', gradient: 'linear-gradient(135deg,#14b8a6 0%,#0ea5e9 50%,#22d3ee 100%)', glow: 'rgba(20,184,166,0.5)', glyph: '🩺' },
-  { id: '8', title: 'کارآفرین', gradient: 'linear-gradient(135deg,#f43f5e 0%,#f97316 50%,#eab308 100%)', glow: 'rgba(244,63,94,0.5)', glyph: '🚀' },
-  { id: '9', title: 'مشاور حقوقی', gradient: 'linear-gradient(135deg,#475569 0%,#0f172a 50%,#312e81 100%)', glow: 'rgba(30,41,59,0.55)', glyph: '⚖️' },
-  { id: '10', title: 'هنرمند / طراح', gradient: 'linear-gradient(135deg,#a855f7 0%,#ec4899 50%,#f472b6 100%)', glow: 'rgba(168,85,247,0.5)', glyph: '🎨' },
-  { id: '11', title: 'کارشناس تبلیغات', gradient: 'linear-gradient(135deg,#22c55e 0%,#84cc16 50%,#eab308 100%)', glow: 'rgba(34,197,94,0.5)', glyph: '📣' }
-] as const;
+  { id: '0', title: 'کارشناس مرد ۱', svg: (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#E0F2FE" />
+      <circle cx="50" cy="38" r="18" fill="#FBBF24" />
+      <path d="M50 20 C36 20 33 32 33 36 C38 34 46 32 50 32 C56 32 63 34 67 36 C67 32 64 20 50 20 Z" fill="#334155" />
+      <path d="M26 84 C26 68 36 60 50 60 C64 60 74 68 74 84 Z" fill="#0284C7" />
+      <polygon points="50,60 45,74 50,78 55,74" fill="#E2E8F0" />
+      <polygon points="48,74 52,74 51,88 49,88" fill="#BE123C" />
+    </svg>
+  )},
+  { id: '1', title: 'کارشناس مرد ۲', svg: (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#F1F5F9" />
+      <circle cx="50" cy="38" r="18" fill="#FCD34D" />
+      <path d="M33 34 C33 22 42 18 50 18 C58 18 67 22 67 34 C67 36 64 30 50 30 C36 30 33 36 33 34 Z" fill="#1E293B" />
+      <path d="M26 84 C26 66 37 58 50 58 C63 58 74 66 74 84 Z" fill="#334155" />
+      <polygon points="50,58 43,84 57,84" fill="#0EA5E9" />
+    </svg>
+  )},
+  { id: '2', title: 'مهندس / تکنسین', svg: (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#FEF3C7" />
+      <circle cx="50" cy="40" r="17" fill="#FDE68A" />
+      {/* کلاه ایمنی مهندسی */}
+      <path d="M28 36 C28 22 40 18 50 18 C60 18 72 22 72 36 C75 36 76 39 74 41 C70 42 30 42 26 41 C24 39 25 36 28 36 Z" fill="#F59E0B" />
+      <rect x="47" y="16" width="6" height="10" rx="3" fill="#D97706" />
+      <path d="M24 84 C24 66 36 60 50 60 C64 60 76 66 76 84 Z" fill="#D97706" />
+      <rect x="42" y="60" width="16" height="24" fill="#1E293B" />
+    </svg>
+  )},
+  { id: '3', title: 'کارشناس خانم ۱', svg: (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#FCE7F3" />
+      {/* مقنعه اداری */}
+      <path d="M26 84 C26 64 32 54 35 48 C32 38 34 26 50 26 C66 26 68 38 65 48 C68 54 74 64 74 84 Z" fill="#1E293B" />
+      <ellipse cx="50" cy="44" rx="13" ry="16" fill="#FDE68A" />
+      <path d="M37 38 C42 42 58 42 63 38 C60 30 40 30 37 38 Z" fill="#0F172A" />
+      <path d="M36 84 C38 68 44 60 50 60 C56 60 62 68 64 84 Z" fill="#4338CA" />
+    </svg>
+  )},
+  { id: '4', title: 'کارشناس خانم ۲', svg: (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#EDE9FE" />
+      <path d="M26 84 C26 64 32 54 35 48 C32 38 34 26 50 26 C66 26 68 38 65 48 C68 54 74 64 74 84 Z" fill="#312E81" />
+      <ellipse cx="50" cy="44" rx="13" ry="16" fill="#FCD34D" />
+      <path d="M34 84 C37 66 43 58 50 58 C57 58 63 66 66 84 Z" fill="#059669" />
+    </svg>
+  )},
+  { id: '5', title: 'مدیر ارشد', svg: (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#DCFCE7" />
+      <circle cx="50" cy="38" r="18" fill="#FCD34D" />
+      <path d="M33 30 C35 20 45 16 50 16 C60 16 68 22 67 30 C60 26 40 24 33 30 Z" fill="#475569" />
+      {/* عینک */}
+      <rect x="38" y="36" width="9" height="7" rx="2" fill="none" stroke="#0F172A" strokeWidth="2" />
+      <rect x="53" y="36" width="9" height="7" rx="2" fill="none" stroke="#0F172A" strokeWidth="2" />
+      <line x1="47" y1="39" x2="53" y2="39" stroke="#0F172A" strokeWidth="2" />
+      <path d="M24 84 C24 64 35 56 50 56 C65 56 76 64 76 84 Z" fill="#0F172A" />
+      <polygon points="50,56 46,74 50,78 54,74" fill="#F8FAFC" />
+      <polygon points="49,74 51,74 51,84 49,84" fill="#2563EB" />
+    </svg>
+  )},
+  { id: '6', title: 'توسعه‌دهنده / IT', svg: (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#E0E7FF" />
+      <circle cx="50" cy="38" r="18" fill="#FDE68A" />
+      {/* هدفون */}
+      <path d="M30 40 C30 24 40 20 50 20 C60 20 70 24 70 40" fill="none" stroke="#4F46E5" strokeWidth="4" />
+      <rect x="28" y="34" width="6" height="12" rx="3" fill="#4338CA" />
+      <rect x="66" y="34" width="6" height="12" rx="3" fill="#4338CA" />
+      <path d="M26 84 C26 66 38 60 50 60 C62 60 74 66 74 84 Z" fill="#4F46E5" />
+    </svg>
+  )},
+  { id: '7', title: 'پزشک / درمانگر', svg: (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      <circle cx="50" cy="50" r="48" fill="#CCFBF1" />
+      <circle cx="50" cy="38" r="18" fill="#FCD34D" />
+      <path d="M34 30 C38 20 55 20 66 30 C60 26 40 26 34 30 Z" fill="#64748B" />
+      <path d="M26 84 C26 66 37 60 50 60 C63 60 74 66 74 84 Z" fill="#0D9488" />
+      {/* گوشی پزشکی */}
+      <path d="M42 60 C42 70 58 70 58 60" fill="none" stroke="#E2E8F0" strokeWidth="3" />
+      <circle cx="50" cy="72" r="4" fill="#94A3B8" />
+    </svg>
+  )}
+];
 
-// رندر آواتار شیشه‌ای سه‌بعدی با گرادیان، هایلایت شیشه‌ای و هاله نور
-export const GlassAvatar: React.FC<{ id: string; className?: string; glyphSize?: string }> = ({ id, className = 'w-12 h-12', glyphSize = 'text-xl' }) => {
-  const av = AVATAR_SVGS.find(a => a.id === id) || AVATAR_SVGS[0];
-  return (
-    <div
-      className={`relative rounded-2xl flex items-center justify-center overflow-hidden ${className}`}
-      style={{
-        background: av.gradient,
-        boxShadow: `0 8px 20px -6px ${av.glow}, 0 0 14px -2px ${av.glow}, inset 0 1.5px 2px rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.25)`
-      }}
-    >
-      {/* هایلایت شیشه‌ای بالای آواتار */}
-      <div className="absolute inset-x-0 top-0 h-1/2 rounded-t-2xl" style={{ background: 'linear-gradient(180deg,rgba(255,255,255,0.35) 0%,rgba(255,255,255,0) 100%)' }} />
-      <div className="absolute -left-1 -top-2 w-1/2 h-1/2 rounded-full blur-md opacity-60" style={{ background: 'radial-gradient(circle,rgba(255,255,255,0.5),transparent 70%)' }} />
-      <span className={`relative z-10 drop-shadow-md ${glyphSize}`}>{av.glyph}</span>
-    </div>
-  );
-};
-
-// بیش از ۸۰ حوزه فعالیت اقتصادی و صنعتی
+// لیست جامع و بیش از ۸۰ حوزه فعالیت
 const INDUSTRIES = [
   'فناوری اطلاعات و نرم‌افزار',
   'شبکه، زیرساخت و امنیت سایبری',
@@ -103,21 +154,12 @@ const INDUSTRIES = [
   'سایر'
 ];
 
-// گزینه‌های تعداد فرزند با برچسب فارسی (۰ تا ۱۰)
-const CHILDREN_OPTIONS = [
-  { value: 0, label: 'بدون فرزند' },
-  ...Array.from({ length: 10 }, (_, i) => ({ value: i + 1, label: `${toPersianDigits(i + 1)} فرزند` }))
-];
-
-const toPersianDigits = (n: number | string) =>
-  String(n).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
-
-
 const J_MONTHS = [
   'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
   'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
 ];
 
+// ---------- تبدیل تاریخ شمسی ----------
 function div(a: number, b: number) { return ~~(a / b); }
 function g2j(gy: number, gm: number, gd: number) {
   const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
@@ -149,7 +191,7 @@ function jalaliMonthLength(jy: number, jm: number) {
   return j2g(jy, 12, 30)[1] === 2 && j2g(jy + 1, 1, 1)[2] === 1 ? 30 : 29;
 }
 
-// تقویم ارتقا یافته شمسی
+// تقویم ارتقا یافته شمسی با انتخابگر سال (۱۳۲۰ تا جاری) و انتخابگر نام ماه‌ها
 const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; placeholder?: string }> = ({ 
   value, onChange, placeholder = "----/--/--" 
 }) => {
@@ -186,13 +228,13 @@ const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; pla
 
   const daysInMonth = jalaliMonthLength(jy, jm);
   const firstG = j2g(jy, jm, 1);
-  const offset = new Date(firstG[0], firstG[1] - 1, firstG[2]).getDay();
+  const offset = new Date(firstG[0], firstG[1] - 1, firstG[2]).getDay(); // 0=یکشنبه -> 6=شنبه
 
   return (
-    <div className="relative w-full font-['Vazirmatn']">
+    <div className="relative w-full">
       <div 
         onClick={() => { setOpen(!open); setViewMode('days'); }}
-        className="w-full px-3 py-2.5 rounded-xl bg-white/60 dark:bg-slate-900/40 backdrop-blur-md text-sm font-mono dark:text-white text-center cursor-pointer border border-slate-200/80 dark:border-slate-800/80 hover:border-blue-500 shadow-sm transition flex items-center justify-between"
+        className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-mono dark:text-white text-center cursor-pointer border border-transparent hover:border-blue-400 transition flex items-center justify-between"
       >
         <Calendar size={18} className="text-blue-500" />
         <span className="font-bold tracking-wider">{value || placeholder}</span>
@@ -200,7 +242,8 @@ const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; pla
       </div>
 
       {open && (
-        <div className="absolute z-50 mt-2 p-3 w-72 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-800 right-0">
+        <div className="absolute z-50 mt-2 p-3 w-72 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 right-0">
+          {/* هدر تقویم */}
           <div className="flex items-center justify-between mb-3 border-b pb-2 border-slate-100 dark:border-slate-800">
             <button 
               type="button" 
@@ -236,6 +279,7 @@ const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; pla
             >›</button>
           </div>
 
+          {/* نمای انتخاب سال */}
           {viewMode === 'years' && (
             <div className="max-h-56 overflow-y-auto grid grid-cols-3 gap-1.5 p-1">
               {yearsList.map(y => (
@@ -251,6 +295,7 @@ const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; pla
             </div>
           )}
 
+          {/* نمای انتخاب ماه */}
           {viewMode === 'months' && (
             <div className="grid grid-cols-3 gap-2 py-2">
               {J_MONTHS.map((mName, idx) => (
@@ -266,6 +311,7 @@ const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; pla
             </div>
           )}
 
+          {/* نمای پیش‌فرض روزهای ماه */}
           {viewMode === 'days' && (
             <>
               <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-bold text-slate-400 mb-1">
@@ -311,6 +357,7 @@ const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; pla
 
 const formatSalary = (s: string) => s.replace(/[^\d]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
+// سنجش میزان قدرت رمز عبور
 const calculatePasswordStrength = (pwd: string) => {
   if (!pwd) return { score: 0, text: '', color: 'bg-slate-300' };
   let score = 0;
@@ -337,7 +384,6 @@ export interface UserProfile {
   insurance_start_date: string; 
   last_salary_million_rial: number | string;
   avatar_id?: string; 
-  avatar_image?: string; // تصویر اختصاصی آپلود شده با Base64
   company_name?: string; 
   industry_field?: string;
   password?: string;
@@ -364,61 +410,10 @@ const emptyForm: UserProfile = {
   insurance_start_date: '',
   last_salary_million_rial: '', 
   avatar_id: '0', 
-  avatar_image: '',
   company_name: '', 
   industry_field: '', 
   password: ''
 };
-
-// مؤلفه ورودی فوق‌العاده شیک با طراحی گلس‌مورفیک مدرن
-const GlassInput: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { icon?: React.ReactNode }> = ({ 
-  icon, className = '', ...props 
-}) => (
-  <div className="relative w-full">
-    {icon && (
-      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none transition-colors">
-        {icon}
-      </div>
-    )}
-    <input
-      {...props}
-      className={`w-full ${icon ? 'pr-11 pl-4' : 'px-4'} py-3 text-sm rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-slate-700/80 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all duration-200 ${className}`}
-    />
-  </div>
-);
-
-// مؤلفه ورودی رمز گلس‌مورفیک با قابلیت مشاهده/مخفی‌سازی
-const GlassPasswordInput: React.FC<{
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
-  show: boolean;
-  onToggleShow: () => void;
-  icon?: React.ReactNode;
-}> = ({ value, onChange, placeholder = "••••••••", show, onToggleShow, icon }) => (
-  <div className="relative w-full">
-    {icon && (
-      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none">
-        {icon}
-      </div>
-    )}
-    <input
-      type={show ? "text" : "password"}
-      dir="ltr"
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      className={`w-full ${icon ? 'pr-11 pl-11' : 'pr-4 pl-11'} py-3 text-sm rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-slate-700/80 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 font-mono tracking-wider transition-all duration-200`}
-    />
-    <button
-      type="button"
-      onClick={onToggleShow}
-      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg transition"
-    >
-      {show ? <EyeOff size={18} /> : <Eye size={18} />}
-    </button>
-  </div>
-);
 
 export const AuthProfileModals: React.FC<Props> = ({
   user, token, onLoginSuccess, onProfileUpdate, showProfileModal, setShowProfileModal
@@ -430,9 +425,10 @@ export const AuthProfileModals: React.FC<Props> = ({
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
-  const [showConfirmPwd, setShowConfirmPwd] = useState(false);
   
+  // نگهداری توکن موقت کاربر در جریان احراز هویت اولیه
   const [sessionToken, setSessionToken] = useState<string>(token || '');
+
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
   const [msgType, setMsgType] = useState<'error' | 'success'>('error');
@@ -440,23 +436,8 @@ export const AuthProfileModals: React.FC<Props> = ({
   const [formData, setFormData] = useState<UserProfile>(user || emptyForm);
   const [customIndustry, setCustomIndustry] = useState('');
   const [isOtherIndustry, setIsOtherIndustry] = useState(false);
+    // --- تایمر ۹۰ ثانیه‌ای ارسال مجدد OTP ---
   const [resendTimer, setResendTimer] = useState<number>(90);
-
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  // تشخیص «سایر» بودن حوزه فعالیت هنگام باز شدن مودال پروفایل
-  useEffect(() => {
-    if (!showProfileModal) return;
-    const current = (formData.industry_field || '').trim();
-    const known = !current || INDUSTRIES.includes(current);
-    if (known) {
-      setIsOtherIndustry(false);
-    } else {
-      setIsOtherIndustry(true);
-      setCustomIndustry(current);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showProfileModal]);
 
   useEffect(() => {
     if (resendTimer <= 0) return;
@@ -472,13 +453,13 @@ export const AuthProfileModals: React.FC<Props> = ({
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  // بررسی نام کاربری
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   const [usernameMsg, setUsernameMsg] = useState('');
   const checkTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
-  const [uploadError, setUploadError] = useState('');
 
   const post = async (action: string, body: object) => {
     const res = await fetch(`${API_URL}?action=${action}`, {
@@ -489,6 +470,7 @@ export const AuthProfileModals: React.FC<Props> = ({
     return res.json();
   };
 
+  // استعلام یونیک بودن نام کاربری به محض تایپ
   const handleUsernameChange = (val: string) => {
     const cleaned = val.replace(/[^a-zA-Z0-9_.]/g, '');
     setFormData(prev => ({ ...prev, username: cleaned }));
@@ -505,6 +487,7 @@ export const AuthProfileModals: React.FC<Props> = ({
     checkTimeoutRef.current = setTimeout(async () => {
       try {
         const res = await post('check_username', { username: cleaned, token: sessionToken || token });
+        // بررسی دقیق فیلد available که از بک‌اند برمی‌گردد
         const isAvailable = res.available === true || res.extra?.available === true;
         
         if (isAvailable) {
@@ -514,6 +497,7 @@ export const AuthProfileModals: React.FC<Props> = ({
           setUsernameStatus('taken');
           setUsernameMsg(res.message || 'این نام کاربری قبلاً انتخاب شده است.');
         }
+
       } catch {
         setUsernameStatus('idle');
         setUsernameMsg('');
@@ -521,51 +505,9 @@ export const AuthProfileModals: React.FC<Props> = ({
     }, 600);
   };
 
-  // آپلود عکس سفارشی و تبدیل به Base64
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      setMsgType('error');
-      setMsg('لطفاً فقط فایل تصویری معتبر انتخاب کنید.');
-      setUploadError('لطفاً فقط فایل تصویری معتبر انتخاب کنید.');
-      return;
-    }
-
-    if (file.size > 2 * 1024 * 1024) {
-      setMsgType('error');
-      setMsg('حداکثر حجم تصویر ۲ مگابایت است.');
-      setUploadError('حداکثر حجم تصویر ۲ مگابایت است.');
-      return;
-    }
-
-    setUploadError('');
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      setFormData(prev => ({ ...prev, avatar_image: base64, avatar_id: 'custom' }));
-      setUploadError('');
-    };
-    reader.onerror = () => {
-      setUploadError('خواندن فایل تصویری با خطا مواجه شد.');
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleRemoveImage = () => {
-    setFormData(prev => ({ ...prev, avatar_image: '', avatar_id: '0' }));
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
-  // ورود با رمز عبور
+  // ---- ورود با رمز عبور ----
   const handleLoginPassword = async () => {
-    if (!identity || !password) { 
-      setMsgType('error'); 
-      setMsg('نام کاربری و رمز عبور را وارد کنید.'); 
-      return; 
-    }
+    if (!identity || !password) { setMsgType('error'); setMsg('نام کاربری و رمز عبور را وارد کنید.'); return; }
     setLoading(true); setMsg('');
     try {
       const data = await post('login_password', { username: identity, password });
@@ -573,19 +515,12 @@ export const AuthProfileModals: React.FC<Props> = ({
         localStorage.setItem('dadkar_token', data.token);
         localStorage.setItem('dadkar_user', JSON.stringify(data.user));
         onLoginSuccess(data.user, data.token);
-      } else { 
-        setMsgType('error'); 
-        setMsg(data.message || 'نام کاربری یا رمز نادرست است.'); 
-      }
-    } catch { 
-      setMsgType('error'); 
-      setMsg('خطای ارتباط با سرور'); 
-    } finally { 
-      setLoading(false); 
-    }
+      } else { setMsgType('error'); setMsg(data.message || 'نام کاربری یا رمز نادرست است.'); }
+    } catch { setMsgType('error'); setMsg('خطای ارتباط با سرور'); }
+    finally { setLoading(false); }
   };
 
-  // ارسال OTP
+  // ---- ارسال پیامک OTP ----
   const handleSendOtp = async (isForgot = false, channel: 'sms' | 'voice' = 'sms') => {
     setLoading(true);
     setMsg('');
@@ -597,7 +532,7 @@ export const AuthProfileModals: React.FC<Props> = ({
       const data = await post(actionName, { mobile, is_forgot: isForgot });
       
       if (data.status === 'success') {
-        setResendTimer(90);
+        setResendTimer(90); // هماهنگ با تایمر کامپوننت
         setStep(isForgot ? 'reset' : 'code');
         setMsg(data.message || (channel === 'voice' ? 'کد تأیید صوتی ارسال شد.' : 'کد تأیید پیامکی ارسال شد.'));
         setMsgType('success');
@@ -614,18 +549,21 @@ export const AuthProfileModals: React.FC<Props> = ({
     }
   };
 
-  // بررسی کد تایید (رفع باگ فریز و صفحه تیره)
+
+
+
+
+  // ---- بررسی کد تایید ----
   const handleVerifyOtp = async () => {
-    const cleanOtp = otpCode.replace(/\D/g, '');
-    if (!/^[0-9]{4,6}$/.test(cleanOtp)) {
+    if (!otpCode || otpCode.length < 4) {
       setMsgType('error');
-      setMsg('کد تایید باید بین ۴ تا ۶ رقم باشد.');
+      setMsg('لطفاً کد تایید ۴ رقمی را کامل وارد کنید.');
       return;
     }
     setLoading(true);
     setMsg('');
     try {
-      const data = await post('verify_otp', { mobile: formData.mobile || mobile, code: cleanOtp });
+      const data = await post('verify_otp', { mobile: formData.mobile || mobile, code: otpCode });
       
       if (data.status === 'success') {
         const tokenVal = data.extra?.token || data.token || '';
@@ -635,20 +573,18 @@ export const AuthProfileModals: React.FC<Props> = ({
         if (data.is_registered) {
           const fullUser = data.extra?.user || data.user || {};
           localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
+          onLoginSuccess(fullUser, tokenVal);
           setMsg('با موفقیت وارد شدید!');
           setMsgType('success');
-          // بروزرسانی مستقیم وضعیت ورود و توکن بدون تداخل با مودال‌های دیگر
-          setTimeout(() => {
-            onLoginSuccess(fullUser, tokenVal);
-          }, 300);
+          setTimeout(() => setShowProfileModal(false), 1000);
         } else {
           setStep('register');
-          setMsg('کد تأیید شد. لطفاً اطلاعات عضویت را تکمیل نمایید.');
+          setMsg('کد تأیید شد. لطفاً اطلاعات پروفایل را تکمیل کنید.');
           setMsgType('success');
         }
       } else {
         setMsgType('error');
-        setMsg(data.message || 'کد تأیید نامعتبر یا منقضی شده است.');
+        setMsg(data.message || 'کد تأیید نامعتبر است.');
       }
     } catch (err) {
       console.error('Verify OTP Error:', err);
@@ -659,16 +595,12 @@ export const AuthProfileModals: React.FC<Props> = ({
     }
   };
 
-  // ثبت‌نام اولیه
+
+
+  // ---- تکمیل ثبت‌نام اولیه ----
   const handleRegister = async () => {
     if (!formData.username || formData.username.length < 3) {
       setMsgType('error'); setMsg('تعیین نام کاربری معتبر (حداقل ۳ حرف) الزامی است.'); return;
-    }
-    if (usernameStatus === 'checking') {
-      setMsgType('error'); setMsg('لطفاً تا پایان استعلام نام کاربری صبر کنید.'); return;
-    }
-    if (usernameStatus !== 'available') {
-      setMsgType('error'); setMsg('نام کاربری هنوز تأیید نشده است.'); return;
     }
     if (usernameStatus === 'taken') {
       setMsgType('error'); setMsg('لطفاً یک نام کاربری آزاد انتخاب کنید.'); return;
@@ -683,51 +615,58 @@ export const AuthProfileModals: React.FC<Props> = ({
     setLoading(true); 
     setMsg('');
     try {
-      const currentToken = sessionToken || localStorage.getItem('dadkar_token');
+      const activeToken = sessionToken || localStorage.getItem('dadkar_token');
       const finalIndustry = isOtherIndustry ? customIndustry : formData.industry_field;
 
       const payload = {
         ...formData,
         industry_field: finalIndustry,
-        token: currentToken
+        token: activeToken
       };
 
       const data = await post('save_profile', payload);
 
       if (data.status === 'success') {
-        const fullUser = data.user || data.extra?.user || { ...formData, mobile, industry_field: finalIndustry };
+        const fullUser = data.user || data.extra?.user || { ...formData, mobile, username, industry_field: finalIndustry };
         localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
         
-        const finalToken = data.extra?.token || data.token || currentToken || '';
+        // اصلاح نام متغیر توکن (جایگزین tokenToUse مجهول)
+        const finalToken = data.extra?.token || data.token || activeToken || '';
         localStorage.setItem('dadkar_token', finalToken);
 
         onLoginSuccess(fullUser, finalToken);
         setMsg('عضویت شما با موفقیت تکمیل شد. خوش آمدید!');
         setMsgType('success');
+        
+        setTimeout(() => {
+          setShowProfileModal(false);
+        }, 1000);
       } else { 
         setMsgType('error'); 
         setMsg(data.message || 'خطا در ثبت اطلاعات عضویت'); 
       }
     } catch (err) { 
-      console.error('Save Profile Error:', err);
+      console.error('Save Profile Error:', err); // برای مشاهده خطای دقیق در کنسول فشرده F12
       setMsgType('error'); 
       setMsg('خطای ارتباط با سرور'); 
     } finally {
       setLoading(false);
     }
-  };
+  }; // <--- این آکولاد و نقطه ویرگول پایانی handleRegister گم شده است
 
-  // بازیابی رمز عبور
+
+
+
+  // ---- بازیابی رمز عبور ----
   const handleResetPassword = async () => {
-    const cleanOtp = otpCode.replace(/\D/g, '');
-    if (!/^[0-9]{4,6}$/.test(cleanOtp) || password.length < 6) { 
-      setMsgType('error'); setMsg('کد تایید (۴ تا ۶ رقم) و رمز جدید (حداقل ۶ کاراکتر) را کامل وارد کنید.'); return; 
+    if (otpCode.length < 4 || password.length < 6) { 
+      setMsgType('error'); setMsg('کد و رمز جدید (حداقل ۶ کاراکتر) را وارد کنید.'); return; 
     }
     setLoading(true); setMsg('');
     try {
       const data = await post('reset_password', { 
         mobile, 
-        code: cleanOtp, 
+        code: otpCode, 
         new_password: password 
       });
       if (data.status === 'success') {
@@ -738,7 +677,7 @@ export const AuthProfileModals: React.FC<Props> = ({
     finally { setLoading(false); }
   };
 
-  // ذخیره مشخصات پروفایل
+  // ---- ویرایش پروفایل از درون برنامه ----
   const handleSaveProfile = async () => {
     const activeToken = token || sessionToken || localStorage.getItem('dadkar_token');
     if (!activeToken) return;
@@ -758,410 +697,398 @@ export const AuthProfileModals: React.FC<Props> = ({
   };
 
   const pwdStrength = calculatePasswordStrength(formData.password || '');
-  const selectedAvatarObj = AVATAR_SVGS.find(a => a.id === (formData.avatar_id ?? '0')) || AVATAR_SVGS[0];
 
   const Msg = () => msg ? (
-    <div className="mt-3 p-3 text-xs text-center rounded-2xl flex items-center justify-center gap-2 backdrop-blur-md transition-all animate-in fade-in duration-200">
-      {msgType === 'success' ? (
-        <div className="flex items-center gap-2 text-emerald-700 bg-emerald-500/15 border border-emerald-500/30 dark:text-emerald-300 dark:bg-emerald-950/50 dark:border-emerald-700/50 p-2.5 rounded-xl w-full justify-center font-medium">
-          <CheckCircle size={16} />
-          <span>{msg}</span>
-        </div>
-      ) : (
-        <div className="flex items-center gap-2 text-rose-700 bg-rose-500/15 border border-rose-500/30 dark:text-rose-300 dark:bg-rose-950/50 dark:border-rose-700/50 p-2.5 rounded-xl w-full justify-center font-medium">
-          <AlertCircle size={16} />
-          <span>{msg}</span>
-        </div>
-      )}
+    <div className={`mt-3 p-2.5 text-xs text-center rounded-xl flex items-center justify-center gap-1.5 ${msgType === 'success'
+      ? 'text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800'
+      : 'text-rose-600 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800'}`}>
+      {msgType === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+      <span>{msg}</span>
     </div>
   ) : null;
 
-  // رندر آواتار یا عکس اختصاصی آپلود شده با افکت‌های مدرن
-  const renderCurrentAvatar = (sizeClass = "w-14 h-14") => {
-    if (formData.avatar_image) {
-      return (
-        <img 
-          src={formData.avatar_image} 
-          alt="پروفایل" 
-          className={`${sizeClass} object-cover rounded-2xl shadow-md border-2 border-blue-500`} 
-        />
-      );
-    }
-    return (
-      <div className={`${sizeClass} rounded-2xl p-1 bg-white/80 dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden`}>
-        <GlassAvatar id={selectedAvatarObj.id} className="w-full h-full" />
-      </div>
-    );
-  };
-
-  // ================= مودال احراز هویت (ورود / کد تایید / ثبت نام) =================
+  // ================= مودال احراز هویت (بدون توکن فعال) =================
   if (!token) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 overflow-y-auto font-['Vazirmatn']">
-        <style>{`
-          @keyframes avatarGlow {
-            0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.4), inset 0 0 10px rgba(59, 130, 246, 0.2); }
-            50% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.7), inset 0 0 15px rgba(99, 102, 241, 0.4); }
-          }
-          .avatar-pulse-glow {
-            animation: avatarGlow 3s infinite ease-in-out;
-          }
-        `}</style>
-
-        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border border-white/40 dark:border-slate-800/80 rounded-3xl p-6 sm:p-7 w-full max-w-md shadow-2xl text-right my-auto max-h-[94vh] overflow-y-auto relative">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl text-right my-auto max-h-[94vh] overflow-y-auto">
           
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-gradient-to-tr from-blue-600 to-indigo-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-              <Lock size={28} />
+            <div className="w-14 h-14 bg-blue-600/10 text-blue-600 rounded-2xl flex items-center justify-center shadow-inner">
+              <KeyRound size={30} />
             </div>
           </div>
 
-          {/* ۱. ورود با نام کاربری و رمز */}
+          {/* ۱. صفحه ورود با نام کاربری / رمز */}
           {step === 'login' && (
             <>
               <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">ورود به دادکار</h2>
-              <p className="text-xs text-center text-slate-500 dark:text-slate-400 mb-6">نام کاربری (یا شماره موبایل) و رمز عبور خود را وارد کنید.</p>
-              
-              <div className="space-y-4">
+              <p className="text-xs text-center text-slate-500 dark:text-slate-400 mb-5">نام کاربری (یا شماره موبایل) و رمز عبور خود را وارد کنید.</p>
+              <div className="space-y-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1.5">نام کاربری یا شماره همراه</label>
-                  <GlassInput
-                    dir="ltr"
-                    placeholder="09xxxxxxxxx یا username"
-                    value={identity}
+                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">نام کاربری یا موبایل</label>
+                  <input dir="ltr" placeholder="09xxxxxxxxx یا username" value={identity}
                     onChange={(e) => setIdentity(e.target.value)}
-                    icon={<User size={18} />}
-                  />
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-center font-mono dark:text-white border border-transparent focus:border-blue-500 focus:outline-none" />
                 </div>
-
                 <div>
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1.5">رمز عبور</label>
-                  <GlassPasswordInput
-                    value={password}
+                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">رمز عبور</label>
+                  <input dir="ltr" type="password" placeholder="••••••••" value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    show={showPwd}
-                    onToggleShow={() => setShowPwd(!showPwd)}
-                    icon={<KeyRound size={18} />}
-                  />
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-center dark:text-white border border-transparent focus:border-blue-500 focus:outline-none" />
                 </div>
-
-                <div className="flex justify-end">
-                  <button 
-                    type="button"
-                    onClick={() => { setStep('forgot'); setOtpCode(''); setResendTimer(90); setMsg(''); }}
-                    className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                  >
-                    رمز عبور را فراموش کرده‌اید؟
-                  </button>
-                </div>
-
-                <Msg />
-
-                <button
-                  type="button"
-                  disabled={loading}
-                  onClick={handleLoginPassword}
-                  className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 active:scale-[0.98] transition-all duration-200 mt-2 disabled:opacity-50"
-                >
-                  {loading ? <RefreshCw size={18} className="animate-spin" /> : <LogIn size={18} />}
-                  <span>ورود به حساب کاربری</span>
+                <button disabled={loading} onClick={handleLoginPassword}
+                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition">
+                  <LogIn size={18} />{loading ? 'در حال ورود...' : 'ورود به حساب کاربری'}
                 </button>
-
-                <div className="relative flex py-2 items-center">
-                  <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
-                  <span className="flex-shrink mx-3 text-xs text-slate-400">یا ورود سریع</span>
-                  <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                <div className="flex justify-between items-center text-xs pt-2 border-t border-slate-100 dark:border-slate-800 mt-3">
+                  <button onClick={() => { setStep('forgot'); setMsg(''); }} className="text-blue-500 hover:underline">بازیابی رمز عبور</button>
+                  <button onClick={() => { setStep('mobile'); setMsg(''); setMobile(''); }} className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">ثبت‌نام جدید در سامانه</button>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => { setStep('mobile'); setMsg(''); }}
-                  className="w-full py-3 bg-white/70 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200"
-                >
-                  <ShieldCheck size={18} className="text-emerald-500" />
-                  <span>ورود با پیامک یا کد یکبار مصرف (OTP)</span>
-                </button>
               </div>
+              <Msg />
             </>
           )}
 
-          {/* ۲. ارسال شماره موبایل */}
-          {step === 'mobile' && (
-            <>
-              <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">ورود یا ثبت‌نام با موبایل</h2>
-              <p className="text-xs text-center text-slate-500 dark:text-slate-400 mb-6">شماره تلفن همراه خود را جهت دریافت کد تأیید وارد کنید.</p>
+          {/* ۲. ثبت‌نام: مرحله دریافت موبایل */}
+        {step === 'mobile' && (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">عضویت جدید</h3>
+              <p className="text-xs text-slate-500 mt-1">شماره موبایل خود را وارد کنید تا کد تأیید پیامک شود.</p>
+            </div>
+            <div>
+              <input
+                type="tel"
+                dir="ltr"
+                maxLength={11}
+                placeholder="09xxxxxxxxx"
+                value={mobile}
+                onChange={e => setMobile(e.target.value.replace(/\D/g, ''))}
+                className="w-full text-center text-lg tracking-widest font-mono py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <button
+              disabled={loading}
+              onClick={() => handleSendOtp(false)}
+              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition shadow-lg shadow-blue-500/25"
+            >
+              {loading ? 'در حال بررسی و ارسال پیامک...' : 'ارسال کد تأیید پیامکی'}
+            </button>
+            <div className="flex items-center justify-between text-xs pt-2">
+              <button onClick={() => { setStep('login'); setMsg(''); }} className="text-slate-500 hover:text-blue-600 transition">
+                ورود با نام کاربری و رمز
+              </button>
+              <button onClick={() => { setStep('forgot'); setMsg(''); }} className="text-amber-600 hover:underline">
+                بازیابی رمز عبور
+              </button>
+            </div>
+            <Msg />
+          </div>
+        )}
 
-              <div className="space-y-4">
-                <div>
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1.5">شماره موبایل</label>
-                  <GlassInput
-                    dir="ltr"
-                    type="tel"
-                    maxLength={11}
-                    placeholder="09123456789"
-                    value={mobile}
-                    onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
-                    icon={<User size={18} />}
-                  />
-                </div>
 
-                <Msg />
-
-                <button
-                  type="button"
-                  disabled={loading || mobile.length < 11}
-                  onClick={() => handleSendOtp(false, 'sms')}
-                  className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 active:scale-[0.98] transition-all disabled:opacity-50"
-                >
-                  {loading ? <RefreshCw size={18} className="animate-spin" /> : <Check size={18} />}
-                  <span>ارسال کد تأیید پیامکی</span>
-                </button>
-
-                <button
-                  type="button"
-                  disabled={loading || mobile.length < 11}
-                  onClick={() => handleSendOtp(false, 'voice')}
-                  className="w-full py-2.5 bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl text-xs font-medium flex items-center justify-center gap-2 transition"
-                >
-                  <span>دریافت کد از طریق تماس صوتی</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => { setStep('login'); setMsg(''); }}
-                  className="w-full text-center text-xs text-slate-500 dark:text-slate-400 hover:underline pt-2 block"
-                >
-                  بازگشت به ورود با رمز عبور
-                </button>
-              </div>
-            </>
+              {/* ۳. ثبت‌نام: ورود کد تأیید */}
+       {step === 'code' && (
+      <div className="space-y-4">
+        <div className="text-center space-y-1">
+          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">تأیید شماره موبایل</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            کد ارسال شده به شماره <span className="font-mono font-bold">{mobile}</span> را وارد کنید.
+          </p>
+        </div>
+    
+        <div>
+          <input
+            type="text"
+            maxLength={6}
+            value={otpCode}
+            onChange={(e) => setOtpCode(e.target.value)}
+            placeholder="کد تایید ۵ یا ۶ رقمی"
+            className="w-full px-4 py-3 text-center text-xl tracking-widest font-mono bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
+          />
+        </div>
+    
+        <button
+          type="button"
+          disabled={loading}
+          onClick={handleVerifyOtp}
+          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-medium transition-all shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2"
+        >
+          {loading ? (
+            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+          ) : (
+            <span>تایید و ادامه</span>
           )}
-
-          {/* ۳. دریافت و تایید کد OTP */}
-          {step === 'code' && (
-            <>
-              <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">کد تأیید را وارد کنید</h2>
-              <p className="text-xs text-center text-slate-500 dark:text-slate-400 mb-6">
-                کد ارسال شده به شماره <span className="font-mono font-bold text-blue-600 dark:text-blue-400">{mobile}</span> را بنویسید.
-              </p>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1.5 text-center">کد تأیید ۴ رقمی</label>
-                  <GlassInput
-                    dir="ltr"
-                    maxLength={6}
-                    placeholder="— — — — — —"
-                    value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                    className="text-center font-mono text-2xl tracking-[0.5em] font-bold py-3.5"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between text-xs px-1 text-slate-500 dark:text-slate-400">
-                  {resendTimer > 0 ? (
-                    <span>ارسال مجدد تا <span className="font-mono text-blue-600 dark:text-blue-400 font-bold">{formatTimer(resendTimer)}</span></span>
-                  ) : (
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        disabled={loading}
-                        onClick={() => handleSendOtp(false, 'sms')}
-                        className="text-blue-600 dark:text-blue-400 hover:underline font-semibold"
-                      >
-                        ارسال مجدد پیامک
-                      </button>
-                      <span className="text-slate-300 dark:text-slate-600">|</span>
-                      <button
-                        type="button"
-                        disabled={loading}
-                        onClick={() => handleSendOtp(false, 'voice')}
-                        className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
-                      >
-                        دریافت تماس صوتی
-                      </button>
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => { setStep('mobile'); setOtpCode(''); setMsg(''); }}
-                    className="hover:underline"
-                  >
-                    تغییر شماره
-                  </button>
-                </div>
-
-                <Msg />
-
-                <button
-                  type="button"
-                  disabled={loading || !/^[0-9]{4,6}$/.test(otpCode)}
-                  onClick={handleVerifyOtp}
-                  className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 active:scale-[0.98] transition-all disabled:opacity-50"
-                >
-                  {loading ? <RefreshCw size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
-                  <span>تأیید و ادامه</span>
-                </button>
-              </div>
-            </>
+        </button>
+    
+        <div className="flex items-center justify-between text-sm pt-2">
+          <button
+            type="button"
+            onClick={() => setStep('mobile')}
+            className="text-blue-600 dark:text-blue-400 hover:underline text-xs"
+          >
+            ویرایش شماره موبایل
+          </button>
+    
+          {/* بخش تایمر و دکمه‌های ارسال مجدد پیامک یا تماس صوتی (اصلاح شده با resendTimer) */}
+          {resendTimer > 0 ? (
+            <span className="text-slate-400 flex items-center gap-1 font-mono text-xs">
+              ارسال مجدد ({formatTimer(resendTimer)})
+            </span>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={resendTimer > 0}
+                onClick={() => handleSendOtp(false, 'sms')}
+                className="text-xs py-1.5 px-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl transition-all font-medium"
+              >
+                ارسال مجدد پیامک
+              </button>
+              <button
+                type="button"
+                disabled={resendTimer > 0}
+                onClick={() => handleSendOtp(false, 'voice')}
+                className="text-xs py-1.5 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 rounded-xl transition-all font-medium border border-amber-500/20 flex items-center gap-1"
+              >
+                📞 تماس صوتی
+              </button>
+            </div>
           )}
+        </div>
+    
+        {msg && (
+          <div className={`p-3 rounded-xl text-sm text-center ${msgType === 'success' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300'}`}>
+            {msg}
+          </div>
+        )}
+      </div>
+    )}
 
-          {/* ۴. تکمیل مشخصات عضویت و ثبت‌نام */}
+
+
+          {/* ۴. فرم جامع عضویت دادکار (کاربر جدید) */}
           {step === 'register' && (
-            <>
-              <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">تکمیل عضویت دادکار</h2>
-              <p className="text-xs text-center text-slate-500 dark:text-slate-400 mb-5">نام کاربری اختصاصی، رمز عبور و اطلاعات اولیه خود را تعیین فرمایید.</p>
+            <div className="space-y-4">
+              <div className="text-center pb-2 border-b border-slate-100 dark:border-slate-800">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">تکمیل فرم عضویت دادکار</h2>
+                <p className="text-[11px] text-slate-500">لطفاً مشخصات هویتی و پرسنلی خود را با دقت تکمیل کنید.</p>
+              </div>
 
-              <div className="space-y-3.5">
-                {/* بخش آواتار یا تصویر آپلودی */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">تصویر یا آواتار پروفایل</label>
-                    <div className="flex items-center gap-2">
-                      <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        accept="image/*" 
-                        onChange={handleImageUpload} 
-                        className="hidden" 
-                      />
+              {/* ۱. انتخاب آواتار پرسنلی وکتور */}
+              <div>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-2">انتخاب تصویر نمایه (آواتار)</label>
+                <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 p-2 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                  {AVATAR_SVGS.map((av) => {
+                    const isSelected = (formData.avatar_id ?? '0') === av.id;
+                    return (
                       <button
+                        key={av.id}
                         type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="text-[11px] px-2.5 py-1 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-100 flex items-center gap-1 transition"
+                        onClick={() => setFormData({ ...formData, avatar_id: av.id })}
+                        className={`relative rounded-xl p-1 transition transform active:scale-95 ${
+                          isSelected 
+                            ? 'ring-2 ring-blue-600 bg-blue-100/50 dark:bg-blue-900/40 scale-105 shadow' 
+                            : 'hover:bg-white dark:hover:bg-slate-700 opacity-75 hover:opacity-100'
+                        }`}
+                        title={av.title}
                       >
-                        <Upload size={13} />
-                        <span>آپلود تصویر</span>
+                        <div className="w-10 h-10 mx-auto">
+                          {av.svg}
+                        </div>
+                        {isSelected && (
+                          <div className="absolute -top-1 -right-1 bg-blue-600 text-white rounded-full p-0.5">
+                            <Check size={10} strokeWidth={3} />
+                          </div>
+                        )}
                       </button>
-                      {formData.avatar_image && (
-                        <button
-                          type="button"
-                          onClick={handleRemoveImage}
-                          className="text-[11px] px-2 py-1 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 rounded-lg hover:bg-rose-100 transition"
-                          title="حذف عکس"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {formData.avatar_image ? (
-                    <div className="flex items-center gap-3 p-2 bg-blue-50/50 dark:bg-slate-800/40 rounded-2xl border border-blue-200 dark:border-blue-800">
-                      {renderCurrentAvatar("w-14 h-14")}
-                      <div className="text-xs text-slate-600 dark:text-slate-300">
-                        <span className="font-semibold block text-blue-600 dark:text-blue-400">تصویر اختصاصی انتخاب شد</span>
-                        <span>در صورت تمایل می‌توانید با کلید بالا تصویر را تغییر داده یا حذف کنید.</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 p-2.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/80 dark:border-slate-800">
-                      {AVATAR_SVGS.map((av) => {
-                        const isSelected = (formData.avatar_id ?? '0') === av.id;
-                        return (
-                          <button
-                            key={av.id}
-                            type="button"
-                            onClick={() => setFormData({ ...formData, avatar_id: av.id, avatar_image: '' })}
-                            className={`relative p-1 rounded-2xl transition-all duration-300 hover:scale-110 ${
-                              isSelected 
-                                ? 'avatar-pulse-glow bg-gradient-to-tr from-blue-600 to-indigo-500 scale-105' 
-                                : 'opacity-70 hover:opacity-100 hover:bg-white dark:hover:bg-slate-700'
-                            }`}
-                            title={av.title}
-                          >
-                            <GlassAvatar id={av.id} className="w-10 h-10 mx-auto" glyphSize="text-base" />
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
+                    );
+                  })}
                 </div>
+              </div>
 
-                {/* نام کاربری و استعلام آنلاین */}
+              {/* نام و نام خانوادگی */}
+              <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">نام کاربری (حداقل ۳ حرف انگلیسی)</label>
-                  <GlassInput
-                    dir="ltr"
-                    placeholder="مثال: seyed_hejazi"
-                    value={formData.username || ''}
-                    onChange={(e) => handleUsernameChange(e.target.value)}
-                    icon={<User size={18} />}
-                  />
+                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">نام</label>
+                  <input placeholder="مثال: علی" value={formData.first_name}
+                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white" />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">نام خانوادگی</label>
+                  <input placeholder="مثال: محمدی" value={formData.last_name}
+                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white" />
+                </div>
+              </div>
+
+              {/* نام کاربری (با استعلام یونیک بودن بلادرنگ) */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">نام کاربری اختصاصی</label>
                   {usernameMsg && (
-                    <p className={`text-[11px] mt-1 font-medium ${
-                      usernameStatus === 'available' ? 'text-emerald-500' :
-                      usernameStatus === 'taken' ? 'text-rose-500' : 'text-slate-400'
+                    <span className={`text-[10px] ${
+                      usernameStatus === 'available' ? 'text-emerald-500 font-bold' : 
+                      usernameStatus === 'taken' ? 'text-rose-500 font-bold' : 'text-slate-400'
                     }`}>
                       {usernameMsg}
-                    </p>
+                    </span>
                   )}
                 </div>
-
-                {/* رمز عبور و تکرار آن */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">رمز عبور</label>
-                    <GlassPasswordInput
-                      value={formData.password || ''}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      show={showPwd}
-                      onToggleShow={() => setShowPwd(!showPwd)}
-                      icon={<KeyRound size={17} />}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">تکرار رمز عبور</label>
-                    <GlassPasswordInput
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      show={showConfirmPwd}
-                      onToggleShow={() => setShowConfirmPwd(!showConfirmPwd)}
-                      icon={<KeyRound size={17} />}
-                    />
+                <div className="relative">
+                  <input 
+                    dir="ltr" 
+                    placeholder="یک نام کاربری انگلیسی (مانند ali_mohammadi)" 
+                    value={formData.username}
+                    onChange={(e) => handleUsernameChange(e.target.value)}
+                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-mono text-left dark:text-white border ${
+                      usernameStatus === 'available' ? 'border-emerald-500' :
+                      usernameStatus === 'taken' ? 'border-rose-500' : 'border-transparent'
+                    }`} 
+                  />
+                  <div className="absolute right-3 top-2.5">
+                    {usernameStatus === 'checking' && <RefreshCw size={16} className="animate-spin text-blue-500" />}
+                    {usernameStatus === 'available' && <CheckCircle size={16} className="text-emerald-500" />}
+                    {usernameStatus === 'taken' && <AlertCircle size={16} className="text-rose-500" />}
                   </div>
                 </div>
+              </div>
 
-                {/* نوار سنجش قدرت رمز */}
+              {/* سطر رمز عبور */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">رمز عبور</label>
+                  {pwdStrength.text && (
+                    <span className="text-[10px] font-bold text-slate-500">
+                      قدرت: <span className={pwdStrength.score === 3 ? 'text-emerald-500' : pwdStrength.score === 2 ? 'text-amber-500' : 'text-rose-500'}>{pwdStrength.text}</span>
+                    </span>
+                  )}
+                </div>
+                <div className="relative">
+                  <input 
+                    dir="ltr" 
+                    type={showPwd ? 'text' : 'password'} 
+                    placeholder="حداقل ۶ کاراکتر" 
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm text-left dark:text-white" 
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPwd(!showPwd)} 
+                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                  >
+                    {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {/* نوار قدرت‌سنجی رمز */}
                 {formData.password && (
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[11px] text-slate-500">
-                      <span>قدرت رمز:</span>
-                      <span className="font-bold">{pwdStrength.text}</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex gap-1">
-                      <div className={`h-full flex-1 rounded-full ${pwdStrength.score >= 1 ? pwdStrength.color : 'bg-transparent'}`} />
-                      <div className={`h-full flex-1 rounded-full ${pwdStrength.score >= 2 ? pwdStrength.color : 'bg-transparent'}`} />
-                      <div className={`h-full flex-1 rounded-full ${pwdStrength.score >= 3 ? pwdStrength.color : 'bg-transparent'}`} />
-                    </div>
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                    <div 
+                      className={`h-full ${pwdStrength.color} transition-all duration-300`} 
+                      style={{ width: pwdStrength.score === 1 ? '30%' : pwdStrength.score === 2 ? '65%' : '100%' }}
+                    />
                   </div>
                 )}
+              </div>
 
-                {/* نام و نام خانوادگی */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">نام</label>
-                    <GlassInput
-                      placeholder="نام"
-                      value={formData.first_name}
-                      onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">نام خانوادگی</label>
-                    <GlassInput
-                      placeholder="نام خانوادگی"
-                      value={formData.last_name}
-                      onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                    />
-                  </div>
+              {/* سطر تکرار رمز عبور */}
+              <div>
+                <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">تکرار رمز عبور</label>
+                <div className="relative">
+                  <input
+                    dir="ltr"
+                    type={showConfirmPwd ? 'text' : 'password'}
+                    placeholder="تکرار رمز عبور فوق"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className={`w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm text-left dark:text-white border ${
+                      confirmPassword && confirmPassword !== formData.password
+                        ? 'border-rose-500'
+                        : 'border-transparent focus:border-cyan-500'
+                    } focus:outline-none`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPwd(!showConfirmPwd)}
+                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  >
+                    {showConfirmPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                {confirmPassword && confirmPassword !== formData.password && (
+                  <span className="text-[11px] text-rose-500 mt-1 block">رمز عبور و تکرار آن همخوانی ندارند.</span>
+                )}
+              </div>
+
+
+
+              {/* تاریخ تولد، وضعیت تأهل و تعداد فرزند */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div>
+                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">تاریخ تولد</label>
+                  <JalaliPicker value={formData.birth_date} onChange={(v) => setFormData({ ...formData, birth_date: v })} />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">وضعیت تأهل</label>
+                  <select 
+                    value={formData.marital_status}
+                    onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as 'single' | 'married' | 'divorced' })}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white"
+                  >
+                    <option value="single">مجرد</option>
+                    <option value="married">متأهل</option>
+                    <option value="divorced">مطلقه</option>
+                  </select>
                 </div>
 
-                {/* حوزه فعالیت */}
                 <div>
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">صنعت و حوزه فعالیت</label>
+                  <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">تعداد فرزندان</label>
+                  <select
+                    value={formData.children_count}
+                    onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value) || 0 })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white border border-transparent focus:border-cyan-500 focus:outline-none"
+                  >
+                    <option value={0}>۰ (بدون فرزند)</option>
+                    {[...Array(10)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {i + 1} فرزند
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+
+              </div>
+
+              {/* تاریخ شروع بیمه و حقوق */}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">تاریخ شروع بیمه</label>
+                  <JalaliPicker value={formData.insurance_start_date} onChange={(v) => setFormData({ ...formData, insurance_start_date: v })} />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">آخرین حقوق (میلیون ریال)</label>
+                  <input dir="ltr" inputMode="numeric" placeholder="مثلاً 250" value={formData.last_salary_million_rial as string}
+                    onChange={(e) => setFormData({ ...formData, last_salary_million_rial: formatSalary(e.target.value) })}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-mono text-center dark:text-white" />
+                </div>
+              </div>
+
+              {/* محل کار و حوزه فعالیت (با قابلیت سایر) */}
+              <div className="space-y-2">
+                <div>
+                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">نام شرکت / کارگاه / محل خدمت</label>
+                  <input placeholder="مثال: شرکت صنایع فولاد..." value={formData.company_name}
+                    onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white" />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">حوزه فعالیت تخصصی</label>
                   <select 
-                    value={isOtherIndustry ? 'سایر' : (formData.industry_field || '')}
+                    value={isOtherIndustry ? 'سایر' : (formData.industry_field || '')} 
                     onChange={(e) => {
                       const val = e.target.value;
                       if (val === 'سایر') {
@@ -1171,377 +1098,205 @@ export const AuthProfileModals: React.FC<Props> = ({
                         setFormData({ ...formData, industry_field: val });
                       }
                     }}
-                    className="w-full px-4 py-3 text-sm rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-slate-700/80 text-slate-800 dark:text-slate-100 shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white"
                   >
-                    <option value="">انتخاب حوزه فعالیت...</option>
+                    <option value="">انتخاب از بین بیش از ۸۰ حوزه تخصصی...</option>
                     {INDUSTRIES.map(f => <option key={f} value={f}>{f}</option>)}
                   </select>
                 </div>
-
+                {/* فیلد تایپی اختصاصی در صورت انتخاب سایر */}
                 {isOtherIndustry && (
-                  <GlassInput
-                    placeholder="عنوان دقیق حوزه فعالیت خود را درج نمایید..."
-                    value={customIndustry}
-                    onChange={(e) => setCustomIndustry(e.target.value)}
-                  />
+                  <div>
+                    <input 
+                      placeholder="عنوان حوزه فعالیت خود را بنویسید..." 
+                      value={customIndustry}
+                      onChange={(e) => setCustomIndustry(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 text-sm dark:text-white" 
+                    />
+                  </div>
                 )}
-
-                {/* وضعیت تأهل و تعداد فرزند */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">وضعیت تأهل</label>
-                    <select 
-                      value={formData.marital_status}
-                      onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as 'single' | 'married' | 'divorced' })}
-                      className="w-full px-4 py-3 text-sm rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-slate-700/80 text-slate-800 dark:text-slate-100 shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-                    >
-                      <option value="single">مجرد</option>
-                      <option value="married">متأهل</option>
-                      <option value="divorced">مطلقه</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">تعداد فرزند</label>
-                    <select 
-                      value={formData.children_count ?? 0}
-                      onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value, 10) })}
-                      className="w-full px-4 py-3 text-sm text-center rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-slate-700/80 text-slate-800 dark:text-slate-100 shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-                    >
-                      {CHILDREN_OPTIONS.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <Msg />
-
-                <button
-                  type="button"
-                  disabled={loading}
-                  onClick={handleRegister}
-                  className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 active:scale-[0.98] transition-all duration-200 mt-3 disabled:opacity-50"
-                >
-                  {loading ? <RefreshCw size={18} className="animate-spin" /> : <Save size={18} />}
-                  <span>ثبت نهایی و ورود به دادکار</span>
-                </button>
               </div>
-            </>
+
+              <button disabled={loading} onClick={handleRegister}
+                className="w-full py-3 mt-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30 transition">
+                <Save size={18} />{loading ? 'در حال ثبت اطلاعات...' : 'تکمیل عضویت و ورود به سامانه'}
+              </button>
+
+              <Msg />
+            </div>
           )}
 
-          {/* ۵. درخواست بازیابی رمز */}
+          {/* ۵. بازیابی رمز: ارسال کد */}
           {step === 'forgot' && (
             <>
               <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">بازیابی رمز عبور</h2>
-              <p className="text-xs text-center text-slate-500 dark:text-slate-400 mb-6">شماره همراه خود را جهت دریافت کد بازیابی وارد نمایید.</p>
-
-              <div className="space-y-4">
-                <GlassInput
-                  dir="ltr"
-                  type="tel"
-                  maxLength={11}
-                  placeholder="09123456789"
-                  value={mobile}
-                  onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
-                  icon={<User size={18} />}
-                />
-
-                <Msg />
-
-                <button
-                  type="button"
-                  disabled={loading || mobile.length < 11}
-                  onClick={() => handleSendOtp(true, 'sms')}
-                  className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30 active:scale-[0.98] transition-all disabled:opacity-50"
-                >
-                  {loading ? <RefreshCw size={18} className="animate-spin" /> : <Check size={18} />}
-                  <span>ارسال پیامک کد بازیابی</span>
-                </button>
-
-                <button
-                  type="button"
-                  disabled={loading || mobile.length < 11}
-                  onClick={() => handleSendOtp(true, 'voice')}
-                  className="w-full py-2.5 bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl text-xs font-medium flex items-center justify-center gap-2 transition"
-                >
-                  <span>دریافت کد بازیابی از طریق تماس صوتی</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => { setStep('login'); setMsg(''); }}
-                  className="w-full text-center text-xs text-slate-500 dark:text-slate-400 hover:underline pt-2 block"
-                >
-                  انصراف و بازگشت
-                </button>
-              </div>
+              <p className="text-xs text-center text-slate-500 mb-4">شماره موبایل یا نام کاربری ثبت‌شده خود را وارد کنید.</p>
+              <input type="tel" dir="ltr" placeholder="09xxxxxxxxx یا username" value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center font-mono dark:text-white mb-4" />
+              <button disabled={loading} onClick={() => handleSendOtp(true)}
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-lg shadow-blue-500/25">
+                {loading ? 'در حال ارسال...' : 'ارسال کد بازیابی پیامکی'}
+              </button>
+              <button onClick={() => setStep('login')} className="w-full text-center text-xs text-blue-500 hover:underline mt-3">بازگشت به صفحه ورود</button>
+              <Msg />
             </>
           )}
 
-          {/* ۶. تنظیم مجدد رمز با کد */}
+          {/* ۶. تعیین رمز جدید با کد بازیابی */}
           {step === 'reset' && (
             <>
-              <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">تعیین رمز جدید</h2>
-              <p className="text-xs text-center text-slate-500 dark:text-slate-400 mb-6">کد تایید دریافتی و رمز عبور جدید را بنویسید.</p>
-
-              <div className="space-y-4">
-                <GlassInput
-                  dir="ltr"
-                  maxLength={6}
-                  placeholder="کد ۴ تا ۶ رقمی پیامک شده"
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                  className="text-center font-mono tracking-widest text-lg"
-                />
-
-                <GlassPasswordInput
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="رمز عبور جدید (حداقل ۶ کاراکتر)"
-                  show={showPwd}
-                  onToggleShow={() => setShowPwd(!showPwd)}
-                  icon={<KeyRound size={18} />}
-                />
-
-                <Msg />
-
-                <button
-                  type="button"
-                  disabled={loading || otpCode.length !== 4 || password.length < 6}
-                  onClick={handleResetPassword}
-                  className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 active:scale-[0.98] transition-all disabled:opacity-50"
-                >
-                  {loading ? <RefreshCw size={18} className="animate-spin" /> : <Save size={18} />}
-                  <span>تغییر رمز و ورود</span>
-                </button>
-              </div>
+              <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">تعیین رمز عبور جدید</h2>
+              <p className="text-xs text-center text-slate-500 mb-4">کد بازیابی ۵ رقمی و رمز جدید را وارد کنید:</p>
+              <input dir="ltr" inputMode="numeric" maxLength={6} placeholder="کد بازیابی" value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center font-mono text-xl dark:text-white mb-2" />
+              <input dir="ltr" type="password" placeholder="رمز عبور جدید (حداقل ۶ کاراکتر)" value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center dark:text-white mb-4" />
+              <button disabled={loading} onClick={handleResetPassword}
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl shadow-lg shadow-emerald-600/25">
+                {loading ? 'در حال اعمال...' : 'تغییر رمز عبور و ورود'}
+              </button>
+              <Msg />
             </>
           )}
-
         </div>
       </div>
     );
   }
 
-  // ================= مودال ویرایش پروفایل (کاربر لاگین شده) =================
+  // ================= مودال ویرایش پروفایل (کاربر لاگین‌شده) =================
   if (!showProfileModal) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 overflow-y-auto font-['Vazirmatn']">
-      <style>{`
-        @keyframes avatarGlow {
-          0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.4), inset 0 0 10px rgba(59, 130, 246, 0.2); }
-          50% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.7), inset 0 0 15px rgba(99, 102, 241, 0.4); }
-        }
-        .avatar-pulse-glow {
-          animation: avatarGlow 3s infinite ease-in-out;
-        }
-      `}</style>
+  const selectedAvatarObj = AVATAR_SVGS.find(a => a.id === (formData.avatar_id ?? user?.avatar_id ?? '0')) || AVATAR_SVGS[0];
 
-      <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-white/40 dark:border-slate-800/80 rounded-3xl p-6 sm:p-7 w-full max-w-lg shadow-2xl text-right my-auto max-h-[94vh] overflow-y-auto">
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl my-auto max-h-[92vh] overflow-y-auto">
         
-        {/* هدر مودال پروفایل */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-200/80 dark:border-slate-800 mb-5">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
-              <User size={22} />
-            </div>
-            <h3 className="font-bold text-lg text-slate-900 dark:text-white">مشخصات کاربری و پرسنلی</h3>
+        {/* هدر */}
+        <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 mb-4">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500"><User size={20} /></div>
+            <h3 className="font-bold text-slate-900 dark:text-white">مشخصات کاربری و پرسنلی</h3>
           </div>
-          <button 
-            onClick={() => setShowProfileModal(false)} 
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-          >
+          <button onClick={() => setShowProfileModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg">
             <X size={20} />
           </button>
         </div>
 
-        {/* کارت هویت اختصاصی دادکار و آواتار/عکس زنده */}
-        <div className="mb-5 p-3.5 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-950/40 dark:to-indigo-950/40 rounded-3xl flex items-center justify-between border border-blue-100 dark:border-blue-900/40 shadow-sm">
-          <div className="flex items-center gap-3.5">
-            <div className="relative">
-              {renderCurrentAvatar("w-14 h-14")}
+        {/* کارت شناسه اختصاصی و آواتار فعال */}
+        <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 rounded-2xl flex items-center justify-between border border-blue-100 dark:border-blue-900/40 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-inner bg-white dark:bg-slate-800 p-0.5 border border-blue-200 dark:border-blue-800">
+              {selectedAvatarObj.svg}
             </div>
             <div>
-              <span className="text-[11px] block text-blue-600 dark:text-blue-400 font-semibold">شناسه اختصاصی دادکار:</span>
+              <span className="text-[11px] block text-blue-600 dark:text-blue-400 font-medium">شناسه اختصاصی دادکار:</span>
               <span className="text-base font-bold font-mono text-slate-800 dark:text-white tracking-wider">
                 {formData.user_code || user?.user_code || 'DK-USER'}
               </span>
             </div>
           </div>
-          <button 
-            onClick={() => navigator.clipboard.writeText(formData.user_code || user?.user_code || '')}
-            className="p-2.5 rounded-2xl bg-white/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-blue-600 shadow-sm transition border border-slate-200/60 dark:border-slate-700/60" 
-            title="کپی شناسه"
-          >
+          <button onClick={() => navigator.clipboard.writeText(formData.user_code || user?.user_code || '')}
+            className="p-2.5 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-blue-600 shadow-sm transition" title="کپی شناسه">
             <Copy size={16} />
           </button>
         </div>
 
-        <div className="space-y-4 text-right">
-          
-          {/* بخش مدیریت آواتار و آپلود عکس */}
+        <div className="space-y-3.5 text-right">
+          {/* آواتارهای وکتور */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">تغییر آواتار یا تصویر پرسنلی</label>
-              <div className="flex items-center gap-2">
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  accept="image/*" 
-                  onChange={handleImageUpload} 
-                  className="hidden" 
-                />
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1.5">تغییر آواتار</label>
+            <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5 p-2 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800">
+              {AVATAR_SVGS.map((av) => (
                 <button
+                  key={av.id}
                   type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-xs px-3 py-1.5 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 rounded-xl hover:bg-blue-100 flex items-center gap-1.5 transition font-medium"
+                  onClick={() => setFormData({ ...formData, avatar_id: av.id })}
+                  className={`p-1 rounded-xl transition ${
+                    (formData.avatar_id ?? '0') === av.id 
+                      ? 'ring-2 ring-blue-600 bg-blue-100/60 dark:bg-blue-900/40 scale-105' 
+                      : 'hover:bg-white dark:hover:bg-slate-700 opacity-70 hover:opacity-100'
+                  }`}
+                  title={av.title}
                 >
-                  <Upload size={14} />
-                  <span>آپلود عکس شخصی</span>
+                  <div className="w-9 h-9 mx-auto">{av.svg}</div>
                 </button>
-                {formData.avatar_image && (
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="text-xs px-2.5 py-1.5 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 rounded-xl hover:bg-rose-100 transition"
-                    title="حذف عکس و انتخاب آواتار"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                )}
-              </div>
+              ))}
             </div>
-
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 p-2.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/80 dark:border-slate-800">
-              {AVATAR_SVGS.map((av) => {
-                const isSelected = !formData.avatar_image && (formData.avatar_id ?? '0') === av.id;
-                return (
-                  <button
-                    key={av.id}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, avatar_id: av.id, avatar_image: '' })}
-                    className={`p-1 rounded-2xl transition-all duration-300 hover:scale-110 ${
-                      isSelected 
-                        ? 'avatar-pulse-glow bg-gradient-to-tr from-blue-600 to-indigo-500 scale-105' 
-                        : 'hover:bg-white dark:hover:bg-slate-700 opacity-70 hover:opacity-100'
-                    }`}
-                    title={av.title}
-                  >
-                    <GlassAvatar id={av.id} className="w-9 h-9 mx-auto" glyphSize="text-sm" />
-                  </button>
-                );
-              })}
-            </div>
-
-            {uploadError && (
-              <p className="mt-2 text-center text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 py-2 rounded-2xl">
-                {uploadError}
-              </p>
-            )}
-          </div>
-
-          {/* نام کاربری (قابل ویرایش با استعلام آنلاین) */}
-          <div>
-            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">نام کاربری (حداقل ۳ حرف انگلیسی)</label>
-            <GlassInput
-              dir="ltr"
-              placeholder="مثال: seyed_hejazi"
-              value={formData.username || ''}
-              onChange={(e) => handleUsernameChange(e.target.value)}
-              icon={<User size={18} />}
-            />
-            {usernameMsg && (
-              <p className={`text-[11px] mt-1 font-medium ${
-                usernameStatus === 'available' ? 'text-emerald-500' :
-                usernameStatus === 'taken' ? 'text-rose-500' : 'text-slate-400'
-              }`}>
-                {usernameMsg}
-              </p>
-            )}
           </div>
 
           {/* نام و نام خانوادگی */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">نام</label>
-              <GlassInput
-                value={formData.first_name}
+              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">نام</label>
+              <input type="text" value={formData.first_name}
                 onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-              />
+                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">نام خانوادگی</label>
-              <GlassInput
-                value={formData.last_name}
+              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">نام خانوادگی</label>
+              <input type="text" value={formData.last_name}
                 onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-              />
+                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white" />
             </div>
           </div>
 
           {/* تاریخ تولد، وضعیت تأهل و تعداد فرزند */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <div>
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">تاریخ تولد</label>
+              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">تاریخ تولد</label>
               <JalaliPicker value={formData.birth_date} onChange={(v) => setFormData({ ...formData, birth_date: v })} />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">وضعیت تأهل</label>
-              <select 
-                value={formData.marital_status}
+              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">وضعیت تأهل</label>
+              <select value={formData.marital_status}
                 onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as 'single' | 'married' | 'divorced' })}
-                className="w-full px-3 py-2.5 rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-slate-700/80 text-sm dark:text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-              >
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white">
                 <option value="single">مجرد</option>
                 <option value="married">متأهل</option>
                 <option value="divorced">مطلقه</option>
               </select>
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">تعداد فرزند</label>
-              <select 
+              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">تعداد فرزند</label>
+              <input 
+                type="number" 
+                min={0} 
+                max={15} 
                 value={formData.children_count ?? 0}
-                onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value, 10) })}
-                className="w-full px-3 py-2.5 rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-slate-700/80 text-sm text-center dark:text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/40" 
-              >
-                {CHILDREN_OPTIONS.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+                onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value || '0', 10) })}
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-mono text-center dark:text-white" 
+              />
             </div>
           </div>
 
-          {/* سابقه بیمه و حقوق */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* سابقه بیمه و آخرین حقوق */}
+          <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">شروع سابقه بیمه</label>
+              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">شروع سابقه بیمه</label>
               <JalaliPicker value={formData.insurance_start_date} onChange={(v) => setFormData({ ...formData, insurance_start_date: v })} />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">حقوق (میلیون ریال)</label>
-              <GlassInput
-                dir="ltr"
-                inputMode="numeric"
-                placeholder="مثلاً 250"
-                value={formData.last_salary_million_rial as string}
+              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">حقوق (میلیون ریال)</label>
+              <input dir="ltr" inputMode="numeric" placeholder="مثلاً 250" value={formData.last_salary_million_rial as string}
                 onChange={(e) => setFormData({ ...formData, last_salary_million_rial: formatSalary(e.target.value) })}
-                className="text-center font-mono"
-              />
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-mono text-center dark:text-white" />
             </div>
           </div>
 
           {/* نام شرکت و حوزه فعالیت */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div>
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">نام شرکت / محل کار</label>
-              <GlassInput
-                placeholder="نام سازمان یا شرکت..."
-                value={formData.company_name || ''}
+              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">نام شرکت / محل کار</label>
+              <input type="text" value={formData.company_name || ''}
                 onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
-              />
+                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">حوزه فعالیت</label>
+              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">حوزه فعالیت</label>
               <select 
                 value={isOtherIndustry ? 'سایر' : (formData.industry_field || '')}
                 onChange={(e) => {
@@ -1553,54 +1308,58 @@ export const AuthProfileModals: React.FC<Props> = ({
                     setFormData({ ...formData, industry_field: val });
                   }
                 }}
-                className="w-full px-4 py-3 text-sm rounded-2xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-slate-700/80 text-slate-800 dark:text-slate-100 shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white"
               >
-                <option value="">انتخاب کنید...</option>
+                <option value="">انتخاب کنید</option>
                 {INDUSTRIES.map(f => <option key={f} value={f}>{f}</option>)}
               </select>
             </div>
             {isOtherIndustry && (
-              <GlassInput
+              <input 
                 placeholder="عنوان حوزه فعالیت را بنویسید..." 
                 value={customIndustry}
                 onChange={(e) => setCustomIndustry(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 text-sm dark:text-white" 
               />
             )}
           </div>
 
-          {/* دکمه ذخیره مشخصات */}
-          <button 
-            disabled={saveLoading} 
-            onClick={handleSaveProfile}
-            className="w-full mt-3 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 active:scale-[0.98] transition-all disabled:opacity-50"
-          >
-            {saveLoading ? <RefreshCw size={18} className="animate-spin" /> : <Save size={18} />}
-            <span>{saveLoading ? 'در حال ذخیره‌سازی...' : 'ذخیره مشخصات'}</span>
-          </button>
 
-          {/* دکمه خروج از حساب کاربری */}
-          <button
-            type="button"
-            onClick={() => {
-              if (window.confirm('آیا قصد خروج از حساب کاربری را دارید؟')) {
-                localStorage.removeItem('dadkar_token');
-                localStorage.removeItem('dadkar_user');
-                const clearedUser: UserProfile = { ...emptyForm, user_code: '', mobile: '' };
-                onLoginSuccess(clearedUser, '');
-                setShowProfileModal(false);
-              }
-            }}
-            className="w-full mt-2 py-2.5 bg-rose-50/80 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 rounded-2xl text-xs font-semibold hover:bg-rose-100/80 dark:hover:bg-rose-900/40 transition flex items-center justify-center gap-2"
-          >
-            <span>خروج از حساب کاربری</span>
-          </button>
+        {/* دکمه ذخیره مشخصات */}
+        <button disabled={saveLoading} onClick={handleSaveProfile}
+          className="w-full mt-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition">
+          <Save size={18} />{saveLoading ? 'در حال ذخیره‌سازی...' : 'ذخیره مشخصات'}
+        </button>
 
+        {/* دکمه خروج از حساب کاربری */}
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm('آیا قصد خروج از حساب کاربری را دارید؟')) {
+              localStorage.removeItem('dadkar_token');
+              localStorage.removeItem('dadkar_user');
+              onLoginSuccess(null as any, null as any);
+              setShowProfileModal(false);
+            }
+          }}
+          className="w-full mt-2 py-2.5 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 rounded-xl text-sm font-medium hover:bg-rose-100 dark:hover:bg-rose-900/40 transition flex items-center justify-center gap-2"
+        >
+          <span>خروج از حساب کاربری</span>
+        </button>
+
+        {saveMsg && (
+          <p className="mt-3 text-center text-sm font-medium text-emerald-600 dark:text-emerald-400">
+            {saveMsg}
+          </p>
+        )}
+
+
+          
           {saveMsg && (
-            <p className="mt-2 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 py-2.5 rounded-2xl">
+            <p className="text-xs text-center mt-2 text-emerald-500 font-bold bg-emerald-50 dark:bg-emerald-950/30 py-2 rounded-xl">
               {saveMsg}
             </p>
           )}
-
         </div>
       </div>
     </div>
