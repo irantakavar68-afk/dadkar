@@ -11,26 +11,11 @@ import {
 } from 'lucide-react';
 
 import { User } from 'lucide-react';
-import { AuthProfileModals, UserProfile, AVATAR_SVGS } from './AuthProfileModals';
-
+ import { AuthProfileModals, UserProfile } from './AuthProfileModals';
+import { AuthProfileModals, AVATAR_SVGS } from './AuthProfileModals';
 
 import TaminBranchesView from './TaminBranchesView';
 import * as LawsModule from './lawsData';
-
-// قرار دادن این کد در بالاترین خط App.tsx برای مهار و نمایش خطای سفید/تیره شدن صفحه
-if (typeof window !== 'undefined') {
-  window.onerror = function(msg, url, lineNo, columnNo, error) {
-    const div = document.createElement('div');
-    div.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:black;color:red;padding:20px;z-index:999999;font-size:14px;overflow:auto;direction:ltr;';
-    div.innerHTML = `<h3>Runtime Error:</h3><p>${msg}</p><p>Line: ${lineNo}, Col: ${columnNo}</p><pre>${error ? error.stack : ''}</pre>`;
-    document.body.appendChild(div);
-    return false;
-  };
-}
-
-
-
-
 
 // استخراج ایمن پایگاه قوانین از فایل lawsData.ts
 const EXTRACTED_LAWS: any[] = 
@@ -166,17 +151,10 @@ export default function App() {
   });
 
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('dadkar_token'));
-  const [user, setUser] = useState<UserProfile | null> (() => {
-    try {
-      const saved = localStorage.getItem('dadkar_user');
-      return saved ? JSON.parse(saved) : null;
-    } catch (e) {
-      console.error("Storage parse error:", e);
-      localStorage.removeItem('dadkar_user');
-      return null;
-    }
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    const saved = localStorage.getItem('dadkar_user');
+    return saved ? JSON.parse(saved) : null;
   });
-
   const [showProfileModal, setShowProfileModal] = useState(false);
 
 
@@ -1957,9 +1935,6 @@ export default function App() {
           setShowProfileModal={setShowProfileModal}
         />
 
-
-
     </div>
   );
 }
-
