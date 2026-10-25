@@ -599,17 +599,8 @@ export const AuthProfileModals: React.FC<Props> = ({
 
   // ---- تکمیل ثبت‌نام اولیه ----
   const handleRegister = async () => {
-    // تولید نام کاربری خودکار در صورتی که کاربر آن را پر نکرده باشد
-    let finalUsername = (formData.username || '').trim();
-    if (!finalUsername || finalUsername.length < 3) {
-      finalUsername = 'user_' + (formData.mobile || mobile || Math.floor(100000 + Math.random() * 900000));
-    }
-
-    if (usernameStatus === 'taken') {
-      setMsgType('error');
-      setMsg('لطفاً یک نام کاربری آزاد انتخاب کنید.');
-      return;
-    }
+    // تولید خودکار نام کاربری از روی شماره موبایل پشت صحنه (چون فیلدی روی صفحه نیست)
+    const autoUsername = 'user_' + (formData.mobile || mobile || Math.floor(100000 + Math.random() * 900000));
 
     if (!formData.password || formData.password.length < 6) {
       setMsgType('error');
@@ -629,9 +620,10 @@ export const AuthProfileModals: React.FC<Props> = ({
     try {
       const activeToken = sessionToken || localStorage.getItem('dadkar_token');
       const finalIndustry = isOtherIndustry ? customIndustry : formData.industry_field;
+      
       const payload = {
         ...formData,
-        username: finalUsername,
+        username: autoUsername, // ارسال نام کاربری خودکار به سرور
         mobile: formData.mobile || mobile,
         industry_field: finalIndustry,
         token: activeToken
@@ -644,7 +636,7 @@ export const AuthProfileModals: React.FC<Props> = ({
         setMsg('عضویت شما با موفقیت تکمیل شد.');
         const fullUser = data.user || data.extra?.user || {
           ...formData,
-          username: finalUsername,
+          username: autoUsername,
           mobile: formData.mobile || mobile,
           industry_field: finalIndustry
         };
@@ -669,6 +661,7 @@ export const AuthProfileModals: React.FC<Props> = ({
       setLoading(false);
     }
   };
+
 
   // <--- این آکولاد و نقطه ویرگول پایانی handleRegister گم شده است
 
