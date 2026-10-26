@@ -1270,6 +1270,20 @@ export const AuthProfileModals: React.FC<Props> = ({
                 className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white" />
             </div>
           </div>
+          {/* نام کاربری */}
+          <div>
+            <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">
+              نام کاربری
+            </label>
+            <input
+              type="text"
+              dir="ltr"
+              value={formData.username || ''}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              placeholder="نام کاربری خود را وارد کنید"
+              className="w-full px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
           {/* تاریخ تولد، وضعیت تأهل و تعداد فرزند */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
