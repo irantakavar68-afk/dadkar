@@ -1,352 +1,279 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  User, KeyRound, CheckCircle, Save, X, Copy, Calendar, 
-  Lock, LogIn, Check, AlertCircle, RefreshCw, Eye, EyeOff, ShieldCheck, LogOut
+  User, KeyRound, CheckCircle, Save, X, Copy, Calendar, Lock, 
+  LogIn, Check, AlertCircle, RefreshCw, Eye, EyeOff, ShieldCheck, LogOut,
+  Phone, Building2, MapPin, Sparkles, Briefcase, Users, DollarSign, FileText
 } from 'lucide-react';
-
-
 
 const API_URL = "https://daadkaar.ir/api/auth.php";
 
-// ۸ آواتار وکتور استاندارد، مدرن و پرسنلی (SVG درون‌برنامه‌ای با وضوح بالا)
-export const AVATAR_SVGS = [
-  { id: '0', title: 'کارشناس مرد ۱', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#E0F2FE" />
-      <circle cx="50" cy="38" r="18" fill="#FBBF24" />
-      <path d="M50 20 C36 20 33 32 33 36 C38 34 46 32 50 32 C56 32 63 34 67 36 C67 32 64 20 50 20 Z" fill="#334155" />
-      <path d="M26 84 C26 68 36 60 50 60 C64 60 74 68 74 84 Z" fill="#0284C7" />
-      <polygon points="50,60 45,74 50,78 55,74" fill="#E2E8F0" />
-      <polygon points="48,74 52,74 51,88 49,88" fill="#BE123C" />
-    </svg>
-  )},
-  { id: '1', title: 'کارشناس مرد ۲', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#F1F5F9" />
-      <circle cx="50" cy="38" r="18" fill="#FCD34D" />
-      <path d="M33 34 C33 22 42 18 50 18 C58 18 67 22 67 34 C67 36 64 30 50 30 C36 30 33 36 33 34 Z" fill="#1E293B" />
-      <path d="M26 84 C26 66 37 58 50 58 C63 58 74 66 74 84 Z" fill="#334155" />
-      <polygon points="50,58 43,84 57,84" fill="#0EA5E9" />
-    </svg>
-  )},
-  { id: '2', title: 'مهندس / تکنسین', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#FEF3C7" />
-      <circle cx="50" cy="40" r="17" fill="#FDE68A" />
-      {/* کلاه ایمنی مهندسی */}
-      <path d="M28 36 C28 22 40 18 50 18 C60 18 72 22 72 36 C75 36 76 39 74 41 C70 42 30 42 26 41 C24 39 25 36 28 36 Z" fill="#F59E0B" />
-      <rect x="47" y="16" width="6" height="10" rx="3" fill="#D97706" />
-      <path d="M24 84 C24 66 36 60 50 60 C64 60 76 66 76 84 Z" fill="#D97706" />
-      <rect x="42" y="60" width="16" height="24" fill="#1E293B" />
-    </svg>
-  )},
-  { id: '3', title: 'کارشناس خانم ۱', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#FCE7F3" />
-      {/* مقنعه اداری */}
-      <path d="M26 84 C26 64 32 54 35 48 C32 38 34 26 50 26 C66 26 68 38 65 48 C68 54 74 64 74 84 Z" fill="#1E293B" />
-      <ellipse cx="50" cy="44" rx="13" ry="16" fill="#FDE68A" />
-      <path d="M37 38 C42 42 58 42 63 38 C60 30 40 30 37 38 Z" fill="#0F172A" />
-      <path d="M36 84 C38 68 44 60 50 60 C56 60 62 68 64 84 Z" fill="#4338CA" />
-    </svg>
-  )},
-  { id: '4', title: 'کارشناس خانم ۲', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#EDE9FE" />
-      <path d="M26 84 C26 64 32 54 35 48 C32 38 34 26 50 26 C66 26 68 38 65 48 C68 54 74 64 74 84 Z" fill="#312E81" />
-      <ellipse cx="50" cy="44" rx="13" ry="16" fill="#FCD34D" />
-      <path d="M34 84 C37 66 43 58 50 58 C57 58 63 66 66 84 Z" fill="#059669" />
-    </svg>
-  )},
-  { id: '5', title: 'مدیر ارشد', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#DCFCE7" />
-      <circle cx="50" cy="38" r="18" fill="#FCD34D" />
-      <path d="M33 30 C35 20 45 16 50 16 C60 16 68 22 67 30 C60 26 40 24 33 30 Z" fill="#475569" />
-      {/* عینک */}
-      <rect x="38" y="36" width="9" height="7" rx="2" fill="none" stroke="#0F172A" strokeWidth="2" />
-      <rect x="53" y="36" width="9" height="7" rx="2" fill="none" stroke="#0F172A" strokeWidth="2" />
-      <line x1="47" y1="39" x2="53" y2="39" stroke="#0F172A" strokeWidth="2" />
-      <path d="M24 84 C24 64 35 56 50 56 C65 56 76 64 76 84 Z" fill="#0F172A" />
-      <polygon points="50,56 46,74 50,78 54,74" fill="#F8FAFC" />
-      <polygon points="49,74 51,74 51,84 49,84" fill="#2563EB" />
-    </svg>
-  )},
-  { id: '6', title: 'توسعه‌دهنده / IT', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#E0E7FF" />
-      <circle cx="50" cy="38" r="18" fill="#FDE68A" />
-      {/* هدفون */}
-      <path d="M30 40 C30 24 40 20 50 20 C60 20 70 24 70 40" fill="none" stroke="#4F46E5" strokeWidth="4" />
-      <rect x="28" y="34" width="6" height="12" rx="3" fill="#4338CA" />
-      <rect x="66" y="34" width="6" height="12" rx="3" fill="#4338CA" />
-      <path d="M26 84 C26 66 38 60 50 60 C62 60 74 66 74 84 Z" fill="#4F46E5" />
-    </svg>
-  )},
-  { id: '7', title: 'پزشک / درمانگر', svg: (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle cx="50" cy="50" r="48" fill="#CCFBF1" />
-      <circle cx="50" cy="38" r="18" fill="#FCD34D" />
-      <path d="M34 30 C38 20 55 20 66 30 C60 26 40 26 34 30 Z" fill="#64748B" />
-      <path d="M26 84 C26 66 37 60 50 60 C63 60 74 66 74 84 Z" fill="#0D9488" />
-      {/* گوشی پزشکی */}
-      <path d="M42 60 C42 70 58 70 58 60" fill="none" stroke="#E2E8F0" strokeWidth="3" />
-      <circle cx="50" cy="72" r="4" fill="#94A3B8" />
-    </svg>
-  )}
-];
+export const AVATAR_SVGS: Record<string, string> = {
+  '0': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  '1': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>`,
+  '2': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M3 21v-2a7 7 0 0 1 14 0v2"/></svg>`,
+  '3': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 0 0-5 5v3a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/></svg>`,
+  '4': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>`,
+  '5': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-3-3.87"/><path d="M4 21v-2a4 4 0 0 1 3-3.87"/><circle cx="12" cy="7" r="4"/><path d="M12 14v7"/></svg>`,
+  '6': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
+  '7': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`
+};
 
-// لیست جامع و بیش از ۸۰ حوزه فعالیت
 const INDUSTRIES = [
-  'فناوری اطلاعات و نرم‌افزار',
-  'شبکه، زیرساخت و امنیت سایبری',
-  'هوش مصنوعی و داده‌کاوی',
-  'مخابرات و ارتباطات',
-  'صنایع نفت، گاز و پتروشیمی',
-  'صنایع فولاد، ذوب و متالورژی',
-  'معدن و صنایع معدنی',
-  'صنایع خودروسازی و قطعه‌سازی',
-  'صنایع دفاعی و هوافضا',
-  'پزشکی، درمان و بیمارستانی',
-  'داروسازی و تجهیزات پزشکی',
-  'صنایع شیمیایی و پلیمری',
-  'صنایع غذایی و تبدیلی',
-  'کشاورزی، دامپروری و شیلات',
-  'ساختمان و ابنیه عمرانی',
-  'راه‌سازی، پل و تونل‌سازی',
-  'معماری و دکوراسیون داخلی',
-  'تولید برق، نیروگاهی و انرژی‌های تجدیدپذیر',
-  'آب، فاضلاب و تاسیسات انتقال',
-  'بانکداری، مالی و صرافی',
-  'بیمه و ارزیابی خسارت',
-  'بورس، سرمایه‌گذاری و بازارهای مالی',
-  'حسابداری، حسابرسی و مالیاتی',
-  'حقوقی، وکالت و داوری',
-  'مشاوره مدیریت و منابع انسانی',
-  'حمل و نقل بین‌المللی و ترانزیت',
-  'لجستیک، انبارداری و پخش مویرگی',
-  'حمل و نقل ریلی و دریایی',
-  'هوانوردی و خدمات فرودگاهی',
-  'صادرات و واردات (بازرگانی خارجی)',
-  'عمده‌فروشی و توزیع کالا',
-  'خرده‌فروشی و فروشگاه‌های زنجیره‌ای',
-  'تجارت الکترونیک و فروش آنلاین',
-  'آموزش عالی، دانشگاه و مراکز پژوهشی',
-  'آموزش و پرورش و مدارس',
-  'موسسات آموزشی آزاد و کنکور',
-  'فرهنگی، رسانه و خبرگزاری',
-  'چاپ، بسته‌بندی و نشر',
-  'تبلیغات، بازاریابی و برندینگ',
-  'روابط عمومی و تشریفات',
-  'صدا و تصویر، سینما و تولید محتوا',
-  'گردشگری، هتلداری و بوم‌گردی',
-  'رستوران، فست‌فود و کترینگ',
-  'خدمات حفاظتی، حراست و نگهبانی',
-  'خدمات نظافتی و مدیریت پسماند',
-  'تعمیرات، نگهداری تجهیزات و ماشین‌آلات (نت)',
-  'صنایع نساجی، پوشاک و کفش',
-  'صنایع چوب، مبلمان و MDF',
-  'صنایع شیشه، سرامیک و کاشی',
-  'صنایع سلولزی و کاغذسازی',
-  'محیط‌زیست، بازیافت و تصفیه',
-  'ورزش، باشگاه و تجهیزات ورزشی',
-  'زیبایی، بهداشتی و آرایشی',
-  'خدمات شهری و شهرداری‌ها',
-  'خدمات عمومی و دولتی',
-  'سایر'
+  "نفت، گاز، پالایش و پتروشیمی",
+  "فولاد، صنایع معدنی و فلزات",
+  "خودروسازی، ساخت قطعات و صنایع وابسته",
+  "تجهیزات پزشکی، دارویی و سلامت",
+  "فناوری اطلاعات، ارتباطات و نرم‌افزار",
+  "بانکداری، بیمه و خدمات مالی",
+  "آموزش، پژوهش و مشاوره",
+  "خدمات مهندسی، مشاوره و پیمانکاری",
+  "انرژی، برق و تجهیزات وابسته",
+  "مخابرات و ارتباطات راه دور",
+  "صنایع غذایی و آشامیدنی",
+  "کشاورزی، دامداری و صنایع وابسته",
+  "نساجی، پوشاک و چرم",
+  "لجستیک، حمل و نقل و ترابر",
+  "ساختمان، عمران و انبوه‌سازی",
+  "معماری، دکوراسیون و شهرسازی",
+  "بازرگانی، واردات و صادرات",
+  "خرده‌فروشی و فروشگاه‌های زنجیره‌ای",
+  "جهانگردی، هتلداری و گردشگری",
+  "رسانه، تبلیغات و روابط عمومی",
+  "خدمات حقوقی، وکالت و داوری",
+  "حسابرسی، حسابداری و امور مالیاتی",
+  "بسته‌بندی، چاپ و انتشارات",
+  "ص صنایع شیمیایی و پلیمر",
+  "صنایع چوب، کاغذ و مبلمان",
+  "صنایع برق، الکترونیک و مخابرات",
+  "هوافضا، صنایع هوایی و دفاعی",
+  "آب، فاضلاب و تاسیسات شهری",
+  "مدیریت پسماند و بازیافت",
+  "سایر صنایع و خدمات"
 ];
 
 const J_MONTHS = [
-  'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
-  'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
+  "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
+  "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
 ];
 
-// ---------- تبدیل تاریخ شمسی ----------
-function div(a: number, b: number) { return ~~(a / b); }
+function div(a: number, b: number) {
+  return Math.floor(a / b);
+}
+
 function g2j(gy: number, gm: number, gd: number) {
-  const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
-  let jy = gy <= 1600 ? 0 : 979; gy -= gy <= 1600 ? 621 : 1600;
-  const gy2 = gm > 2 ? gy + 1 : gy;
-  let days = 365 * gy + div(gy2 + 3, 4) - div(gy2 + 99, 100) + div(gy2 + 399, 400) - 80 + gd + g_d_m[gm - 1];
-  jy += 33 * div(days, 12053); days %= 12053;
-  jy += 4 * div(days, 1461); days %= 1461;
-  if (days > 365) { jy += div(days - 1, 365); days = (days - 1) % 365; }
-  const jm = days < 186 ? 1 + div(days, 31) : 7 + div(days - 186, 30);
-  const jd = 1 + (days < 186 ? days % 31 : (days - 186) % 30);
+  let g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+  let jy = (gy <= 1600) ? 0 : 979;
+  gy -= (gy <= 1600) ? 621 : 3599;
+  let gy2 = (gm > 2) ? (gy + 1) : gy;
+  let days = (365 * gy) + (div(gy2 + 3, 4)) - (div(gy2 + 99, 100)) + (div(gy2 + 399, 400)) - 80 + gd + g_d_m[gm - 1];
+  jy += 33 * (div(days, 12053));
+  days %= 12053;
+  jy += 4 * (div(days, 1461));
+  days %= 1461;
+  jy += div(days - 1, 365);
+  if (days > 0) days = (days - 1) % 365;
+  let jm = (days < 186) ? 1 + div(days, 31) : 7 + div(days - 186, 30);
+  let jd = 1 + ((days < 186) ? (days % 31) : ((days - 186) % 30));
   return [jy, jm, jd];
 }
+
 function j2g(jy: number, jm: number, jd: number) {
-  let gy = jy <= 979 ? 621 : 1600; jy -= jy <= 979 ? 0 : 979;
-  let days = 365 * jy + div(jy, 33) * 8 + div(jy % 33 + 3, 4) + 78 + jd + (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
-  gy += 400 * div(days, 146097); days %= 146097;
-  if (days > 36524) { gy += 100 * div(--days, 36524); days %= 36524; if (days >= 365) days++; }
-  gy += 4 * div(days, 1461); days %= 1461;
-  if (days > 365) { gy += div(days - 1, 365); days = (days - 1) % 365; }
+  let gy = (jy <= 979) ? 621 : 3599;
+  jy -= (jy <= 979) ? 0 : 979;
+  let days = (365 * jy) + (div(jy, 33) * 8) + (div((jy % 33) + 3, 4)) + 78 + jd + ((jm < 7) ? (jm - 1) * 31 : ((jm - 7) * 30) + 186);
+  gy += 400 * (div(days, 146097));
+  days %= 146097;
+  if (days > 36524) {
+    gy += 100 * (div(--days, 36524));
+    days %= 36524;
+    if (days >= 365) days++;
+  }
+  gy += 4 * (div(days, 1461));
+  days %= 1461;
+  if (days > 365) {
+    gy += div(days - 1, 365);
+    days = (days - 1) % 365;
+  }
   let gd = days + 1;
-  const sal_a = [0, 31, (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  let gm = 0; for (gm = 1; gm <= 12 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
+  let sal_a = [0, 31, ((gy % 4 === 0 && gy % 100 !== 0) || (gy % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  let gm = 0;
+  for (gm = 0; gm < 13; gm++) {
+    let v = sal_a[gm];
+    if (gd <= v) break;
+    gd -= v;
+  }
   return [gy, gm, gd];
 }
+
 function jalaliMonthLength(jy: number, jm: number) {
   if (jm <= 6) return 31;
   if (jm <= 11) return 30;
-  return j2g(jy, 12, 30)[1] === 2 && j2g(jy + 1, 1, 1)[2] === 1 ? 30 : 29;
+  let kabise = ((((((jy - 474) % 2838) + 474) + 38) * 682) % 2816) < 682;
+  return kabise ? 30 : 29;
 }
 
-// تقویم ارتقا یافته شمسی با انتخابگر سال (۱۳۲۰ تا جاری) و انتخابگر نام ماه‌ها
-const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; placeholder?: string }> = ({ 
-  value, onChange, placeholder = "----/--/--" 
-}) => {
-  const [open, setOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'days' | 'months' | 'years'>('days');
-  const nowG = new Date();
-  const currentJalali = g2j(nowG.getFullYear(), nowG.getMonth() + 1, nowG.getDate());
-  const currentYear = currentJalali[0];
+// کامپوننت انتخابگر تاریخ شمسی
+function JalaliPicker({ value, onChange }: { value: string; onChange: (val: string) => void }) {
+  const todayG = new Date();
+  const [jyToday, jmToday, jdToday] = g2j(todayG.getFullYear(), todayG.getMonth() + 1, todayG.getDate());
 
-  const init = value ? value.split('/').map(Number) : currentJalali;
-  const [jy, setJy] = useState(init[0] || 1370);
-  const [jm, setJm] = useState(init[1] || 1);
-  const [jd, setJd] = useState<number | null>(init[2] || null);
+  let initY = jyToday;
+  let initM = jmToday;
+  let initD = jdToday;
 
-  const yearsList = Array.from({ length: currentYear - 1320 + 1 }, (_, i) => currentYear - i);
+  if (value && /^\d{4}\/\d{2}\/\d{2}$/.test(value)) {
+    const parts = value.split('/').map(Number);
+    initY = parts[0];
+    initM = parts[1];
+    initD = parts[2];
+  }
+
+  const [year, setYear] = useState(initY);
+  const [month, setMonth] = useState(initM);
+  const [day, setDay] = useState(initD);
+  const [view, setView] = useState<'days' | 'months' | 'years'>('days');
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (value) {
-      const parts = value.split('/').map(Number);
-      if (parts.length === 3) {
-        setJy(parts[0]);
-        setJm(parts[1]);
-        setJd(parts[2]);
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
       }
     }
-  }, [value]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  const selectDay = (day: number) => {
-    setJd(day);
-    const formatted = `${jy}/${String(jm).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
-    onChange(formatted);
-    setOpen(false);
+  const monthLength = jalaliMonthLength(year, month);
+  const firstDayOfWeek = 6; 
+
+  const selectDay = (d: number) => {
+    setDay(d);
+    const mm = String(month).padStart(2, '0');
+    const dd = String(d).padStart(2, '0');
+    onChange(`${year}/${mm}/${dd}`);
+    setIsOpen(false);
   };
 
-  const daysInMonth = jalaliMonthLength(jy, jm);
-  const firstG = j2g(jy, jm, 1);
-  const offset = new Date(firstG[0], firstG[1] - 1, firstG[2]).getDay(); // 0=یکشنبه -> 6=شنبه
-
   return (
-    <div className="relative w-full">
+    <div className="relative" ref={containerRef}>
       <div 
-        onClick={() => { setOpen(!open); setViewMode('days'); }}
-        className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-mono dark:text-white text-center cursor-pointer border border-transparent hover:border-blue-400 transition flex items-center justify-between"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white flex items-center justify-between cursor-pointer focus:border-emerald-500"
       >
-        <Calendar size={18} className="text-blue-500" />
-        <span className="font-bold tracking-wider">{value || placeholder}</span>
-        <div className="w-4" />
+        <span>{value || 'انتخاب تاریخ (مثال: 1370/01/01)'}</span>
+        <Calendar size={14} className="text-emerald-400" />
       </div>
 
-      {open && (
-        <div className="absolute z-50 mt-2 p-3 w-72 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 right-0">
-          {/* هدر تقویم */}
-          <div className="flex items-center justify-between mb-3 border-b pb-2 border-slate-100 dark:border-slate-800">
+      {isOpen && (
+        <div className="absolute top-full mt-1 right-0 z-50 bg-[#0f172a] border border-slate-700 rounded-xl shadow-2xl p-3 w-64 text-white select-none">
+          <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-800">
             <button 
               type="button" 
               onClick={() => {
-                if (jm === 1) { setJm(12); setJy(jy - 1); } else { setJm(jm - 1); }
+                if (view === 'days') setMonth(m => m > 1 ? m - 1 : 12);
+                if (view === 'years') setYear(y => y - 12);
               }}
-              className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500"
-            >‹</button>
-            
-            <div className="flex items-center gap-2">
-              <button 
-                type="button" 
-                onClick={() => setViewMode(viewMode === 'months' ? 'days' : 'months')}
-                className="font-bold text-sm text-blue-600 dark:text-blue-400 hover:underline px-1"
-              >
-                {J_MONTHS[jm - 1]}
-              </button>
-              <button 
-                type="button" 
-                onClick={() => setViewMode(viewMode === 'years' ? 'days' : 'years')}
-                className="font-bold text-sm text-slate-800 dark:text-white hover:underline px-1"
-              >
-                {jy}
-              </button>
+              className="text-xs px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded"
+            >
+              قبلی
+            </button>
+            <div className="flex gap-1 text-xs font-bold">
+              <span className="cursor-pointer hover:text-emerald-400" onClick={() => setView('years')}>
+                {year}
+              </span>
+              <span>/</span>
+              <span className="cursor-pointer hover:text-emerald-400" onClick={() => setView('months')}>
+                {J_MONTHS[month - 1]}
+              </span>
             </div>
-
             <button 
               type="button" 
               onClick={() => {
-                if (jm === 12) { setJm(1); setJy(jy + 1); } else { setJm(jm + 1); }
+                if (view === 'days') setMonth(m => m < 12 ? m + 1 : 1);
+                if (view === 'years') setYear(y => y + 12);
               }}
-              className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500"
-            >›</button>
+              className="text-xs px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded"
+            >
+              بعدی
+            </button>
           </div>
 
-          {/* نمای انتخاب سال */}
-          {viewMode === 'years' && (
-            <div className="max-h-56 overflow-y-auto grid grid-cols-3 gap-1.5 p-1">
-              {yearsList.map(y => (
-                <button
-                  key={y}
-                  type="button"
-                  onClick={() => { setJy(y); setViewMode('months'); }}
-                  className={`py-2 text-xs rounded-lg transition font-mono ${y === jy ? 'bg-blue-600 text-white font-bold' : 'hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-300'}`}
-                >
-                  {y}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* نمای انتخاب ماه */}
-          {viewMode === 'months' && (
-            <div className="grid grid-cols-3 gap-2 py-2">
-              {J_MONTHS.map((mName, idx) => (
-                <button
-                  key={mName}
-                  type="button"
-                  onClick={() => { setJm(idx + 1); setViewMode('days'); }}
-                  className={`py-2 text-xs rounded-xl font-medium transition ${idx + 1 === jm ? 'bg-blue-600 text-white font-bold' : 'hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-300'}`}
-                >
-                  {mName}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* نمای پیش‌فرض روزهای ماه */}
-          {viewMode === 'days' && (
-            <>
-              <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-bold text-slate-400 mb-1">
-                {['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'].map(d => <span key={d}>{d}</span>)}
+          {view === 'days' && (
+            <div>
+              <div className="grid grid-cols-7 gap-1 text-center text-[10px] text-slate-400 mb-1">
+                <span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span>
               </div>
-              <div className="grid grid-cols-7 gap-1">
-                {Array.from({ length: (offset + 1) % 7 }).map((_, i) => <span key={'e' + i} />)}
-                {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(d => (
+              <div className="grid grid-cols-7 gap-1 text-center text-xs">
+                {Array.from({ length: monthLength }).map((_, i) => {
+                  const dNum = i + 1;
+                  const isSelected = dNum === day;
+                  return (
+                    <button
+                      key={dNum}
+                      type="button"
+                      onClick={() => selectDay(dNum)}
+                      className={`h-7 rounded flex items-center justify-center transition ${isSelected ? 'bg-emerald-600 text-white font-bold' : 'hover:bg-slate-800 text-slate-200'}`}
+                    >
+                      {dNum}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {view === 'months' && (
+            <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
+              {J_MONTHS.map((mName, idx) => {
+                const mNum = idx + 1;
+                const isSelected = mNum === month;
+                return (
                   <button
+                    key={mName}
                     type="button"
-                    key={d}
-                    onClick={() => selectDay(d)}
-                    className={`text-xs rounded-lg py-1.5 font-medium transition ${jd === d ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-500/30' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'}`}
+                    onClick={() => { setMonth(mNum); setView('days'); }}
+                    className={`py-2 rounded transition ${isSelected ? 'bg-emerald-600 text-white font-bold' : 'bg-slate-800 hover:bg-slate-700 text-slate-200'}`}
                   >
-                    {d}
+                    {mName}
                   </button>
-                ))}
-              </div>
-            </>
+                );
+              })}
+            </div>
           )}
 
-          <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between">
+          {view === 'years' && (
+            <div className="grid grid-cols-3 gap-1.5 text-center text-xs max-h-48 overflow-y-auto">
+              {Array.from({ length: 90 }).map((_, i) => {
+                const yNum = jyToday - 70 + i;
+                const isSelected = yNum === year;
+                return (
+                  <button
+                    key={yNum}
+                    type="button"
+                    onClick={() => { setYear(yNum); setView('months'); }}
+                    className={`py-2 rounded transition ${isSelected ? 'bg-emerald-600 text-white font-bold' : 'bg-slate-800 hover:bg-slate-700 text-slate-200'}`}
+                  >
+                    {yNum}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="mt-2 pt-2 border-t border-slate-800 flex justify-between text-[11px]">
             <button 
               type="button" 
-              onClick={() => { setJy(currentJalali[0]); setJm(currentJalali[1]); selectDay(currentJalali[2]); }}
-              className="text-[11px] text-blue-500 hover:underline"
+              onClick={() => { setYear(jyToday); setMonth(jmToday); setDay(jdToday); selectDay(jdToday); }}
+              className="text-emerald-400 hover:underline"
             >
               امروز
             </button>
             <button 
               type="button" 
-              onClick={() => setOpen(false)}
-              className="text-[11px] text-slate-400 hover:text-slate-600"
+              onClick={() => setIsOpen(false)}
+              className="text-slate-400 hover:text-white"
             >
               بستن
             </button>
@@ -355,1182 +282,979 @@ const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; pla
       )}
     </div>
   );
-};
+}
 
-const formatSalary = (s: string) => s.replace(/[^\d]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+function formatSalary(val: string) {
+  if (!val) return '';
+  const num = val.replace(/\D/g, '');
+  return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
 
-// سنجش میزان قدرت رمز عبور
-const calculatePasswordStrength = (pwd: string) => {
-  if (!pwd) return { score: 0, text: '', color: 'bg-slate-300' };
+function calculatePasswordStrength(pass: string) {
+  if (!pass) return { score: 0, text: '', color: 'bg-slate-700' };
   let score = 0;
-  if (pwd.length >= 6) score += 1;
-  if (pwd.length >= 9) score += 1;
-  if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) score += 1;
-  if (/\d/.test(pwd)) score += 1;
-  if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
+  if (pass.length >= 8) score++;
+  if (/[A-Z]/.test(pass) && /[a-z]/.test(pass)) score++;
+  if (/[0-9]/.test(pass)) score++;
+  if (/[^A-Za-z0-9]/.test(pass)) score++;
 
-  if (score <= 2) return { score: 1, text: 'ضعیف', color: 'bg-rose-500' };
-  if (score <= 4) return { score: 2, text: 'متوسط', color: 'bg-amber-500' };
-  return { score: 3, text: 'بسیار قوی', color: 'bg-emerald-500' };
-};
+  if (score <= 1) return { score, text: 'ضعیف', color: 'bg-red-500' };
+  if (score === 2 || score === 3) return { score, text: 'متوسط', color: 'bg-amber-500' };
+  return { score, text: 'بسیار قوی', color: 'bg-emerald-500' };
+}
 
 export interface UserProfile {
-  user_code: string; 
-  mobile: string;
+  user_code?: string;
+  mobile?: string;
   username?: string;
-  first_name: string; 
-  last_name: string;
-  birth_date: string; 
-  marital_status: 'single' | 'married' | 'divorced';
-  children_count?: number;
-  insurance_start_date: string; 
-  last_salary_million_rial: number | string;
-  avatar_id?: string; 
-  company_name?: string; 
-  industry_field?: string;
+  firstName?: string;
+  lastName?: string;
+  nationalId?: string;
+  personnelCode?: string;
+  industry?: string;
+  organization?: string;
+  city?: string;
+  role?: string;
+  birthDate?: string;
+  maritalStatus?: string;
+  childrenCount?: string;
+  insuranceStartDate?: string;
+  lastSalary?: string;
+  avatar?: string;
   password?: string;
 }
 
-interface Props {
-  user: UserProfile | null;
-  token: string | null;
-  onLoginSuccess: (user: UserProfile, token: string) => void;
-  onProfileUpdate: (user: UserProfile) => void;
-  showProfileModal: boolean;
-  setShowProfileModal: (show: boolean) => void;
+interface AuthProfileModalsProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onLoginSuccess: (user: UserProfile | null, token: string) => void;
+  initialStep?: 'login' | 'mobile' | 'code' | 'register' | 'forgot' | 'reset';
+  showProfileModal?: boolean;
+  setShowProfileModal?: (show: boolean) => void;
+  currentUser?: UserProfile | null;
 }
 
-const emptyForm: UserProfile = {
-  user_code: '', 
-  mobile: '', 
-  username: '', 
-  first_name: '', 
-  last_name: '',
-  birth_date: '', 
-  marital_status: 'single', 
-  children_count: 0,
-  insurance_start_date: '',
-  last_salary_million_rial: '', 
-  avatar_id: '0', 
-  company_name: '', 
-  industry_field: '', 
-  password: ''
-};
-
-export const AuthProfileModals: React.FC<Props> = ({
-  user, token, onLoginSuccess, onProfileUpdate, showProfileModal, setShowProfileModal
+export const AuthProfileModals: React.FC<AuthProfileModalsProps> = ({
+  isOpen,
+  onClose,
+  onLoginSuccess,
+  initialStep = 'login',
+  showProfileModal = false,
+  setShowProfileModal = () => {},
+  currentUser = null
 }) => {
-  const [step, setStep] = useState<'login' | 'mobile' | 'code' | 'register' | 'forgot' | 'reset'>('login');
+  const [step, setStep] = useState<'login' | 'mobile' | 'code' | 'register' | 'forgot' | 'reset'>(initialStep);
   const [mobile, setMobile] = useState('');
-  const [otpCode, setOtpCode] = useState('');
-  const [identity, setIdentity] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPwd, setShowPwd] = useState(false);
-  
-  // نگهداری توکن موقت کاربر در جریان احراز هویت اولیه
-  const [sessionToken, setSessionToken] = useState<string>(token || '');
-
+  const [otpCode, setOtpCode] = useState('');
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState('');
-  const [msgType, setMsgType] = useState<'error' | 'success'>('error');
-  
-  const [formData, setFormData] = useState<UserProfile>(user || emptyForm);
-  const [customIndustry, setCustomIndustry] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [resendTimer, setResendTimer] = useState(0);
+
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    nationalId: '',
+    personnelCode: '',
+    industry: '',
+    organization: '',
+    city: '',
+    role: '',
+    birthDate: '',
+    maritalStatus: 'مجرد',
+    childrenCount: '0',
+    insuranceStartDate: '',
+    lastSalary: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
+  const [sessionToken, setSessionToken] = useState('');
   const [isOtherIndustry, setIsOtherIndustry] = useState(false);
-    // --- تایمر ۹۰ ثانیه‌ای ارسال مجدد OTP ---
-  const [resendTimer, setResendTimer] = useState<number>(90);
+  const [customIndustry, setCustomIndustry] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => {
-    if (resendTimer <= 0) return;
-    const interval = setInterval(() => {
-      setResendTimer((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [resendTimer]);
+  // استیت‌های ویرایش پروفایل داخلی
+  const [editFirstName, setEditFirstName] = useState(currentUser?.firstName || '');
+  const [editLastName, setEditLastName] = useState(currentUser?.lastName || '');
+  const [editOrganization, setEditOrganization] = useState(currentUser?.organization || '');
+  const [editIndustry, setEditIndustry] = useState(currentUser?.industry || '');
+  const [editCity, setEditCity] = useState(currentUser?.city || '');
+  const [editRole, setEditRole] = useState(currentUser?.role || '');
+  const [editAvatar, setEditAvatar] = useState(currentUser?.avatar || '0');
+  const [editNationalId, setEditNationalId] = useState(currentUser?.nationalId || '');
+  const [editPersonnelCode, setEditPersonnelCode] = useState(currentUser?.personnelCode || '');
+  const [editBirthDate, setEditBirthDate] = useState(currentUser?.birthDate || '');
+  const [editMaritalStatus, setEditMaritalStatus] = useState(currentUser?.maritalStatus || 'مجرد');
+  const [editChildrenCount, setEditChildrenCount] = useState(currentUser?.childrenCount || '0');
+  const [editInsuranceStartDate, setEditInsuranceStartDate] = useState(currentUser?.insuranceStartDate || '');
+  const [editLastSalary, setEditLastSalary] = useState(currentUser?.lastSalary || '');
+  const [isEditOtherIndustry, setIsEditOtherIndustry] = useState(false);
+  const [editCustomIndustry, setEditCustomIndustry] = useState('');
 
-  const formatTimer = (sec: number) => {
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
-
-  // بررسی نام کاربری
-  const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
-  const [usernameMsg, setUsernameMsg] = useState('');
-  const checkTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const [saveLoading, setSaveLoading] = useState(false);
-  const [saveMsg, setSaveMsg] = useState('');
-
-  // اضافه‌شده برای تغییر رمز عبور:
+  // تغییر رمز عبور داخل پروفایل
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
-  const [passwordChangeMsg, setPasswordChangeMsg] = useState({ type: '', text: '' });
-  
-  const handleChangePasswordInside = async () => {
-    if (!currentPassword || !newPassword) {
-      setPasswordChangeMsg({ type: 'error', text: 'لطفاً رمز عبور فعلی و جدید را وارد کنید.' });
-      return;
-    }
-    if (newPassword.length < 6) {
-      setPasswordChangeMsg({ type: 'error', text: 'رمز عبور جدید باید حداقل ۶ کاراکتر باشد.' });
-      return;
-    }
-    if (newPassword !== confirmNewPassword) {
-      setPasswordChangeMsg({ type: 'error', text: 'تکرار رمز عبور جدید همخوانی ندارد.' });
-      return;
-    }
+  const [passwordChangeMsg, setPasswordChangeMsg] = useState({ text: '', type: '' });
 
+  useEffect(() => {
+    if (currentUser) {
+      setEditFirstName(currentUser.firstName || '');
+      setEditLastName(currentUser.lastName || '');
+      setEditOrganization(currentUser.organization || '');
+      setEditIndustry(currentUser.industry || '');
+      setEditCity(currentUser.city || '');
+      setEditRole(currentUser.role || '');
+      setEditAvatar(currentUser.avatar || '0');
+      setEditNationalId(currentUser.nationalId || '');
+      setEditPersonnelCode(currentUser.personnelCode || '');
+      setEditBirthDate(currentUser.birthDate || '');
+      setEditMaritalStatus(currentUser.maritalStatus || 'مجرد');
+      setEditChildrenCount(currentUser.childrenCount || '0');
+      setEditInsuranceStartDate(currentUser.insuranceStartDate || '');
+      setEditLastSalary(currentUser.lastSalary || '');
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    let timer: any;
+    if (resendTimer > 0) {
+      timer = setInterval(() => setResendTimer(prev => prev - 1), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [resendTimer]);
+
+  const post = async (action: string, dataObj: any) => {
     try {
-      const tokenVal = localStorage.getItem('dadkar_token');
-      const res = await post('change_password', {
-        current_password: currentPassword,
-        new_password: newPassword,
-        token: tokenVal
+      const res = await fetch(`${API_URL}?action=${action}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataObj)
       });
-      if (res.status === 'success' || res.success) {
-        setPasswordChangeMsg({ type: 'success', text: 'رمز عبور با موفقیت تغییر کرد.' });
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      throw new Error('خطا در برقراری ارتباط با سرور');
+    }
+  };
+
+  const handleLoginPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const data = await post('login_password', { identity: username, password });
+      if (data.success || data.status === 'success') {
+        const tokenVal = data.token || data.extra?.token || 'token_' + Date.now();
+        setSessionToken(tokenVal);
+        localStorage.setItem('dadkar_token', tokenVal);
+        const fullUser = data.user || { username };
+        localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
+        onLoginSuccess(fullUser, tokenVal);
+        setSuccessMsg('ورود با موفقیت انجام شد.');
+        setTimeout(() => onClose(), 1000);
+      } else {
+        setErrorMsg(data.message || 'نام کاربری یا رمز عبور اشتباه است.');
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'خطا در شبکه.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendOtp = async (isForgot = false) => {
+    const targetMobile = isForgot ? username : mobile;
+    if (!targetMobile || targetMobile.length < 10) {
+      setErrorMsg('لطفاً شماره موبایل معتبر وارد کنید.');
+      return;
+    }
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const actionName = isForgot ? 'forgot_password' : 'send_otp';
+      const data = await post(actionName, { mobile: targetMobile });
+      if (data.success || data.status === 'success') {
+        setSuccessMsg('کد تأیید با موفقیت ارسال شد.');
+        setStep(isForgot ? 'reset' : 'code');
+        setResendTimer(90);
+      } else {
+        setErrorMsg(data.message || 'خطا در ارسال کد تأیید.');
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'خطا در شبکه.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpCode || otpCode.length < 4) {
+      setErrorMsg('لطفاً کد تأیید را وارد کنید.');
+      return;
+    }
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const targetMobile = mobile || username;
+      const data = await post('verify_otp', { mobile: targetMobile, code: otpCode });
+      if (data.success || data.status === 'success') {
+        const tokenVal = data.token || data.extra?.token || 'token_' + Date.now();
+        setSessionToken(tokenVal);
+        localStorage.setItem('dadkar_token', tokenVal);
+
+        if (data.is_registered) {
+          const fullUser = data.user || { mobile: targetMobile };
+          localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
+          onLoginSuccess(fullUser, tokenVal);
+          setSuccessMsg('ورود با موفقیت انجام شد.');
+          setTimeout(() => onClose(), 1000);
+        } else {
+          setMobile(targetMobile);
+          setStep('register');
+        }
+      } else {
+        setErrorMsg(data.message || 'کد تأیید نامعتبر است.');
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'خطا در شبکه.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      // اصلاح خطای مرجع و TDZ با جلوگیری از سایه انداختن نام متغیر روی خودِ استیت
+      const currentAuthToken = sessionToken || localStorage.getItem('dadkar_token') || '';
+      const finalIndustry = isOtherIndustry ? customIndustry : formData.industry;
+      const payload = {
+        mobile,
+        token: currentAuthToken,
+        ...formData,
+        industry: finalIndustry
+      };
+      const data = await post('save_profile', payload);
+      if (data.success || data.status === 'success') {
+        const fullUser = data.user || payload;
+        localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
+        onLoginSuccess(fullUser, currentAuthToken);
+        setSuccessMsg('پروفایل با موفقیت ثبت شد.');
+        setTimeout(() => {
+          onClose();
+          setStep('login');
+        }, 1000);
+      } else {
+        setErrorMsg(data.message || 'خطا در ثبت اطلاعات.');
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'خطا در شبکه.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const data = await post('reset_password', { mobile: username, code: otpCode, new_password: password });
+      if (data.success || data.status === 'success') {
+        setSuccessMsg('رمز عبور با موفقیت تغییر کرد.');
+        setTimeout(() => setStep('login'), 1500);
+      } else {
+        setErrorMsg(data.message || 'خطا در تغییر رمز عبور.');
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'خطا در شبکه.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const currentAuthToken = sessionToken || localStorage.getItem('dadkar_token') || '';
+      const finalInd = isEditOtherIndustry ? editCustomIndustry : editIndustry;
+      const payload = {
+        mobile: currentUser?.mobile,
+        token: currentAuthToken,
+        firstName: editFirstName,
+        lastName: editLastName,
+        organization: editOrganization,
+        industry: finalInd,
+        city: editCity,
+        role: editRole,
+        avatar: editAvatar,
+        nationalId: editNationalId,
+        personnelCode: editPersonnelCode,
+        birthDate: editBirthDate,
+        maritalStatus: editMaritalStatus,
+        childrenCount: editChildrenCount,
+        insuranceStartDate: editInsuranceStartDate,
+        lastSalary: editLastSalary
+      };
+      const data = await post('save_profile', payload);
+      if (data.success || data.status === 'success') {
+        const updatedUser = data.user || payload;
+        localStorage.setItem('dadkar_user', JSON.stringify(updatedUser));
+        onLoginSuccess(updatedUser, currentAuthToken);
+        setSuccessMsg('تغییرات پروفایل با موفقیت ذخیره شد.');
+        setTimeout(() => setShowProfileModal(false), 1000);
+      } else {
+        setErrorMsg(data.message || 'خطا در ذخیره پروفایل.');
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'خطا در شبکه.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangePasswordInside = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword !== confirmNewPassword) {
+      setPasswordChangeMsg({ text: 'رمز جدید و تکرار آن مطابقت ندارند.', type: 'error' });
+      return;
+    }
+    try {
+      const currentAuthToken = sessionToken || localStorage.getItem('dadkar_token') || '';
+      const data = await post('change_password', {
+        token: currentAuthToken,
+        current_password: currentPassword,
+        new_password: newPassword
+      });
+      if (data.success || data.status === 'success') {
+        setPasswordChangeMsg({ text: 'رمز عبور با موفقیت تغییر کرد.', type: 'success' });
         setCurrentPassword('');
         setNewPassword('');
         setConfirmNewPassword('');
       } else {
-        setPasswordChangeMsg({ type: 'error', text: res.message || 'خطا در تغییر رمز عبور.' });
+        setPasswordChangeMsg({ text: data.message || 'خطا در تغییر رمز عبور.', type: 'error' });
       }
-    } catch {
-      setPasswordChangeMsg({ type: 'error', text: 'خطای ارتباط با15 سرور.' });
+    } catch (err: any) {
+      setPasswordChangeMsg({ text: err.message || 'خطا در ارتباط با سرور.', type: 'error' });
     }
   };
 
-    const post = async (action: string, data: any) => {
-    const res = await fetch(`${API_URL}?action=${action}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    const json = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error(json.message || 'خطای سر20ور');
-    }
-    return json;
-  };
+  if (!isOpen && !showProfileModal) return null;
 
+  return (
+    <>
+      {isOpen && !showProfileModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 font-['Vazirmatn']" dir="rtl">
+          <div className="relative w-full max-w-md bg-[#0f172a] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden p-6 text-white">
+            <button onClick={onClose} className="absolute top-4 left-4 text-slate-400 hover:text-white transition">
+              <X size={20} />
+            </button>
 
-
-  // استعلام یونیک بودن نام کاربری به محض تایپ
-  const handleUsernameChange = (val: string) => {
-    const cleaned = val.replace(/[^a-zA-Z0-9_.]/g, '');
-    setFormData(prev => ({ ...prev, username: cleaned }));
-    
-    if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
-    if (cleaned.length < 3) {
-      setUsernameStatus('idle');
-      setUsernameMsg(cleaned.length > 0 ? 'حداقل ۳ کاراکتر انگلیسی' : '');
-      return;
-    }
-
-    setUsernameStatus('checking');
-    setUsernameMsg('در حال استعلام...');
-    checkTimeoutRef.current = setTimeout(async () => {
-      try {
-        const res = await post('check_username', { username: cleaned, token: sessionToken || token });
-        // بررسی دقیق فیلد available که از بک‌اند برمی‌گردد
-        const isAvailable = res.available === true || res.extra?.available === true;
-        
-        if (isAvailable) {
-          setUsernameStatus('available');
-          setUsernameMsg(res.message || 'این نام کاربری آزاد است.');
-        } else {
-          setUsernameStatus('taken');
-          setUsernameMsg(res.message || 'این نام کاربری قبلاً انتخاب شده است.');
-        }
-
-      } catch {
-        setUsernameStatus('idle');
-        setUsernameMsg('');
-      }
-    }, 600);
-  };
-
-  // ---- ورود با رمز عبور ----
-  const handleLoginPassword = async () => {
-    if (!identity || !password) { 
-      setMsgType('error'); 
-      setMsg('نام کاربری یا شماره موبایل و رمز عبور را وارد کنید.'); 
-      return; 
-    }
-    setLoading(true); 
-    setMsg('');
-    try {
-      const data = await post('login_password', { identity: identity.trim(), password });
-      if (data.status === 'success') {
-        localStorage.setItem('dadkar_token', data.token);
-        localStorage.setItem('dadkar_user', JSON.stringify(data.user));
-        onLoginSuccess(data.user, data.token);
-      } else { 
-        setMsgType('error'); 
-        setMsg(data.message || 'نام کاربری، شماره موبایل یا رمز عبور نادرست است.'); 
-      }
-    } catch (err: any) { 
-      setMsgType('error'); 
-      // 🟢 نمایش خطای واقعی به جای پیام ثابت ارتباط با سرور
-      setMsg('خطا: ' + (err.message || 'خطای ارتباط با سرور')); 
-      console.error('Login Error:', err);
-    } finally { 
-      setLoading(false); 
-    }
-  };
-
-
-
-  // ---- ارسال پیامک OTP ----
-  const handleSendOtp = async (isForgot = false, channel: 'sms' | 'voice' = 'sms') => {
-    setLoading(true);
-    setMsg('');
-    try {
-      const actionName = channel === 'voice' 
-        ? 'send_voice_otp' 
-        : (isForgot ? 'forgot_password' : 'send_otp');
-
-      const data = await post(actionName, { mobile, is_forgot: isForgot });
-      
-      if (data.status === 'success') {
-        setResendTimer(90); // هماهنگ با تایمر کامپوننت
-        setStep(isForgot ? 'reset' : 'code');
-        setMsg(data.message || (channel === 'voice' ? 'کد تأیید صوتی ارسال شد.' : 'کد تأیید پیامکی ارسال شد.'));
-        setMsgType('success');
-      } else {
-        setMsgType('error');
-        setMsg(data.message || 'خطا در ارسال کد تأیید');
-      }
-    } catch (err) {
-      console.error('Send OTP Error:', err);
-      setMsgType('error');
-      setMsg('خطای ارتباط با 10سرور');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-
-
-
-  // ---- بررسی کد تایید ----
-  const handleVerifyOtp = async () => {
-    if (!otpCode || otpCode.length < 4) {
-      setMsgType('error');
-      setMsg('لطفاً کد تایید ۴ رقمی را کامل وارد کنید.');
-      return;
-    }
-    setLoading(true);
-    setMsg('');
-    try {
-      const data = await post('verify_otp', { mobile: formData.mobile || mobile, code: otpCode });
-      
-      if (data.status === 'success') {
-        const tokenVal = data.extra?.token || data.token || '';
-        setSessionToken(tokenVal);
-        localStorage.setItem('dadkar_token', tokenVal);
-        
-        if (data.is_registered) {
-          const fullUser = data.extra?.user || data.user || {};
-          localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
-          onLoginSuccess(fullUser, tokenVal);
-          setMsg('با موفقیت وارد شدید!');
-          setMsgType('success');
-          setTimeout(() => setShowProfileModal(false), 1000);
-        } else {
-          setStep('register');
-          setMsg('کد تأیید شد. لطفاً اطلاعات پروفایل را تکمیل کنید.');
-          setMsgType('success');
-        }
-      } else {
-        setMsgType('error');
-        setMsg(data.message || 'کد تأیید نامعتبر است.');
-      }
-    } catch (err) {
-      console.error('Verify OTP Error:', err);
-      setMsgType('error');
-      setMsg('خطای ارتباط با11 سرور');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-
-  // ---- تکمیل ثبت‌نام اولیه ----
-   const handleRegister = async () => {
-    // 1. بررسی دقیق نام کاربری
-    const cleanedUsername = (formData.username || '').trim();
-    if (!cleanedUsername || cleanedUsername.length < 3) {
-      setMsgType('error');
-      setMsg('تعیین نام کاربری معتبر (حداقل ۳ کاراکتر انگلیسی) الزامی است.');
-      return;
-    }
-
-    if (usernameStatus === 'taken') {
-      setMsgType('error');
-      setMsg('لطفاً یک نام کاربری آزاد انتخاب کنید.');
-      return;
-    }
-
-    if (!formData.password || formData.password.length < 6) {
-      setMsgType('error');
-      setMsg('رمز عبور باید حداقل ۶ کاراکتر باشد.');
-      return;
-    }
-
-    if (formData.password !== confirmPassword) {
-      setMsgType('error');
-      setMsg('رمز عبور و تکرار آن همخوانی ندارند.');
-      return;
-    }
-
-    setLoading(true);
-    setMsg('');
-
-    try {
-      const sessionToken = sessionToken || localStorage.getItem('dadkar_token');
-      const finalIndustry = isOtherIndustry ? customIndustry : formData.industry_field;
-      
-      const payload = {
-        ...formData,
-        username: cleanedUsername,
-        mobile: formData.mobile || mobile,
-        industry_field: finalIndustry,
-        token: sessionToken
-      };
-
-      const data = await post('save_profile', payload);
-
-      if (data.status === 'success' || data.success) {
-        setMsgType('success');
-        setMsg('عضویت شما با موفقیت تکمیل شد.');
-        const fullUser = data.user || data.extra?.user || {
-          ...formData,
-          username: cleanedUsername,
-          mobile: formData.mobile || mobile,
-          industry_field: finalIndustry
-        };
-        localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
-        const finalToken = data.token || data.extra?.token || sessionToken;
-        if (finalToken) {
-          localStorage.setItem('dadkar_token', finalToken);
-        }
-        onLoginSuccess(fullUser, finalToken || '');
-        setTimeout(() => {
-          setShowProfileModal(false);
-          setStep('profile');
-        }, 1000);
-      } else {
-        setMsgType('error');
-        setMsg(data.message || 'خطا در ثبت اطلاعات.');
-      }
-    } catch (e) {
-      setMsgType('error');
-      setMsg('خطا در برقراری ارتباط12 با سرور.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-
-  // <--- این آکولاد و نقطه ویرگول پایانی handleRegister گم شده است
-
-
-
-
-  // ---- بازیابی رمز عبور ----
-  const handleResetPassword = async () => {
-    if (otpCode.length < 4 || password.length < 6) { 
-      setMsgType('error'); setMsg('کد و رمز جدید (حداقل ۶ کاراکتر) را وارد کنید.'); return; 
-    }
-    setLoading(true); setMsg('');
-    try {
-      const data = await post('reset_password', { 
-        mobile, 
-        code: otpCode, 
-        new_password: password 
-      });
-      if (data.status === 'success') {
-        setMsgType('success'); setMsg('رمز با موفقیت تغییر کرد. در حال انتقال به ورود...');
-        setTimeout(() => { setStep('login'); setMsg(''); }, 1500);
-      } else { setMsgType('error'); setMsg(data.message || 'خطا در بازیابی'); }
-    } catch { setMsgType('error'); setMsg('خطای ارتباط با13 سرور'); }
-    finally { setLoading(false); }
-  };
-
-  // ---- ویرایش پروفایل از درون برنامه ----
-  const handleSaveProfile = async () => {
-    const activeToken = token || sessionToken || localStorage.getItem('dadkar_token');
-    if (!activeToken) return;
-    setSaveLoading(true); setSaveMsg('');
-    try {
-      const finalIndustry = isOtherIndustry ? customIndustry : formData.industry_field;
-      const res = await post('save_profile', { ...formData, industry_field: finalIndustry, token: activeToken });
-      if (res.status === 'success') {
-        const updated = { ...formData, industry_field: finalIndustry };
-        localStorage.setItem('dadkar_user', JSON.stringify(updated));
-        onProfileUpdate(updated);
-        setSaveMsg('مشخصات با موفقیت ذخیره گردید.');
-        setTimeout(() => setShowProfileModal(false), 1200);
-      } else setSaveMsg(res.message || 'خطا در ذخیره‌سازی');
-    } catch { setSaveMsg('خطای ارتباط با14 سرور'); }
-    finally { setSaveLoading(false); }
-  };
-
-  const pwdStrength = calculatePasswordStrength(formData.password || '');
-
-  const Msg = () => msg ? (
-    <div className={`mt-3 p-2.5 text-xs text-center rounded-xl flex items-center justify-center gap-1.5 ${msgType === 'success'
-      ? 'text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800'
-      : 'text-rose-600 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800'}`}>
-      {msgType === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
-      <span>{msg}</span>
-    </div>
-  ) : null;
-
-  // ================= مودال احراز هویت (بدون توکن فعال) =================
-  if (!token) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl text-right my-auto max-h-[94vh] overflow-y-auto">
-          
-          <div className="flex justify-center mb-4">
-            <div className="w-14 h-14 bg-blue-600/10 text-blue-600 rounded-2xl flex items-center justify-center shadow-inner">
-              <KeyRound size={30} />
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold text-emerald-400">سامانه جامع دادکار</h2>
+              <p className="text-xs text-slate-400 mt-1">
+                {step === 'login' && 'ورود به حساب کاربری'}
+                {step === 'mobile' && 'ورود با شماره موبایل'}
+                {step === 'code' && 'وارد کردن کد تأیید پیامک شده'}
+                {step === 'register' && 'تکمیل مشخصات حساب کاربری'}
+                {step === 'forgot' && 'بازیابی رمز عبور'}
+                {step === 'reset' && 'تعیین رمز عبور جدید'}
+              </p>
             </div>
-          </div>
 
-          {/* ۱. صفحه ورود با شناسه دادکار یا موبایل */}
-          {step === 'login' && (
-            <>
-              <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">ورود به دادکار</h2>
-               <p className="text-xs text-center text-slate-500 dark:text-slate-400 mb-5">نام کاربری یا شماره موبایل و رمز عبور خود را وارد کنید.</p>              <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">
-                نام کاربری یا شماره موبایل
-              </label>
-              <input
-                type="text"
-                dir="ltr"
-                placeholder="نام کاربری یا 09xxxxxxxxx"
-                value={identity}
-                onChange={(e) => setIdentity(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-sm font-mono text-left dark:text-white border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            {errorMsg && (
+              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 text-red-400 text-xs rounded-xl flex items-center gap-2">
+                <AlertCircle size={16} className="shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+            {successMsg && (
+              <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs rounded-xl flex items-center gap-2">
+                <CheckCircle size={16} className="shrink-0" />
+                <span>{successMsg}</span>
+              </div>
+            )}
+
+            {step === 'login' && (
+              <div className="space-y-4">
+                <form onSubmit={handleLoginPassword} className="space-y-3">
+                  <div>
+                    <label className="block text-xs text-slate-300 mb-1">شناسه دادکار یا موبایل</label>
+                    <input 
+                      type="text" 
+                      value={username} 
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="DK-... یا 0912..."
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500"
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-300 mb-1">رمز عبور</label>
+                    <div className="relative">
+                      <input 
+                        type={showPassword ? 'text' : 'password'} 
+                        value={password} 
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 pl-10 text-sm text-white focus:outline-none focus:border-emerald-500"
+                        required 
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute left-3 top-3 text-slate-400 hover:text-white"
+                      >
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+                  <button type="submit" disabled={loading} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2">
+                    {loading ? <RefreshCw className="animate-spin" size={18} /> : 'ورود با رمز عبور'}
+                  </button>
+                </form>
+
+                <div className="relative flex py-2 items-center">
+                  <div className="flex-grow border-t border-slate-700"></div>
+                  <span className="flex-shrink mx-4 text-slate-500 text-xs">یا</span>
+                  <div className="flex-grow border-t border-slate-700"></div>
+                </div>
+
+                <button onClick={() => setStep('mobile')} className="w-full bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 font-medium py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2">
+                  <Phone size={16} /> ورود سریع با کد پیامکی (OTP)
+                </button>
+
+                <div className="flex justify-between items-center text-xs text-slate-400 pt-2">
+                  <button type="button" onClick={() => setStep('forgot')} className="hover:text-white underline">
+                    رمز عبور خود را فراموش کرده‌ام؟
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === 'mobile' && (
+              <form onSubmit={(e) => { e.preventDefault(); handleSendOtp(false); }} className="space-y-4">
+                <div>
+                  <label className="block text-xs text-slate-300 mb-1">شماره تلفن همراه</label>
+                  <div className="relative">
+                    <Phone className="absolute right-3 top-3 text-slate-500" size={18} />
+                    <input 
+                      type="tel"
+                      maxLength={11}
+                      placeholder="09123456789"
+                      value={mobile}
+                      onChange={(e) => setMobile(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 pr-10 text-sm text-white focus:outline-none focus:border-emerald-500"
+                      required
+                    />
+                  </div>
+                </div>
+                <button type="submit" disabled={loading} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2">
+                  {loading ? <RefreshCw className="animate-spin" size={18} /> : 'ارسال کد تأیید'}
+                </button>
+                <button type="button" onClick={() => setStep('login')} className="w-full text-center text-xs text-slate-400 hover:text-white pt-2">
+                  بازگشت به روش‌های ورود
+                </button>
+              </form>
+            )}
+
+            {step === 'code' && (
+              <form onSubmit={handleVerifyOtp} className="space-y-4">
+                <div>
+                  <label className="block text-xs text-slate-300 mb-1">کد تأیید ارسال شده به {mobile}</label>
+                  <div className="relative">
+                    <Lock className="absolute right-3 top-3 text-slate-500" size={18} />
+                    <input 
+                      type="text"
+                      maxLength={6}
+                      placeholder="------"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 pr-10 text-center tracking-widest text-lg text-white focus:outline-none focus:border-emerald-500"
+                      required
+                    />
+                  </div>
+                </div>
+                <button type="submit" disabled={loading} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2">
+                  {loading ? <RefreshCw className="animate-spin" size={18} /> : 'تأیید و ادامه'}
+                </button>
+                <div className="flex justify-between items-center text-xs text-slate-400 mt-2">
+                  <button type="button" onClick={() => setStep('mobile')} className="hover:text-white underline">
+                    ویرایش شماره
+                  </button>
+                  {resendTimer > 0 ? (
+                    <span>ارسال مجدد ({resendTimer}s)</span>
+                  ) : (
+                    <button type="button" onClick={() => handleSendOtp(false)} className="text-emerald-400 hover:underline">
+                      ارسال مجدد کد
+                    </button>
+                  )}
+                </div>
+              </form>
+            )}
+
+            {step === 'register' && (
+              <form onSubmit={handleRegister} className="space-y-3 max-h-[70vh] overflow-y-auto px-1">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] text-slate-300 mb-1">نام *</label>
+                    <input 
+                      type="text"
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-300 mb-1">نام خانوادگی *</label>
+                    <input 
+                      type="text"
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] text-slate-300 mb-1">کد ملی</label>
+                    <input 
+                      type="text"
+                      maxLength={10}
+                      value={formData.nationalId}
+                      onChange={(e) => setFormData({...formData, nationalId: e.target.value})}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-300 mb-1">کد پرسنلی</label>
+                    <input 
+                      type="text"
+                      value={formData.personnelCode}
+                      onChange={(e) => setFormData({...formData, personnelCode: e.target.value})}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] text-slate-300 mb-1">تاریخ تولد</label>
+                    <JalaliPicker 
+                      value={formData.birthDate} 
+                      onChange={(val) => setFormData({...formData, birthDate: val})} 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-300 mb-1">وضعیت تأهل</label>
+                    <select 
+                      value={formData.maritalStatus}
+                      onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    >
+                      <option value="مجرد">مجرد</option>
+                      <option value="متاهل">متاهل</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] text-slate-300 mb-1">تعداد فرزندان</label>
+                    <input 
+                      type="number"
+                      min="0"
+                      value={formData.childrenCount}
+                      onChange={(e) => setFormData({...formData, childrenCount: e.target.value})}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-300 mb-1">تاریخ شروع بیمه</label>
+                    <JalaliPicker 
+                      value={formData.insuranceStartDate} 
+                      onChange={(val) => setFormData({...formData, insuranceStartDate: val})} 
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] text-slate-300 mb-1">آخرین حقوق (ریال)</label>
+                    <input 
+                      type="text"
+                      value={formatSalary(formData.lastSalary)}
+                      onChange={(e) => setFormData({...formData, lastSalary: e.target.value.replace(/,/g, '')})}
+                      placeholder="مثال: 150,000,000"
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-300 mb-1">شهر محل خدمت</label>
+                    <input 
+                      type="text"
+                      value={formData.city}
+                      onChange={(e) => setFormData({...formData, city: e.target.value})}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
 
                 <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">رمز عبور</label>
-                  <input dir="ltr" type="password" placeholder="••••••••" value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-center dark:text-white border border-transparent focus:border-blue-500 focus:outline-none" />
+                  <label className="block text-[11px] text-slate-300 mb-1">نام سازمان / شرکت</label>
+                  <input 
+                    type="text"
+                    value={formData.organization}
+                    onChange={(e) => setFormData({...formData, organization: e.target.value})}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  />
                 </div>
-                <button disabled={loading} onClick={handleLoginPassword}
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition">
-                  <LogIn size={18} />{loading ? 'در حال ورود...' : 'ورود به حساب کاربری'}
+
+                <div>
+                  <label className="block text-[11px] text-slate-300 mb-1">صنایع فعالیت</label>
+                  <select 
+                    value={formData.industry}
+                    onChange={(e) => {
+                      setFormData({...formData, industry: e.target.value});
+                      setIsOtherIndustry(e.target.value === 'سایر صنایع و خدمات');
+                    }}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 max-h-32"
+                  >
+                    <option value="">انتخاب صنعت...</option>
+                    {INDUSTRIES.map(ind => <option key={ind} value={ind}>{ind}</option>)}
+                  </select>
+                </div>
+
+                {isOtherIndustry && (
+                  <div>
+                    <label className="block text-[11px] text-slate-300 mb-1">عنوان صنعت دلخواه</label>
+                    <input 
+                      type="text"
+                      value={customIndustry}
+                      onChange={(e) => setCustomIndustry(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                )}
+
+                <button type="submit" disabled={loading} className="w-full mt-4 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2">
+                  {loading ? <RefreshCw className="animate-spin" size={18} /> : 'تکمیل ثبت‌نام و ورود'}
                 </button>
-                <div className="flex justify-between items-center text-xs pt-2 border-t border-slate-100 dark:border-slate-800 mt-3">
-                  <button onClick={() => { setStep('forgot'); setMsg(''); }} className="text-blue-500 hover:underline">بازیابی رمز عبور</button>
-                  <button onClick={() => { setStep('mobile'); setMsg(''); setMobile(''); }} className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">ثبت‌نام جدید در سامانه</button>
+              </form>
+            )}
+
+            {step === 'forgot' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs text-slate-300 mb-1">شماره موبایل ثبت‌شده</label>
+                  <input 
+                    type="tel" 
+                    value={username} 
+                    onChange={(e) => setUsername(e.target.value)} 
+                    placeholder="0912..."
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500"
+                    required 
+                  />
                 </div>
+                <button onClick={() => handleSendOtp(true)} disabled={loading} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2">
+                  {loading ? <RefreshCw className="animate-spin" size={18} /> : 'ارسال کد بازیابی'}
+                </button>
+                <button type="button" onClick={() => setStep('login')} className="w-full text-center text-xs text-slate-400 hover:text-white pt-2">
+                  بازگشت به ورود
+                </button>
               </div>
-              <Msg />
-            </>
-          )}
+            )}
 
-          {/* ۲. ثبت‌نام: مرحله دریافت موبایل */}
-        {step === 'mobile' && (
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">عضویت جدید</h3>
-              <p className="text-xs text-slate-500 mt-1">شماره موبایل خود را وارد کنید تا کد تأیید پیامک شود.</p>
-            </div>
-            <div>
-              <input
-                type="tel"
-                dir="ltr"
-                maxLength={11}
-                placeholder="09xxxxxxxxx"
-                value={mobile}
-                onChange={e => setMobile(e.target.value.replace(/\D/g, ''))}
-                className="w-full text-center text-lg tracking-widest font-mono py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <button
-              disabled={loading}
-              onClick={() => handleSendOtp(false)}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition shadow-lg shadow-blue-500/25"
-            >
-              {loading ? 'در حال بررسی و ارسال پیامک...' : 'ارسال کد تأیید پیامکی'}
+            {step === 'reset' && (
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div>
+                  <label className="block text-xs text-slate-300 mb-1">کد تأیید ارسال‌شده</label>
+                  <input 
+                    type="text" 
+                    value={otpCode} 
+                    onChange={(e) => setOtpCode(e.target.value)} 
+                    placeholder="------"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-center tracking-widest text-white focus:outline-none focus:border-emerald-500"
+                    required 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-300 mb-1">رمز عبور جدید</label>
+                  <input 
+                    type="password" 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    placeholder="••••••••"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500"
+                    required 
+                  />
+                </div>
+                <button type="submit" disabled={loading} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2">
+                  {loading ? <RefreshCw className="animate-spin" size={18} /> : 'تغییر رمز عبور'}
+                </button>
+              </form>
+            )}
+
+          </div>
+        </div>
+      )}
+
+      {showProfileModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 font-['Vazirmatn']" dir="rtl">
+          <div className="relative w-full max-w-2xl bg-[#0f172a] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden p-6 text-white max-h-[90vh] overflow-y-auto">
+            <button onClick={() => setShowProfileModal(false)} className="absolute top-4 left-4 text-slate-400 hover:text-white transition">
+              <X size={20} />
             </button>
-            <div className="flex items-center justify-between text-xs pt-2">
-              <button onClick={() => { setStep('login'); setMsg(''); }} className="text-slate-500 hover:text-blue-600 transition">
-                ورود با نام کاربری و رمز
-              </button>
-              <button onClick={() => { setStep('forgot'); setMsg(''); }} className="text-amber-600 hover:underline">
-                بازیابی رمز عبور
-              </button>
-            </div>
-            <Msg />
-          </div>
-        )}
 
+            <h2 className="text-lg font-bold text-emerald-400 mb-4 flex items-center gap-2">
+              <User size={20} /> پروفایل کاربری و تنظیمات حساب
+            </h2>
 
-              {/* ۳. ثبت‌نام: ورود کد تأیید */}
-       {step === 'code' && (
-      <div className="space-y-4">
-        <div className="text-center space-y-1">
-          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">تأیید شماره موبایل</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            کد ارسال شده به شماره <span className="font-mono font-bold">{mobile}</span> را وارد کنید.
-          </p>
-        </div>
-    
-        <div>
-          <input
-            type="text"
-            maxLength={6}
-            value={otpCode}
-            onChange={(e) => setOtpCode(e.target.value)}
-            placeholder="کد تایید ۵ یا ۶ رقمی"
-            className="w-full px-4 py-3 text-center text-xl tracking-widest font-mono bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
-          />
-        </div>
-    
-        <button
-          type="button"
-          disabled={loading}
-          onClick={handleVerifyOtp}
-          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-medium transition-all shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2"
-        >
-          {loading ? (
-            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-          ) : (
-            <span>تایید و ادامه</span>
-          )}
-        </button>
-    
-        <div className="flex items-center justify-between text-sm pt-2">
-          <button
-            type="button"
-            onClick={() => setStep('mobile')}
-            className="text-blue-600 dark:text-blue-400 hover:underline text-xs"
-          >
-            ویرایش شماره موبایل
-          </button>
-    
-          {/* بخش تایمر و دکمه‌های ارسال مجدد پیامک یا تماس صوتی (اصلاح شده با resendTimer) */}
-          {resendTimer > 0 ? (
-            <span className="text-slate-400 flex items-center gap-1 font-mono text-xs">
-              ارسال مجدد ({formatTimer(resendTimer)})
-            </span>
-          ) : (
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                disabled={resendTimer > 0}
-                onClick={() => handleSendOtp(false, 'sms')}
-                className="text-xs py-1.5 px-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl transition-all font-medium"
-              >
-                ارسال مجدد پیامک
-              </button>
-              <button
-                type="button"
-                disabled={resendTimer > 0}
-                onClick={() => handleSendOtp(false, 'voice')}
-                className="text-xs py-1.5 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 rounded-xl transition-all font-medium border border-amber-500/20 flex items-center gap-1"
-              >
-                📞 تماس صوتی
-              </button>
-            </div>
-          )}
-        </div>
-    
-        {msg && (
-          <div className={`p-3 rounded-xl text-sm text-center ${msgType === 'success' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300'}`}>
-            {msg}
-          </div>
-        )}
-      </div>
-    )}
-
-
-
-          {/* ۴. فرم جامع عضویت دادکار (کاربر جدید) */}
-          {step === 'register' && (
-            <div className="space-y-4">
-              <div className="text-center pb-2 border-b border-slate-100 dark:border-slate-800">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">تکمیل فرم عضویت دادکار</h2>
-                <p className="text-[11px] text-slate-500">لطفاً مشخصات هویتی و پرسنلی خود را با دقت تکمیل کنید.</p>
+            {errorMsg && (
+              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 text-red-400 text-xs rounded-xl flex items-center gap-2">
+                <AlertCircle size={16} className="shrink-0" />
+                <span>{errorMsg}</span>
               </div>
+            )}
+            {successMsg && (
+              <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs rounded-xl flex items-center gap-2">
+                <CheckCircle size={16} className="shrink-0" />
+                <span>{successMsg}</span>
+              </div>
+            )}
 
-              {/* ۱. انتخاب آواتار پرسنلی وکتور */}
-              <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-2">انتخاب تصویر نمایه (آواتار)</label>
-                <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 p-2 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-                  {AVATAR_SVGS.map((av) => {
-                    const isSelected = (formData.avatar_id ?? '0') === av.id;
+            <div className="space-y-6 text-xs">
+              <div className="space-y-2">
+                <label className="block text-slate-300 font-medium">انتخاب آواتار پروفایل</label>
+                <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                  {Object.entries(AVATAR_SVGS).map(([id, svgHtml]) => {
+                    const isSelected = editAvatar === id;
                     return (
-                      <button
-                        key={av.id}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, avatar_id: av.id })}
-                        className={`relative rounded-xl p-1 transition transform active:scale-95 ${
-                          isSelected 
-                            ? 'ring-2 ring-blue-600 bg-blue-100/50 dark:bg-blue-900/40 scale-105 shadow' 
-                            : 'hover:bg-white dark:hover:bg-slate-700 opacity-75 hover:opacity-100'
-                        }`}
-                        title={av.title}
-                      >
-                        <div className="w-10 h-10 mx-auto">
-                          {av.svg}
-                        </div>
-                        {isSelected && (
-                          <div className="absolute -top-1 -right-1 bg-blue-600 text-white rounded-full p-0.5">
-                            <Check size={10} strokeWidth={3} />
-                          </div>
-                        )}
-                      </button>
+                      <div
+                        key={id}
+                        onClick={() => setEditAvatar(id)}
+                        className={`p-2 rounded-xl cursor-pointer flex items-center justify-center border transition ${isSelected ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800'}`}
+                        dangerouslySetInnerHTML={{ __html: svgHtml }}
+                      />
                     );
                   })}
                 </div>
               </div>
 
-              {/* نام و نام خانوادگی */}
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">نام</label>
-                  <input placeholder="مثال: علی" value={formData.first_name}
-                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white" />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">نام خانوادگی</label>
-                  <input placeholder="مثال: محمدی" value={formData.last_name}
-                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white" />
-                </div>
-              </div>
-
-              {/* نام کاربری (با استعلام یونیک بودن بلادرنگ) */}
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">نام کاربری اختصاصی</label>
-                  {usernameMsg && (
-                    <span className={`text-[10px] ${
-                      usernameStatus === 'available' ? 'text-emerald-500 font-bold' : 
-                      usernameStatus === 'taken' ? 'text-rose-500 font-bold' : 'text-slate-400'
-                    }`}>
-                      {usernameMsg}
-                    </span>
-                  )}
-                </div>
-                <div className="relative">
+                  <label className="block text-slate-300 mb-1">نام</label>
                   <input 
-                    dir="ltr" 
-                    placeholder="یک نام کاربری انگلیسی (مانند ali_mohammadi)" 
-                    value={formData.username}
-                    onChange={(e) => handleUsernameChange(e.target.value)}
-                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-mono text-left dark:text-white border ${
-                      usernameStatus === 'available' ? 'border-emerald-500' :
-                      usernameStatus === 'taken' ? 'border-rose-500' : 'border-transparent'
-                    }`} 
+                    type="text" 
+                    value={editFirstName} 
+                    onChange={(e) => setEditFirstName(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" 
                   />
-                  <div className="absolute right-3 top-2.5">
-                    {usernameStatus === 'checking' && <RefreshCw size={16} className="animate-spin text-blue-500" />}
-                    {usernameStatus === 'available' && <CheckCircle size={16} className="text-emerald-500" />}
-                    {usernameStatus === 'taken' && <AlertCircle size={16} className="text-rose-500" />}
-                  </div>
                 </div>
-              </div>
-
-              {/* سطر رمز عبور */}
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">رمز عبور</label>
-                  {pwdStrength.text && (
-                    <span className="text-[10px] font-bold text-slate-500">
-                      قدرت: <span className={pwdStrength.score === 3 ? 'text-emerald-500' : pwdStrength.score === 2 ? 'text-amber-500' : 'text-rose-500'}>{pwdStrength.text}</span>
-                    </span>
-                  )}
-                </div>
-                <div className="relative">
+                <div>
+                  <label className="block text-slate-300 mb-1">نام خانوادگی</label>
                   <input 
-                    dir="ltr" 
-                    type={showPwd ? 'text' : 'password'} 
-                    placeholder="حداقل ۶ کاراکتر" 
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm text-left dark:text-white" 
+                    type="text" 
+                    value={editLastName} 
+                    onChange={(e) => setEditLastName(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" 
                   />
-                  <button 
-                    type="button" 
-                    onClick={() => setShowPwd(!showPwd)} 
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
-                  >
-                    {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
                 </div>
-                {/* نوار قدرت‌سنجی رمز */}
-                {formData.password && (
-                  <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
-                    <div 
-                      className={`h-full ${pwdStrength.color} transition-all duration-300`} 
-                      style={{ width: pwdStrength.score === 1 ? '30%' : pwdStrength.score === 2 ? '65%' : '100%' }}
-                    />
-                  </div>
-                )}
+                <div>
+                  <label className="block text-slate-300 mb-1">کد ملی</label>
+                  <input 
+                    type="text" 
+                    value={editNationalId} 
+                    onChange={(e) => setEditNationalId(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1">کد پرسنلی</label>
+                  <input 
+                    type="text" 
+                    value={editPersonnelCode} 
+                    onChange={(e) => setEditPersonnelCode(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1">تاریخ تولد</label>
+                  <JalaliPicker value={editBirthDate} onChange={setEditBirthDate} />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1">وضعیت تأهل</label>
+                  <select 
+                    value={editMaritalStatus} 
+                    onChange={(e) => setEditMaritalStatus(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                  >
+                    <option value="مجرد">مجرد</option>
+                    <option value="متاهل">متاهل</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1">تعداد فرزندان</label>
+                  <input 
+                    type="number" 
+                    value={editChildrenCount} 
+                    onChange={(e) => setEditChildrenCount(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1">تاریخ شروع بیمه</label>
+                  <JalaliPicker value={editInsuranceStartDate} onChange={setEditInsuranceStartDate} />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1">آخرین حقوق (ریال)</label>
+                  <input 
+                    type="text" 
+                    value={formatSalary(editLastSalary)} 
+                    onChange={(e) => setEditLastSalary(e.target.value.replace(/,/g, ''))}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1">شهر محل خدمت</label>
+                  <input 
+                    type="text" 
+                    value={editCity} 
+                    onChange={(e) => setEditCity(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" 
+                  />
+                </div>
               </div>
 
-              {/* سطر تکرار رمز عبور */}
               <div>
-                <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">تکرار رمز عبور</label>
-                <div className="relative">
-                  <input
-                    dir="ltr"
-                    type={showConfirmPwd ? 'text' : 'password'}
-                    placeholder="تکرار رمز عبور فوق"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={`w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm text-left dark:text-white border ${
-                      confirmPassword && confirmPassword !== formData.password
-                        ? 'border-rose-500'
-                        : 'border-transparent focus:border-cyan-500'
-                    } focus:outline-none`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPwd(!showConfirmPwd)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                  >
-                    {showConfirmPwd ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-                {confirmPassword && confirmPassword !== formData.password && (
-                  <span className="text-[11px] text-rose-500 mt-1 block">رمز عبور و تکرار آن همخوانی ندارند.</span>
-                )}
+                <label className="block text-slate-300 mb-1">سازمان / شرکت</label>
+                <input 
+                  type="text" 
+                  value={editOrganization} 
+                  onChange={(e) => setEditOrganization(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" 
+                />
               </div>
 
-
-
-              {/* تاریخ تولد، وضعیت تأهل و تعداد فرزند */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">تاریخ تولد</label>
-                  <JalaliPicker value={formData.birth_date} onChange={(v) => setFormData({ ...formData, birth_date: v })} />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">وضعیت تأهل</label>
-                  <select 
-                    value={formData.marital_status}
-                    onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as 'single' | 'married' | 'divorced' })}
-                    className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white"
-                  >
-                    <option value="single">مجرد</option>
-                    <option value="married">متأهل</option>
-                    <option value="divorced">مطلقه</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">تعداد فرزندان</label>
-                  <select
-                    value={formData.children_count}
-                    onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white border border-transparent focus:border-cyan-500 focus:outline-none"
-                  >
-                    <option value={0}>۰ (بدون فرزند)</option>
-                    {[...Array(10)].map((_, i) => (
-                      <option key={i + 1} value={i + 1}>
-                        {i + 1} فرزند
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-
-              </div>
-
-              {/* تاریخ شروع بیمه و حقوق */}
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">تاریخ شروع بیمه</label>
-                  <JalaliPicker value={formData.insurance_start_date} onChange={(v) => setFormData({ ...formData, insurance_start_date: v })} />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">آخرین حقوق (میلیون ریال)</label>
-                  <input dir="ltr" inputMode="numeric" placeholder="مثلاً 250" value={formData.last_salary_million_rial as string}
-                    onChange={(e) => setFormData({ ...formData, last_salary_million_rial: formatSalary(e.target.value) })}
-                    className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-mono text-center dark:text-white" />
-                </div>
-              </div>
-
-              {/* محل کار و حوزه فعالیت (با قابلیت سایر) */}
-              <div className="space-y-2">
-                <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">نام شرکت / کارگاه / محل خدمت</label>
-                  <input placeholder="مثال: شرکت صنایع فولاد..." value={formData.company_name}
-                    onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white" />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">حوزه فعالیت تخصصی</label>
-                  <select 
-                    value={isOtherIndustry ? 'سایر' : (formData.industry_field || '')} 
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === 'سایر') {
-                        setIsOtherIndustry(true);
-                      } else {
-                        setIsOtherIndustry(false);
-                        setFormData({ ...formData, industry_field: val });
-                      }
-                    }}
-                    className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white"
-                  >
-                    <option value="">انتخاب از بین بیش از ۸۰ حوزه تخصصی...</option>
-                    {INDUSTRIES.map(f => <option key={f} value={f}>{f}</option>)}
-                  </select>
-                </div>
-                {/* فیلد تایپی اختصاصی در صورت انتخاب سایر */}
-                {isOtherIndustry && (
-                  <div>
-                    <input 
-                      placeholder="عنوان حوزه فعالیت خود را بنویسید..." 
-                      value={customIndustry}
-                      onChange={(e) => setCustomIndustry(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 text-sm dark:text-white" 
-                    />
-                  </div>
-                )}
-              </div>
-
-              <button disabled={loading} onClick={handleRegister}
-                className="w-full py-3 mt-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30 transition">
-                <Save size={18} />{loading ? 'در حال ثبت اطلاعات...' : 'تکمیل عضویت و ورود به سامانه'}
-              </button>
-
-              <Msg />
-            </div>
-          )}
-
-          {/* ۵. بازیابی رمز: ارسال کد */}
-          {step === 'forgot' && (
-            <>
-              <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">بازیابی رمز عبور</h2>
-              <p className="text-xs text-center text-slate-500 mb-4">شماره موبایل یا نام کاربری ثبت‌شده خود را وارد کنید.</p>
-              <input type="tel" dir="ltr" placeholder="09xxxxxxxxx یا username" value={mobile}
-                onChange={(e) => setMobile(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center font-mono dark:text-white mb-4" />
-              <button disabled={loading} onClick={() => handleSendOtp(true)}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-lg shadow-blue-500/25">
-                {loading ? 'در حال ارسال...' : 'ارسال کد بازیابی پیامکی'}
-              </button>
-              <button onClick={() => setStep('login')} className="w-full text-center text-xs text-blue-500 hover:underline mt-3">بازگشت به صفحه ورود</button>
-              <Msg />
-            </>
-          )}
-
-          {/* ۶. تعیین رمز جدید با کد بازیابی */}
-          {step === 'reset' && (
-            <>
-              <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">تعیین رمز عبور جدید</h2>
-              <p className="text-xs text-center text-slate-500 mb-4">کد بازیابی ۵ رقمی و رمز جدید را وارد کنید:</p>
-              <input dir="ltr" inputMode="numeric" maxLength={6} placeholder="کد بازیابی" value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center font-mono text-xl dark:text-white mb-2" />
-              <input dir="ltr" type="password" placeholder="رمز عبور جدید (حداقل ۶ کاراکتر)" value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center dark:text-white mb-4" />
-              <button disabled={loading} onClick={handleResetPassword}
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl shadow-lg shadow-emerald-600/25">
-                {loading ? 'در حال اعمال...' : 'تغییر رمز عبور و ورود'}
-              </button>
-              <Msg />
-            </>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // ================= مودال ویرایش پروفایل (کاربر لاگین‌شده) =================
-  if (!showProfileModal) return null;
-
-  const selectedAvatarObj = AVATAR_SVGS.find(a => a.id === (formData.avatar_id ?? user?.avatar_id ?? '0')) || AVATAR_SVGS[0];
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl my-auto max-h-[92vh] overflow-y-auto">
-        
-        {/* هدر */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500"><User size={20} /></div>
-            <h3 className="font-bold text-slate-900 dark:text-white">مشخصات کاربری و پرسنلی</h3>
-          </div>
-          <button onClick={() => setShowProfileModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg">
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* کارت شناسه اختصاصی و آواتار فعال */}
-        <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 rounded-2xl flex items-center justify-between border border-blue-100 dark:border-blue-900/40 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-inner bg-white dark:bg-slate-800 p-0.5 border border-blue-200 dark:border-blue-800">
-              {selectedAvatarObj.svg}
-            </div>
-            <div>
-              <span className="text-[11px] block text-blue-600 dark:text-blue-400 font-medium">شناسه اختصاصی دادکار:</span>
-              <span className="text-base font-bold font-mono text-slate-800 dark:text-white tracking-wider">
-                {formData.user_code || user?.user_code || 'DK-USER'}
-              </span>
-            </div>
-          </div>
-          <button onClick={() => navigator.clipboard.writeText(formData.user_code || user?.user_code || '')}
-            className="p-2.5 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-blue-600 shadow-sm transition" title="کپی شناسه">
-            <Copy size={16} />
-          </button>
-        </div>
-
-        <div className="space-y-3.5 text-right">
-          {/* آواتارهای وکتور */}
-          <div>
-            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1.5">تغییر آواتار</label>
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5 p-2 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800">
-              {AVATAR_SVGS.map((av) => (
-                <button
-                  key={av.id}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, avatar_id: av.id })}
-                  className={`p-1 rounded-xl transition ${
-                    (formData.avatar_id ?? '0') === av.id 
-                      ? 'ring-2 ring-blue-600 bg-blue-100/60 dark:bg-blue-900/40 scale-105' 
-                      : 'hover:bg-white dark:hover:bg-slate-700 opacity-70 hover:opacity-100'
-                  }`}
-                  title={av.title}
+              <div>
+                <label className="block text-slate-300 mb-1">صنایع فعالیت</label>
+                <select 
+                  value={editIndustry} 
+                  onChange={(e) => {
+                    setEditIndustry(e.target.value);
+                    setIsEditOtherIndustry(e.target.value === 'سایر صنایع و خدمات');
+                  }}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"
                 >
-                  <div className="w-9 h-9 mx-auto">{av.svg}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* نام و نام خانوادگی */}
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">نام</label>
-              <input type="text" value={formData.first_name}
-                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white" />
-            </div>
-            <div>
-              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">نام خانوادگی</label>
-              <input type="text" value={formData.last_name}
-                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white" />
-            </div>
-          </div>
-          {/* نام کاربری */}
-          <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">
-              نام کاربری
-            </label>
-            <input
-              type="text"
-              dir="ltr"
-              value={formData.username || ''}
-              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              placeholder="نام کاربری خود را وارد کنید"
-              className="w-full px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* تاریخ تولد، وضعیت تأهل و تعداد فرزند */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <div>
-              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">تاریخ تولد</label>
-              <JalaliPicker value={formData.birth_date} onChange={(v) => setFormData({ ...formData, birth_date: v })} />
-            </div>
-            <div>
-              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">وضعیت تأهل</label>
-              <select value={formData.marital_status}
-                onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as 'single' | 'married' | 'divorced' })}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white">
-                <option value="single">مجرد</option>
-                <option value="married">متأهل</option>
-                <option value="divorced">مطلقه</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">تعداد فرزند</label>
-              <input 
-                type="number" 
-                min={0} 
-                max={15} 
-                value={formData.children_count ?? 0}
-                onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value || '0', 10) })}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-mono text-center dark:text-white" 
-              />
-            </div>
-          </div>
-
-          {/* سابقه بیمه و آخرین حقوق */}
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">شروع سابقه بیمه</label>
-              <JalaliPicker value={formData.insurance_start_date} onChange={(v) => setFormData({ ...formData, insurance_start_date: v })} />
-            </div>
-            <div>
-              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">حقوق (میلیون ریال)</label>
-              <input dir="ltr" inputMode="numeric" placeholder="مثلاً 250" value={formData.last_salary_million_rial as string}
-                onChange={(e) => setFormData({ ...formData, last_salary_million_rial: formatSalary(e.target.value) })}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-mono text-center dark:text-white" />
-            </div>
-          </div>
-
-          {/* نام شرکت و حوزه فعالیت */}
-          <div className="space-y-2">
-            <div>
-              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">نام شرکت / محل کار</label>
-              <input type="text" value={formData.company_name || ''}
-                onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white" />
-            </div>
-            <div>
-              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">حوزه فعالیت</label>
-              <select 
-                value={isOtherIndustry ? 'سایر' : (formData.industry_field || '')}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === 'سایر') {
-                    setIsOtherIndustry(true);
-                  } else {
-                    setIsOtherIndustry(false);
-                    setFormData({ ...formData, industry_field: val });
-                  }
-                }}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white"
-              >
-                <option value="">انتخاب کنید</option>
-                {INDUSTRIES.map(f => <option key={f} value={f}>{f}</option>)}
-              </select>
-            </div>
-            {isOtherIndustry && (
-              <input 
-                placeholder="عنوان حوزه فعالیت را بنویسید..." 
-                value={customIndustry}
-                onChange={(e) => setCustomIndustry(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 text-sm dark:text-white" 
-              />
-            )}
-          </div>
-
-
-        {/* دکمه ذخیره مشخصات */}
-        <button disabled={saveLoading} onClick={handleSaveProfile}
-          className="w-full mt-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition">
-          <Save size={18} />{saveLoading ? 'در حال ذخیره‌سازی...' : 'ذخیره مشخصات'}
-        </button>
-
-      
-
-          {/* بخش تغییر رمز عبور */}
-          <div className="border-t border-slate-200 dark:border-slate-800 pt-5 mt-5 space-y-3">
-            <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300">تغییر رمز عبور</h4>
-            
-            {passwordChangeMsg.text && (
-              <div className={`p-2.5 rounded-xl text-xs ${passwordChangeMsg.type === 'error' ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}>
-                {passwordChangeMsg.text}
+                  <option value="">انتخاب صنعت...</option>
+                  {INDUSTRIES.map(ind => <option key={ind} value={ind}>{ind}</option>)}
+                </select>
               </div>
-            )}
 
-            <div>
-              <input
-                type="password"
-                placeholder="رمز عبور فعلی"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700"
-              />
-            </div>
-            <div>
-              <input
-                type="password"
-                placeholder="رمز عبور جدید (حداقل ۶ کاراکتر)"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700"
-              />
-              {/* نشانگر قدرت رمز */}
-              {newPassword && (
-                <div className="mt-1 flex items-center gap-1.5">
-                  <div className={`h-1 flex-1 rounded-full ${newPassword.length < 6 ? 'bg-rose-500' : newPassword.length < 10 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
-                  <span className="text-[10px] text-slate-500">
-                    {newPassword.length < 6 ? 'ضعیف' : newPassword.length < 10 ? 'متوسط' : 'قوی'}
-                  </span>
+              {isEditOtherIndustry && (
+                <div>
+                  <label className="block text-slate-300 mb-1">عنوان صنعت دلخواه</label>
+                  <input 
+                    type="text" 
+                    value={editCustomIndustry} 
+                    onChange={(e) => setEditCustomIndustry(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" 
+                  />
                 </div>
               )}
+
+              <div className="pt-2">
+                <button 
+                  onClick={handleSaveProfile}
+                  disabled={loading}
+                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl transition flex items-center justify-center gap-2"
+                >
+                  {loading ? <RefreshCw className="animate-spin" size={18} /> : <><Save size={16} /> ذخیره تغییرات پروفایل</>}
+                </button>
+              </div>
+
+              <div className="border-t border-slate-800 pt-4 mt-4">
+                <h3 className="text-sm font-bold text-amber-400 mb-3 flex items-center gap-1.5">
+                  <KeyRound size={16} /> تغییر رمز عبور حساب
+                </h3>
+                <form onSubmit={handleChangePasswordInside} className="space-y-3">
+                  {passwordChangeMsg.text && (
+                    <div className={`p-2.5 rounded-xl text-xs ${passwordChangeMsg.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/10 text-red-400 border border-red-500/30'}`}>
+                      {passwordChangeMsg.text}
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-slate-300 mb-1">رمز عبور فعلی</label>
+                    <input 
+                      type="password" 
+                      value={currentPassword} 
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                      required 
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-slate-300 mb-1">رمز عبور جدید</label>
+                      <input 
+                        type="password" 
+                        value={newPassword} 
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                        required 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-300 mb-1">تکرار رمز عبور جدید</label>
+                      <input 
+                        type="password" 
+                        value={confirmNewPassword} 
+                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                        required 
+                      />
+                    </div>
+                  </div>
+                  <button type="submit" className="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-medium py-2 rounded-xl transition">
+                    بروزرسانی رمز عبور
+                  </button>
+                </form>
+              </div>
+
+              <div className="pt-4 border-t border-slate-800 flex justify-between items-center">
+                <button 
+                  onClick={() => {
+                    localStorage.removeItem('dadkar_token');
+                    localStorage.removeItem('dadkar_user');
+                    onLoginSuccess(null, '');
+                    setShowProfileModal(false);
+                  }}
+                  className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition flex items-center gap-1.5"
+                >
+                  <LogOut size={16} /> خروج از حساب کاربری
+                </button>
+                <button 
+                  onClick={() => setShowProfileModal(false)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition"
+                >
+                  بستن
+                </button>
+              </div>
             </div>
-            <div>
-              <input
-                type="password"
-                placeholder="تکرار رمز عبور جدید"
-                value={confirmNewPassword}
-                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700"
-              />
-            </div>
-            <button
-              onClick={handleChangePasswordInside}
-              className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors"
-            >
-              به‌روزرسانی رمز عبور
-            </button>
           </div>
-
-          
-        {/* دکمه خروج از حساب کاربری */}
-            <button
-              onClick={() => {
-                if (window.confirm('آیا قصد خروج از حساب کاربری را دارید؟')) {
-                  localStorage.removeItem('dadkar_token');
-                  localStorage.removeItem('dadkar_user');
-                  sessionStorage.clear();
-                  onLoginSuccess(null as any, null as any);
-                  setShowProfileModal(false);
-                  setStep('login'); // بازگشت اجباری به مرحله ورود
-                }
-              }}
-              className="w-full py-3 px-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-medium text-sm flex items-center justify-center gap-2 hover:bg-rose-100 transition-colors"
-            >
-              <LogOut size={18} />
-              خروج از حساب کاربری
-            </button>
-
-
-
-        {saveMsg && (
-          <p className="mt-3 text-center text-sm font-medium text-emerald-600 dark:text-emerald-400">
-            {saveMsg}
-          </p>
-        )}
-
-
-          
-          {saveMsg && (
-            <p className="text-xs text-center mt-2 text-emerald-500 font-bold bg-emerald-50 dark:bg-emerald-950/30 py-2 rounded-xl">
-              {saveMsg}
-            </p>
-          )}
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
