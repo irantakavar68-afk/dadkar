@@ -552,21 +552,34 @@ export const AuthProfileModals: React.FC<Props> = ({
   };
 
   // ---- ورود با رمز عبور ----
-
   const handleLoginPassword = async () => {
-    if (!identity || !password) { setMsgType('error'); setMsg('نام کاربری یا شماره موبایل و رمز عبور را وارد کنید.'); return; }
-    setLoading(true); setMsg('');
+    if (!identity || !password) { 
+      setMsgType('error'); 
+      setMsg('نام کاربری یا شماره موبایل و رمز عبور را وارد کنید.'); 
+      return; 
+    }
+    setLoading(true); 
+    setMsg('');
     try {
-      // ارسال identity (که می‌تواند DK-... یا شماره موبایل باشد) به بک‌اند
       const data = await post('login_password', { identity: identity.trim(), password });
       if (data.status === 'success') {
         localStorage.setItem('dadkar_token', data.token);
         localStorage.setItem('dadkar_user', JSON.stringify(data.user));
         onLoginSuccess(data.user, data.token);
-        } else { setMsgType('error'); setMsg(data.message || 'نام کاربری، شماره موبایل یا رمز عبور نادرست است.'); }
-    } catch { setMsgType('error'); setMsg('خطای ارتباط با 16سرور'); }
-    finally { setLoading(false); }
+      } else { 
+        setMsgType('error'); 
+        setMsg(data.message || 'نام کاربری، شماره موبایل یا رمز عبور نادرست است.'); 
+      }
+    } catch (err: any) { 
+      setMsgType('error'); 
+      // 🟢 نمایش خطای واقعی به جای پیام ثابت ارتباط با سرور
+      setMsg('خطا: ' + (err.message || 'خطای ارتباط با سرور')); 
+      console.error('Login Error:', err);
+    } finally { 
+      setLoading(false); 
+    }
   };
+
 
 
   // ---- ارسال پیامک OTP ----
