@@ -461,8 +461,49 @@ export const AuthProfileModals: React.FC<Props> = ({
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
 
-  const post = async (action: string, body: object) => {
-    const res = await fetch(`${API_URL}?action=${action}`, {
+  // اضافه‌شده برای تغییر رمز عبور:
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [passwordChangeMsg, setPasswordChangeMsg] = useState({ type: '', text: '' });
+  
+  const handleChangePasswordInside = async () => {
+    if (!currentPassword || !newPassword) {
+      setPasswordChangeMsg({ type: 'error', text: 'لطفاً رمز عبور فعلی و جدید را وارد کنید.' });
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordChangeMsg({ type: 'error', text: 'رمز عبور جدید باید حداقل ۶ کاراکتر باشد.' });
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setPasswordChangeMsg({ type: 'error', text: 'تکرار رمز عبور جدید همخوانی ندارد.' });
+      return;
+    }
+
+    try {
+      const tokenVal = localStorage.getItem('dadkar_token');
+      const res = await post('change_password', {
+        current_password: currentPassword,
+        new_password: newPassword,
+        token: tokenVal
+      });
+      if (res.status === 'success' || res.success) {
+        setPasswordChangeMsg({ type: 'success', text: 'رمز عبور با موفقیت تغییر کرد.' });
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmNewPassword('');
+      } else {
+        setPasswordChangeMsg({ type: 'error', text: res.message || 'خطا در تغییر رمز عبور.' });
+      }
+    } catch {
+      setPasswordChangeMsg({ type: 'error', text: 'خطای ارتباط با سرور.' });
+    }
+  };
+
+  const post = async (action: string, data: any) => {
+
+  const res = await fetch(`${API_URL}?action=${action}`, {
       method: 'POST', 
       headers: { 'Content-Type': 'application/json' }, 
       body: JSON.stringify(body)
@@ -1378,44 +1419,7 @@ export const AuthProfileModals: React.FC<Props> = ({
           <Save size={18} />{saveLoading ? 'در حال ذخیره‌سازی...' : 'ذخیره مشخصات'}
         </button>
 
-        const [currentPassword, setCurrentPassword] = useState('');
-        const [newPassword, setNewPassword] = useState('');
-        const [confirmNewPassword, setConfirmNewPassword] = useState('');
-        const [passwordChangeMsg, setPasswordChangeMsg] = useState({ type: '', text: '' });
-        const handleChangePasswordInside = async () => {
-          if (!currentPassword || !newPassword) {
-            setPasswordChangeMsg({ type: 'error', text: 'لطفاً رمز عبور فعلی و جدید را وارد کنید.' });
-            return;
-          }
-          if (newPassword.length < 6) {
-            setPasswordChangeMsg({ type: 'error', text: 'رمز عبور جدید باید حداقل ۶ کاراکتر باشد.' });
-            return;
-          }
-          if (newPassword !== confirmNewPassword) {
-            setPasswordChangeMsg({ type: 'error', text: 'تکرار رمز عبور جدید همخوانی ندارد.' });
-            return;
-          }
       
-          try {
-            const token = localStorage.getItem('dadkar_token');
-            const res = await post('change_password', {
-              current_password: currentPassword,
-              new_password: newPassword,
-              token: token
-            });
-            if (res.status === 'success' || res.success) {
-              setPasswordChangeMsg({ type: 'success', text: 'رمز عبور با موفقیت تغییر کرد.' });
-              setCurrentPassword('');
-              setNewPassword('');
-              setConfirmNewPassword('');
-            } else {
-              setPasswordChangeMsg({ type: 'error', text: res.message || 'خطا در تغییر رمز عبور.' });
-            }
-          } catch {
-            setPasswordChangeMsg({ type: 'error', text: 'خطای ارتباط با سرور.' });
-          }
-        };
-
 
           {/* بخش تغییر رمز عبور */}
           <div className="border-t border-slate-200 dark:border-slate-800 pt-5 mt-5 space-y-3">
