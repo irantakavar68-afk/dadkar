@@ -501,25 +501,23 @@ export const AuthProfileModals: React.FC<Props> = ({
     }
   };
 
-    const post = async (action: string, data: any) => {
+  const post = async (action: string, data: any) => {
+    try {
       const res = await fetch(`${API_URL}?action=${action}`, {
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify(data) // 🟢 تغییر مهم: استفاده از data به جای body
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       });
-      return res.json();
-    };
-
-
-    const json = await res.json();
-    if (!res.ok) {
-      throw new Error(json.message || 'خطای 1سرور');
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(json.message || 'خطای ارتباط با سرور');
+      }
+      return json;
+    } catch (err: any) {
+      throw err;
     }
-    return json;
-  } catch (err: any) {
-    throw err;
-  }
-};
+  };
+
 
 
   // استعلام یونیک بودن نام کاربری به محض تایپ
