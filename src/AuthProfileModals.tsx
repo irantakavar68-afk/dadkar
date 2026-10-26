@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   User, KeyRound, CheckCircle, Save, X, Copy, Calendar, 
-  Lock, LogIn, Check, AlertCircle, RefreshCw, Eye, EyeOff, ShieldCheck
+  Lock, LogIn, Check, AlertCircle, RefreshCw, Eye, EyeOff, ShieldCheck, LogOut
 } from 'lucide-react';
+
+
 
 const API_URL = "https://daadkaar.ir/api/auth.php";
 
@@ -1431,104 +1433,90 @@ export const AuthProfileModals: React.FC<Props> = ({
           </div>
 
 
-        {/* دکمه ذخیره مشخصات */}
-        <button disabled={saveLoading} onClick={handleSaveProfile}
-          className="w-full mt-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition">
-          <Save size={18} />{saveLoading ? 'در حال ذخیره‌سازی...' : 'ذخیره مشخصات'}
-        </button>
+          {/* دکمه ذخیره تغییرات */}
+          <button
+            type="button"
+            onClick={handleSaveProfile}
+            disabled={loading}
+            className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-2xl shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2 mt-6"
+          >
+            <Save size={18} />
+            {loading ? 'در حال ذخیره...' : 'ذخیره تغییرات'}
+          </button>
 
-      
+          {saveMsg && (
+            <p className="mt-3 text-center text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800/50">
+              {saveMsg}
+            </p>
+          )}
 
-          {/* بخش تغییر رمز عبور */}
-          <div className="border-t border-slate-200 dark:border-slate-800 pt-5 mt-5 space-y-3">
-            <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300">تغییر رمز عبور</h4>
-            
-            {passwordChangeMsg.text && (
-              <div className={`p-2.5 rounded-xl text-xs ${passwordChangeMsg.type === 'error' ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}>
-                {passwordChangeMsg.text}
-              </div>
-            )}
-
-            <div>
+          {/* تغییر رمز عبور */}
+          <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+              <Lock size={16} className="text-blue-500" />
+              تغییر رمز عبور
+            </h3>
+            <div className="space-y-3">
               <input
                 type="password"
                 placeholder="رمز عبور فعلی"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-slate-200 text-sm focus:outline-none focus:border-blue-500"
               />
-            </div>
-            <div>
               <input
                 type="password"
-                placeholder="رمز عبور جدید (حداقل ۶ کاراکتر)"
+                placeholder="رمز عبور جدید"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-slate-200 text-sm focus:outline-none focus:border-blue-500"
               />
-              {/* نشانگر قدرت رمز */}
-              {newPassword && (
-                <div className="mt-1 flex items-center gap-1.5">
-                  <div className={`h-1 flex-1 rounded-full ${newPassword.length < 6 ? 'bg-rose-500' : newPassword.length < 10 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
-                  <span className="text-[10px] text-slate-500">
-                    {newPassword.length < 6 ? 'ضعیف' : newPassword.length < 10 ? 'متوسط' : 'قوی'}
-                  </span>
-                </div>
-              )}
-            </div>
-            <div>
               <input
                 type="password"
                 placeholder="تکرار رمز عبور جدید"
                 value={confirmNewPassword}
                 onChange={(e) => setConfirmNewPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-slate-200 text-sm focus:outline-none focus:border-blue-500"
               />
+              <button
+                type="button"
+                onClick={handleChangePasswordInside}
+                className="w-full py-2.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-medium rounded-xl text-sm transition-all"
+              >
+                بروزرسانی رمز عبور
+              </button>
+              {passwordChangeMsg && (
+                <p className={`text-xs text-center mt-2 ${passwordChangeMsg.includes('موفق') ? 'text-emerald-500 font-bold' : 'text-red-500'}`}>
+                  {passwordChangeMsg}
+                </p>
+              )}
             </div>
-            <button
-              onClick={handleChangePasswordInside}
-              className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors"
-            >
-              به‌روزرسانی رمز عبور
-            </button>
           </div>
 
-          
-        {/* دکمه خروج از حساب کاربری */}
+          {/* خروج از حساب کاربری */}
+          <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
             <button
+              type="button"
               onClick={() => {
-                if (window.confirm('آیا قصد خروج از حساب کاربری را دارید؟')) {
+                if (window.confirm('آیا مطمئن هستید که می‌خواهید خارج شوید؟')) {
                   localStorage.removeItem('dadkar_token');
                   localStorage.removeItem('dadkar_user');
                   sessionStorage.clear();
-                  onLoginSuccess(null as any, null as any);
                   setShowProfileModal(false);
-                  setStep('login'); // بازگشت اجباری به مرحله ورود
+                  onLoginSuccess(null as any, null as any);
+                  setStep('login');
                 }
               }}
-              className="w-full py-3 px-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-medium text-sm flex items-center justify-center gap-2 hover:bg-rose-100 transition-colors"
+              className="w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 font-medium rounded-2xl transition-all flex items-center justify-center gap-2 text-sm"
             >
               <LogOut size={18} />
               خروج از حساب کاربری
             </button>
+          </div>
 
-
-
-        {saveMsg && (
-          <p className="mt-3 text-center text-sm font-medium text-emerald-600 dark:text-emerald-400">
-            {saveMsg}
-          </p>
-        )}
-
-
-          
-          {saveMsg && (
-            <p className="text-xs text-center mt-2 text-emerald-500 font-bold bg-emerald-50 dark:bg-emerald-950/30 py-2 rounded-xl">
-              {saveMsg}
-            </p>
-          )}
         </div>
       </div>
     </div>
   );
 };
+
