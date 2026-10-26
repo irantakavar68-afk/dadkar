@@ -501,19 +501,19 @@ export const AuthProfileModals: React.FC<Props> = ({
     }
   };
 
-const post = async (action: string, data: any) => {
-  try {
-    const res = await fetch(`${API_URL}?action=${action}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data), // اصلاح شد: از data استفاده می شود نه body
-    });
+    const post = async (action: string, data: any) => {
+      const res = await fetch(`${API_URL}?action=${action}`, {
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify(data) // 🟢 تغییر مهم: استفاده از data به جای body
+      });
+      return res.json();
+    };
+
 
     const json = await res.json();
     if (!res.ok) {
-      throw new Error(json.message || 'خطای سرور');
+      throw new Error(json.message || 'خطای 1سرور');
     }
     return json;
   } catch (err: any) {
