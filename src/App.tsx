@@ -1925,15 +1925,20 @@ export default function App() {
           </div>
         </div>
       )}
-            {/* مودال‌های احراز هویت و مشخصات کاربری */}
+        {/* مودال‌های احراز هویت و مشخصات کاربری */}
         <AuthProfileModals
           user={user}
           token={token}
-          onLoginSuccess={(u, t) => { setUser(u); setToken(t); }}
+          onLoginSuccess={(u, t) => { 
+            setUser(u); 
+            setToken(t); 
+            setShowProfileModal(false); // بستن اجباری مودال پروفایل هنگام لاگین موفق
+          }}
           onProfileUpdate={(u) => setUser(u)}
           showProfileModal={showProfileModal}
           setShowProfileModal={setShowProfileModal}
         />
+
 
     </div>
   );
