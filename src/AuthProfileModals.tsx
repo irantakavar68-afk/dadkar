@@ -497,29 +497,23 @@ export const AuthProfileModals: React.FC<Props> = ({
         setPasswordChangeMsg({ type: 'error', text: res.message || 'خطا در تغییر رمز عبور.' });
       }
     } catch {
-      setPasswordChangeMsg({ type: 'error', text: 'خطای ارتباط با1 سرور.' });
+      setPasswordChangeMsg({ type: 'error', text: 'خطای ارتباط با15 سرور.' });
     }
   };
 
     const post = async (action: string, data: any) => {
-      const res = await fetch(`${API_URL}?action=${action}`, {
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify(data) // 🟢 تغییر مهم: استفاده از data به جای body
-      });
-      return res.json();
-    };
-
-
-    const json = await res.json();
+    const res = await fetch(`${API_URL}?action=${action}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const json = await res.json().catch(() => ({}));
     if (!res.ok) {
-      throw new Error(json.message || 'خطای 9سرور');
+      throw new Error(json.message || 'خطای سر20ور');
     }
     return json;
-  } catch (err: any) {
-    throw err;
-  }
-};
+  };
+
 
 
   // استعلام یونیک بودن نام کاربری به محض تایپ
@@ -570,7 +564,7 @@ export const AuthProfileModals: React.FC<Props> = ({
         localStorage.setItem('dadkar_user', JSON.stringify(data.user));
         onLoginSuccess(data.user, data.token);
         } else { setMsgType('error'); setMsg(data.message || 'نام کاربری، شماره موبایل یا رمز عبور نادرست است.'); }
-    } catch { setMsgType('error'); setMsg('خطای ارتباط با3 سرور'); }
+    } catch { setMsgType('error'); setMsg('خطای ارتباط با 16سرور'); }
     finally { setLoading(false); }
   };
 
@@ -598,7 +592,7 @@ export const AuthProfileModals: React.FC<Props> = ({
     } catch (err) {
       console.error('Send OTP Error:', err);
       setMsgType('error');
-      setMsg('خطای ارتباط با4 سرور');
+      setMsg('خطای ارتباط با 10سرور');
     } finally {
       setLoading(false);
     }
@@ -644,7 +638,7 @@ export const AuthProfileModals: React.FC<Props> = ({
     } catch (err) {
       console.error('Verify OTP Error:', err);
       setMsgType('error');
-      setMsg('خطای ارتباط با 5سرور');
+      setMsg('خطای ارتباط با11 سرور');
     } finally {
       setLoading(false);
     }
@@ -722,7 +716,7 @@ export const AuthProfileModals: React.FC<Props> = ({
       }
     } catch (e) {
       setMsgType('error');
-      setMsg('خطا در برقراری ارتباط با6 سرور.');
+      setMsg('خطا در برقراری ارتباط12 با سرور.');
     } finally {
       setLoading(false);
     }
@@ -751,7 +745,7 @@ export const AuthProfileModals: React.FC<Props> = ({
         setMsgType('success'); setMsg('رمز با موفقیت تغییر کرد. در حال انتقال به ورود...');
         setTimeout(() => { setStep('login'); setMsg(''); }, 1500);
       } else { setMsgType('error'); setMsg(data.message || 'خطا در بازیابی'); }
-    } catch { setMsgType('error'); setMsg('خطای ارتباط ب7ا سرور'); }
+    } catch { setMsgType('error'); setMsg('خطای ارتباط با13 سرور'); }
     finally { setLoading(false); }
   };
 
@@ -770,7 +764,7 @@ export const AuthProfileModals: React.FC<Props> = ({
         setSaveMsg('مشخصات با موفقیت ذخیره گردید.');
         setTimeout(() => setShowProfileModal(false), 1200);
       } else setSaveMsg(res.message || 'خطا در ذخیره‌سازی');
-    } catch { setSaveMsg('خطای ارتباط ب8ا سرور'); }
+    } catch { setSaveMsg('خطای ارتباط با14 سرور'); }
     finally { setSaveLoading(false); }
   };
 
