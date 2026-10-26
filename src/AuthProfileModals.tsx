@@ -507,18 +507,32 @@ export const AuthProfileModals: React.FC<Props> = ({
 
   // ---- ورود با رمز عبور ----
   const handleLoginPassword = async () => {
-    if (!identity || !password) { setMsgType('error'); setMsg('نام کاربری و رمز عبور را وارد کنید.'); return; }
-    setLoading(true); setMsg('');
+    if (!identity || !password) {
+      setMsgType('error');
+      setMsg('شناسه اختصاصی دادکار و رمز عبور را وارد کنید.');
+      return;
+    }
+    setLoading(true);
+    setMsg('');
     try {
-      const data = await post('login_password', { username: identity, password });
+      // ارسال user_code به جای username به بک‌اند
+      const data = await post('login_password', { user_code: identity.trim(), password });
       if (data.status === 'success') {
         localStorage.setItem('dadkar_token', data.token);
         localStorage.setItem('dadkar_user', JSON.stringify(data.user));
         onLoginSuccess(data.user, data.token);
-      } else { setMsgType('error'); setMsg(data.message || 'نام کاربری یا رمز نادرست است.'); }
-    } catch { setMsgType('error'); setMsg('خطای ارتباط با سرور'); }
-    finally { setLoading(false); }
+      } else {
+        setMsgType('error');
+        setMsg(data.message || 'شناسه دادکار یا رمز عبور نادرست است.');
+      }
+    } catch {
+      setMsgType('error');
+      setMsg('خطای ارتباط با سرور');
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   // ---- ارسال پیامک OTP ----
   const handleSendOtp = async (isForgot = false, channel: 'sms' | 'voice' = 'sms') => {
@@ -598,21 +612,7 @@ export const AuthProfileModals: React.FC<Props> = ({
 
 
   // ---- تکمیل ثبت‌نام اولیه ----
-   const handleRegister = async () => {
-    // 1. بررسی دقیق نام کاربری
-    const cleanedUsername = (formData.username || '').trim();
-    if (!cleanedUsername || cleanedUsername.length < 3) {
-      setMsgType('error');
-      setMsg('تعیین نام کاربری معتبر (حداقل ۳ کاراکتر انگلیسی) الزامی است.');
-      return;
-    }
-
-    if (usernameStatus === 'taken') {
-      setMsgType('error');
-      setMsg('لطفاً یک نام کاربری آزاد انتخاب کنید.');
-      return;
-    }
-
+     const handleRegister = async () => {
     if (!formData.password || formData.password.length < 6) {
       setMsgType('error');
       setMsg('رمز عبور باید حداقل ۶ کاراکتر باشد.');
@@ -629,12 +629,11 @@ export const AuthProfileModals: React.FC<Props> = ({
     setMsg('');
 
     try {
-      const sessionToken = sessionToken || localStorage.getItem('dadkar_token');
+      const sessionToken = token || localStorage.getItem('dadkar_token');
       const finalIndustry = isOtherIndustry ? customIndustry : formData.industry_field;
       
       const payload = {
         ...formData,
-        username: cleanedUsername,
         mobile: formData.mobile || mobile,
         industry_field: finalIndustry,
         token: sessionToken
@@ -647,7 +646,6 @@ export const AuthProfileModals: React.FC<Props> = ({
         setMsg('عضویت شما با موفقیت تکمیل شد.');
         const fullUser = data.user || data.extra?.user || {
           ...formData,
-          username: cleanedUsername,
           mobile: formData.mobile || mobile,
           industry_field: finalIndustry
         };
@@ -672,6 +670,7 @@ export const AuthProfileModals: React.FC<Props> = ({
       setLoading(false);
     }
   };
+
 
 
 
@@ -746,11 +745,11 @@ export const AuthProfileModals: React.FC<Props> = ({
           {step === 'login' && (
             <>
               <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">ورود به دادکار</h2>
-              <p className="text-xs text-center text-slate-500 dark:text-slate-400 mb-5">نام کاربری (یا شماره موبایل) و رمز عبور خود را وارد کنید.</p>
+              <p className="text-xs text-center text-slate-500 dark:text-slate-400 mb-5">شناسه اختصاصی دادکار و رمز عبور خود را وارد کنید.</p>
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">نام کاربری یا موبایل</label>
-                  <input dir="ltr" placeholder="09xxxxxxxxx یا username" value={identity}
+                    <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">شناسه اختصاصی دادکار</label>
+                    <input dir="ltr" placeholder="مثال: DK-12345" value={identity}
                     onChange={(e) => setIdentity(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-center font-mono dark:text-white border border-transparent focus:border-blue-500 focus:outline-none" />
                 </div>
@@ -1355,20 +1354,23 @@ export const AuthProfileModals: React.FC<Props> = ({
         </button>
 
         {/* دکمه خروج از حساب کاربری */}
-        <button
+         <button
           type="button"
           onClick={() => {
             if (window.confirm('آیا قصد خروج از حساب کاربری را دارید؟')) {
               localStorage.removeItem('dadkar_token');
               localStorage.removeItem('dadkar_user');
+              // پاکسازی کامل نشست و هدایت به صفحه ورود
               onLoginSuccess(null as any, null as any);
               setShowProfileModal(false);
             }
           }}
-          className="w-full mt-2 py-2.5 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 rounded-xl text-sm font-medium hover:bg-rose-100 dark:hover:bg-rose-900/40 transition flex items-center justify-center gap-2"
+          className="w-full mt-2 py-2.5 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors"
         >
+          <LogIn className="w-4 h-4 rotate-180" />
           <span>خروج از حساب کاربری</span>
         </button>
+
 
         {saveMsg && (
           <p className="mt-3 text-center text-sm font-medium text-emerald-600 dark:text-emerald-400">
