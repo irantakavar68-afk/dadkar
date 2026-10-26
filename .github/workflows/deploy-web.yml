@@ -1,0 +1,99 @@
+name: Deploy Web Preview
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Bundle Web Version
+        run: |
+          npm init -y
+          npm install react react-dom lucide-react typescript @types/react @types/react-dom esbuild
+          npm install -D tailwindcss@3 @fontsource/vazirmatn
+
+          SOURCE_FILE=""
+          if [ -f "src/App.tsx" ]; then SOURCE_FILE="src/App.tsx";
+          elif [ -f "App.tsx" ]; then SOURCE_FILE="App.tsx";
+          fi
+
+          mkdir -p dist src
+          cat << 'EOF' > src/entry.tsx
+          import React from 'react';
+          import ReactDOM from 'react-dom/client';
+          import DadKarApp from './AppSource';
+          import '@fontsource/vazirmatn/400.css';
+          import '@fontsource/vazirmatn/700.css';
+          import './tailwind.css';
+
+          const rootElement = document.getElementById('root');
+          if (rootElement) {
+            ReactDOM.createRoot(rootElement).render(<DadKarApp />);
+          }
+          EOF
+
+          if [ "$SOURCE_FILE" != "src/AppSource.tsx" ]; then cp "$SOURCE_FILE" src/AppSource.tsx; fi
+
+          cat << 'EOF' > tailwind.config.js
+          module.exports = {
+            content: ["./src/**/*.{js,jsx,ts,tsx}", "./dist/index.html"],
+            theme: { extend: {} },
+            plugins: [],
+          }
+          EOF
+
+          printf '@tailwind base;\n@tailwind components;\n@tailwind utilities;\n' > src/input.css
+          npx tailwindcss -c tailwind.config.js -i src/input.css -o src/tailwind.css --minify
+          npx esbuild src/entry.tsx --bundle --minify --loader:.tsx=tsx --loader:.woff2=file --loader:.woff=file --outfile=dist/bundle.js --define:process.env.NODE_ENV='"production"'
+
+          cat << 'EOF' > dist/index.html
+          <!DOCTYPE html>
+          <html lang="fa" dir="rtl">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+              <title>دادکار</title>
+              <link rel="stylesheet" href="bundle.css">
+            </head>
+            <body class="bg-[#090d16] text-white">
+              <div id="root"></div>
+              <script src="bundle.js"></script>
+            </body>
+          </html>
+          EOF
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
