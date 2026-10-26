@@ -508,7 +508,7 @@ export const AuthProfileModals: React.FC<Props> = ({
   // ---- ورود با رمز عبور ----
 
   const handleLoginPassword = async () => {
-    if (!identity || !password) { setMsgType('error'); setMsg('شناسه دادکار یا شماره موبایل و رمز عبور را وارد کنید.'); return; }
+    if (!identity || !password) { setMsgType('error'); setMsg('نام کاربری یا شماره موبایل و رمز عبور را وارد کنید.'); return; }
     setLoading(true); setMsg('');
     try {
       // ارسال identity (که می‌تواند DK-... یا شماره موبایل باشد) به بک‌اند
@@ -517,7 +517,7 @@ export const AuthProfileModals: React.FC<Props> = ({
         localStorage.setItem('dadkar_token', data.token);
         localStorage.setItem('dadkar_user', JSON.stringify(data.user));
         onLoginSuccess(data.user, data.token);
-      } else { setMsgType('error'); setMsg(data.message || 'شناسه دادکار، شماره موبایل یا رمز عبور نادرست است.'); }
+        } else { setMsgType('error'); setMsg(data.message || 'نام کاربری، شماره موبایل یا رمز عبور نادرست است.'); }
     } catch { setMsgType('error'); setMsg('خطای ارتباط با سرور'); }
     finally { setLoading(false); }
   };
@@ -749,14 +749,20 @@ export const AuthProfileModals: React.FC<Props> = ({
           {step === 'login' && (
             <>
               <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-1">ورود به دادکار</h2>
-              <p className="text-xs text-center text-slate-500 dark:text-slate-400 mb-5">شناسه اختصاصی دادکار یا شماره موبایل و رمز عبور خود را وارد کنید.</p>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">شناسه اختصاصی دادکار یا شماره موبایل</label>
-                  <input dir="ltr" placeholder="DK-XXXXX یا 09xxxxxxxxx" value={identity}
-                    onChange={(e) => setIdentity(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-center font-mono dark:text-white border border-transparent focus:border-blue-500 focus:outline-none" />
-                </div>
+               <p className="text-xs text-center text-slate-500 dark:text-slate-400 mb-5">نام کاربری یا شماره موبایل و رمز عبور خود را وارد کنید.</p>              <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">
+                نام کاربری یا شماره موبایل
+              </label>
+              <input
+                type="text"
+                dir="ltr"
+                placeholder="نام کاربری یا 09xxxxxxxxx"
+                value={identity}
+                onChange={(e) => setIdentity(e.target.value)}
+                className="w-full px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-sm font-mono text-left dark:text-white border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
                 <div>
                   <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">رمز عبور</label>
@@ -1372,21 +1378,119 @@ export const AuthProfileModals: React.FC<Props> = ({
           <Save size={18} />{saveLoading ? 'در حال ذخیره‌سازی...' : 'ذخیره مشخصات'}
         </button>
 
-        {/* دکمه خروج از حساب کاربری */}
-        <button
-          type="button"
-          onClick={() => {
-            if (window.confirm('آیا قصد خروج از حساب کاربری را دارید؟')) {
-              localStorage.removeItem('dadkar_token');
-              localStorage.removeItem('dadkar_user');
-              onLoginSuccess(null as any, null as any);
-              setShowProfileModal(false);
+        const [currentPassword, setCurrentPassword] = useState('');
+        const [newPassword, setNewPassword] = useState('');
+        const [confirmNewPassword, setConfirmNewPassword] = useState('');
+        const [passwordChangeMsg, setPasswordChangeMsg] = useState({ type: '', text: '' });
+        const handleChangePasswordInside = async () => {
+          if (!currentPassword || !newPassword) {
+            setPasswordChangeMsg({ type: 'error', text: 'لطفاً رمز عبور فعلی و جدید را وارد کنید.' });
+            return;
+          }
+          if (newPassword.length < 6) {
+            setPasswordChangeMsg({ type: 'error', text: 'رمز عبور جدید باید حداقل ۶ کاراکتر باشد.' });
+            return;
+          }
+          if (newPassword !== confirmNewPassword) {
+            setPasswordChangeMsg({ type: 'error', text: 'تکرار رمز عبور جدید همخوانی ندارد.' });
+            return;
+          }
+      
+          try {
+            const token = localStorage.getItem('dadkar_token');
+            const res = await post('change_password', {
+              current_password: currentPassword,
+              new_password: newPassword,
+              token: token
+            });
+            if (res.status === 'success' || res.success) {
+              setPasswordChangeMsg({ type: 'success', text: 'رمز عبور با موفقیت تغییر کرد.' });
+              setCurrentPassword('');
+              setNewPassword('');
+              setConfirmNewPassword('');
+            } else {
+              setPasswordChangeMsg({ type: 'error', text: res.message || 'خطا در تغییر رمز عبور.' });
             }
-          }}
-          className="w-full mt-2 py-2.5 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 rounded-xl text-sm font-medium hover:bg-rose-100 dark:hover:bg-rose-900/40 transition flex items-center justify-center gap-2"
-        >
-          <span>خروج از حساب کاربری</span>
-        </button>
+          } catch {
+            setPasswordChangeMsg({ type: 'error', text: 'خطای ارتباط با سرور.' });
+          }
+        };
+
+
+          {/* بخش تغییر رمز عبور */}
+          <div className="border-t border-slate-200 dark:border-slate-800 pt-5 mt-5 space-y-3">
+            <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300">تغییر رمز عبور</h4>
+            
+            {passwordChangeMsg.text && (
+              <div className={`p-2.5 rounded-xl text-xs ${passwordChangeMsg.type === 'error' ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                {passwordChangeMsg.text}
+              </div>
+            )}
+
+            <div>
+              <input
+                type="password"
+                placeholder="رمز عبور فعلی"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700"
+              />
+            </div>
+            <div>
+              <input
+                type="password"
+                placeholder="رمز عبور جدید (حداقل ۶ کاراکتر)"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700"
+              />
+              {/* نشانگر قدرت رمز */}
+              {newPassword && (
+                <div className="mt-1 flex items-center gap-1.5">
+                  <div className={`h-1 flex-1 rounded-full ${newPassword.length < 6 ? 'bg-rose-500' : newPassword.length < 10 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+                  <span className="text-[10px] text-slate-500">
+                    {newPassword.length < 6 ? 'ضعیف' : newPassword.length < 10 ? 'متوسط' : 'قوی'}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div>
+              <input
+                type="password"
+                placeholder="تکرار رمز عبور جدید"
+                value={confirmNewPassword}
+                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700"
+              />
+            </div>
+            <button
+              onClick={handleChangePasswordInside}
+              className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors"
+            >
+              به‌روزرسانی رمز عبور
+            </button>
+          </div>
+
+          
+        {/* دکمه خروج از حساب کاربری */}
+            <button
+              onClick={() => {
+                if (window.confirm('آیا قصد خروج از حساب کاربری را دارید؟')) {
+                  localStorage.removeItem('dadkar_token');
+                  localStorage.removeItem('dadkar_user');
+                  sessionStorage.clear();
+                  onLoginSuccess(null as any, null as any);
+                  setShowProfileModal(false);
+                  setStep('login'); // بازگشت اجباری به مرحله ورود
+                }
+              }}
+              className="w-full py-3 px-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-medium text-sm flex items-center justify-center gap-2 hover:bg-rose-100 transition-colors"
+            >
+              <LogOut size={18} />
+              خروج از حساب کاربری
+            </button>
+
+
 
         {saveMsg && (
           <p className="mt-3 text-center text-sm font-medium text-emerald-600 dark:text-emerald-400">
