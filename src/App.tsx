@@ -11,8 +11,9 @@ import {
 } from 'lucide-react';
 
 import { User } from 'lucide-react';
- import { AuthProfileModals, UserProfile } from './AuthProfileModals';
+import { AuthProfileModals, UserProfile } from './AuthProfileModals';
 import { AuthProfileModals, AVATAR_SVGS } from './AuthProfileModals';
+
 
 import TaminBranchesView from './TaminBranchesView';
 import * as LawsModule from './lawsData';
@@ -1925,19 +1926,21 @@ export default function App() {
           </div>
         </div>
       )}
-        {/* مودال‌های احراز هویت و مشخصات کاربری */}
-        <AuthProfileModals
-          user={user}
-          token={token}
-          onLoginSuccess={(u, t) => { 
-            setUser(u); 
-            setToken(t); 
-            setShowProfileModal(false); // بستن اجباری مودال پروفایل هنگام لاگین موفق
-          }}
-          onProfileUpdate={(u) => setUser(u)}
-          showProfileModal={showProfileModal}
-          setShowProfileModal={setShowProfileModal}
-        />
+
+      {/* مودال‌های احراز هویت و مشخصات کاربری */}
+      <AuthProfileModals
+        user={user}
+        token={token}
+        onLoginSuccess={(u, t) => { 
+          setUser(u); 
+          setToken(t); 
+          setShowProfileModal(false); 
+        }}
+        onProfileUpdate={(u) => setUser(u)}
+        showProfileModal={showProfileModal}
+        setShowProfileModal={setShowProfileModal}
+      />
+
 
 
     </div>
