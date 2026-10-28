@@ -467,6 +467,7 @@ export const AuthProfileModals: React.FC<Props> = ({
   // اضافه‌شده برای تغییر رمز عبور:
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [showPwdSection, setShowPwdSection] = useState(false);
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [passwordChangeMsg, setPasswordChangeMsg] = useState({ type: '', text: '' });
   
@@ -1443,59 +1444,72 @@ export const AuthProfileModals: React.FC<Props> = ({
 
       
 
-          {/* بخش تغییر رمز عبور */}
-          <div className="border-t border-slate-200 dark:border-slate-800 pt-5 mt-5 space-y-3">
-            <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300">تغییر رمز عبور</h4>
-            
-            {passwordChangeMsg.text && (
-              <div className={`p-2.5 rounded-xl text-xs ${passwordChangeMsg.type === 'error' ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}>
-                {passwordChangeMsg.text}
+                  {/* بخش تغییر رمز عبور (جمع‌شونده) */}
+          <div className="mt-5 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setShowPwdSection(!showPwdSection)}
+              className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition"
+            >
+              <span className="flex items-center gap-2">
+                <KeyRound size={16} />
+                تغییر رمز عبور
+              </span>
+              <span className={`text-xs transition-transform ${showPwdSection ? 'rotate-180' : ''}`}>▾</span>
+            </button>
+
+            {showPwdSection && (
+              <div className="px-4 pb-4 pt-3 space-y-2.5 border-t border-slate-200 dark:border-slate-800">
+                {passwordChangeMsg.text && (
+                  <div className={`p-2.5 rounded-xl text-xs ${passwordChangeMsg.type === 'error' ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                    {passwordChangeMsg.text}
+                  </div>
+                )}
+
+                <input
+                  type="password"
+                  placeholder="رمز عبور فعلی"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700"
+                />
+
+                <div>
+                  <input
+                    type="password"
+                    placeholder="رمز عبور جدید (حداقل ۶ کاراکتر)"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700"
+                  />
+                  {newPassword && (
+                    <div className="mt-1 flex items-center gap-1.5">
+                      <div className={`h-1 flex-1 rounded-full ${newPassword.length < 6 ? 'bg-rose-500' : newPassword.length < 10 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+                      <span className="text-[10px] text-slate-500">
+                        {newPassword.length < 6 ? 'ضعیف' : newPassword.length < 10 ? 'متوسط' : 'قوی'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <input
+                  type="password"
+                  placeholder="تکرار رمز عبور جدید"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700"
+                />
+
+                <button
+                  onClick={handleChangePasswordInside}
+                  className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors"
+                >
+                  به‌روزرسانی رمز عبور
+                </button>
               </div>
             )}
-
-            <div>
-              <input
-                type="password"
-                placeholder="رمز عبور فعلی"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700"
-              />
-            </div>
-            <div>
-              <input
-                type="password"
-                placeholder="رمز عبور جدید (حداقل ۶ کاراکتر)"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700"
-              />
-              {/* نشانگر قدرت رمز */}
-              {newPassword && (
-                <div className="mt-1 flex items-center gap-1.5">
-                  <div className={`h-1 flex-1 rounded-full ${newPassword.length < 6 ? 'bg-rose-500' : newPassword.length < 10 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
-                  <span className="text-[10px] text-slate-500">
-                    {newPassword.length < 6 ? 'ضعیف' : newPassword.length < 10 ? 'متوسط' : 'قوی'}
-                  </span>
-                </div>
-              )}
-            </div>
-            <div>
-              <input
-                type="password"
-                placeholder="تکرار رمز عبور جدید"
-                value={confirmNewPassword}
-                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700"
-              />
-            </div>
-            <button
-              onClick={handleChangePasswordInside}
-              className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors"
-            >
-              به‌روزرسانی رمز عبور
-            </button>
           </div>
+
 
           
         {/* دکمه خروج از حساب کاربری */}
@@ -1515,17 +1529,7 @@ export const AuthProfileModals: React.FC<Props> = ({
               <LogOut size={18} />
               خروج از حساب کاربری
             </button>
-
-
-
-        {saveMsg && (
-          <p className="mt-3 text-center text-sm font-medium text-emerald-600 dark:text-emerald-400">
-            {saveMsg}
-          </p>
-        )}
-
-
-          
+        
           {saveMsg && (
             <p className="text-xs text-center mt-2 text-emerald-500 font-bold bg-emerald-50 dark:bg-emerald-950/30 py-2 rounded-xl">
               {saveMsg}
