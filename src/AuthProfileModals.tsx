@@ -634,22 +634,14 @@ export const AuthProfileModals: React.FC<Props> = ({
         setSessionToken(tokenVal);
         localStorage.setItem('dadkar_token', tokenVal);
         
-        // بررسی واقعی‌تر is_registered (پشتیبانی از رشته، بولین یا عدد)
-        const isRegistered = data.is_registered === true || data.is_registered === 'true' || data.is_registered == 1;
-
-        if (isRegistered) {
+        if (data.is_registered) {
           const fullUser = data.extra?.user || data.user || {};
           localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
           onLoginSuccess(fullUser, tokenVal);
           setMsg('با موفقیت وارد شدید!');
           setMsgType('success');
-          setShowProfileModal(false);
+          setTimeout(() => setShowProfileModal(false), 1000);
         } else {
-          // کاربر جدید: ذخیره اطلاعات موقت و اجازه لاگین برای جلوگیری از مشکل ماندن در حالت فاقد سشن
-          const partialUser = data.extra?.user || data.user || { mobile: formData.mobile || mobile };
-          localStorage.setItem('dadkar_user', JSON.stringify(partialUser));
-          onLoginSuccess(partialUser, tokenVal);
-          
           setStep('register');
           setMsg('کد تأیید شد. لطفاً اطلاعات پروفایل را تکمیل کنید.');
           setMsgType('success');
@@ -661,12 +653,11 @@ export const AuthProfileModals: React.FC<Props> = ({
     } catch (err) {
       console.error('Verify OTP Error:', err);
       setMsgType('error');
-      setMsg('خطای ارتباط با سرور');
+      setMsg('خطای ارتباط با11 سرور');
     } finally {
       setLoading(false);
     }
   };
-
 
 
 
@@ -806,7 +797,6 @@ export const AuthProfileModals: React.FC<Props> = ({
 
   // ================= مودال احراز هویت (بدون توکن فعال) =================
   if (!token) {
-     if (!showProfileModal) return null;
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl text-right my-auto max-h-[94vh] overflow-y-auto">
