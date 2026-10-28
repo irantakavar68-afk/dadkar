@@ -303,39 +303,22 @@ export default function App() {
     // مقدار پیش‌فرض از پروفایل کاربر
   useEffect(() => {
     if (!user) return;
-    const u: any = user;
-    const num = (v: any) => {
-      const n = Number(toEn(String(v ?? '')).replace(/[^\d.]/g, ''));
-      return isFinite(n) ? n : 0;
-    };
-
-    // حقوق
-    const sal = num(u.salary ?? u.monthly_salary ?? u.base_salary ?? u.wage ?? u.monthly_wage);
-    if (sal > 0) {
-      const v = Math.min(sal, MAX_SALARY_RIAL);
+    const salMillion = Number(toEn(String(user.last_salary_million_rial ?? '')).replace(/[^\d.]/g, '')) || 0;
+    if (salMillion > 0) {
+      const v = Math.min(Math.round(salMillion * 1000000), MAX_SALARY_RIAL);
       setBaseSalary(v);
       setSalaryInputText(toFa(v.toLocaleString('en-US')));
     }
-
-    // سابقه بیمه
-    const directYears = num(u.insurance_years ?? u.insurance_history_years ?? u.insurance_record);
     const s = seniorityFromProfile(user.insurance_start_date);
-    if (directYears > 0) {
-      const y = Math.min(35, Math.floor(directYears));
-      setYears(y); setMonths(0); setDays(0);
-      setWorkHistoryYears(y); setInsuranceYears(y); setUnemploymentMonths(y * 12);
-    } else if (s) {
+    if (s) {
       setYears(s.y); setMonths(s.m); setDays(s.d);
       setWorkHistoryYears(Math.min(35, s.y));
       setInsuranceYears(Math.min(35, s.y));
       setUnemploymentMonths(s.totalMonths);
     }
-
-    // عائله
-    const dep = u.dependents ?? u.family_members ?? u.household_count;
-    if (dep !== undefined && dep !== null && dep !== '') setDependents(Math.min(4, num(dep)));
-    else setDependents(Math.min(4, (Number(u.children_count) || 0) + (u.marital_status === 'married' ? 1 : 0)));
+    setDependents(Math.min(4, (Number(user.children_count) || 0) + (user.marital_status === 'married' ? 1 : 0)));
   }, [user]);
+
 
 
 
