@@ -236,7 +236,7 @@ const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; pla
     <div className="relative w-full">
       <div 
         onClick={() => { setOpen(!open); setViewMode('days'); }}
-        className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-mono dark:text-white text-center cursor-pointer border border-transparent hover:border-blue-400 transition flex items-center justify-between"
+        className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm tabular-nums dark:text-white text-center cursor-pointer border border-transparent hover:border-blue-400 transition flex items-center justify-between"
       >
         <Calendar size={18} className="text-blue-500" />
         <span className="font-bold tracking-wider">{value || placeholder}</span>
@@ -289,7 +289,7 @@ const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; pla
                   key={y}
                   type="button"
                   onClick={() => { setJy(y); setViewMode('months'); }}
-                  className={`py-2 text-xs rounded-lg transition font-mono ${y === jy ? 'bg-blue-600 text-white font-bold' : 'hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-300'}`}
+                  className={`py-2 text-xs rounded-lg transition tabular-nums ${y === jy ? 'bg-blue-600 text-white font-bold' : 'hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-300'}`}
                 >
                   {y}
                 </button>
@@ -823,7 +823,7 @@ export const AuthProfileModals: React.FC<Props> = ({
                 placeholder="نام کاربری یا 09xxxxxxxxx"
                 value={identity}
                 onChange={(e) => setIdentity(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-sm font-mono text-left dark:text-white border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-sm tabular-nums text-left dark:text-white border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -861,7 +861,7 @@ export const AuthProfileModals: React.FC<Props> = ({
                 placeholder="09xxxxxxxxx"
                 value={mobile}
                 onChange={e => setMobile(e.target.value.replace(/\D/g, ''))}
-                className="w-full text-center text-lg tracking-widest font-mono py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full text-center text-lg tracking-widest tabular-nums py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <button
@@ -890,7 +890,7 @@ export const AuthProfileModals: React.FC<Props> = ({
         <div className="text-center space-y-1">
           <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">تأیید شماره موبایل</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            کد ارسال شده به شماره <span className="font-mono font-bold">{mobile}</span> را وارد کنید.
+            کد ارسال شده به شماره <span className="tabular-nums font-bold">{mobile}</span> را وارد کنید.
           </p>
         </div>
     
@@ -901,7 +901,7 @@ export const AuthProfileModals: React.FC<Props> = ({
             value={otpCode}
             onChange={(e) => setOtpCode(e.target.value)}
             placeholder="کد تایید ۵ یا ۶ رقمی"
-            className="w-full px-4 py-3 text-center text-xl tracking-widest font-mono bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
+            className="w-full px-4 py-3 text-center text-xl tracking-widest tabular-nums bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
           />
         </div>
     
@@ -929,7 +929,7 @@ export const AuthProfileModals: React.FC<Props> = ({
     
           {/* بخش تایمر و دکمه‌های ارسال مجدد پیامک یا تماس صوتی (اصلاح شده با resendTimer) */}
           {resendTimer > 0 ? (
-            <span className="text-slate-400 flex items-center gap-1 font-mono text-xs">
+            <span className="text-slate-400 flex items-center gap-1 tabular-nums text-xs">
               ارسال مجدد ({formatTimer(resendTimer)})
             </span>
           ) : (
@@ -1039,7 +1039,7 @@ export const AuthProfileModals: React.FC<Props> = ({
                     placeholder="یک نام کاربری انگلیسی (مانند ali_mohammadi)" 
                     value={formData.username}
                     onChange={(e) => handleUsernameChange(e.target.value)}
-                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-mono text-left dark:text-white border ${
+                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm tabular-nums text-left dark:text-white border ${
                       usernameStatus === 'available' ? 'border-emerald-500' :
                       usernameStatus === 'taken' ? 'border-rose-500' : 'border-transparent'
                     }`} 
@@ -1169,7 +1169,7 @@ export const AuthProfileModals: React.FC<Props> = ({
                   <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">آخرین حقوق (میلیون ریال)</label>
                   <input dir="ltr" inputMode="numeric" placeholder="مثلاً 250" value={formData.last_salary_million_rial as string}
                     onChange={(e) => setFormData({ ...formData, last_salary_million_rial: formatSalary(e.target.value) })}
-                    className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-mono text-center dark:text-white" />
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm tabular-nums text-center dark:text-white" />
                 </div>
               </div>
 
@@ -1229,7 +1229,7 @@ export const AuthProfileModals: React.FC<Props> = ({
               <p className="text-xs text-center text-slate-500 mb-4">شماره موبایل یا نام کاربری ثبت‌شده خود را وارد کنید.</p>
               <input type="tel" dir="ltr" placeholder="09xxxxxxxxx یا username" value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center font-mono dark:text-white mb-4" />
+                className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center tabular-nums dark:text-white mb-4" />
               <button disabled={loading} onClick={() => handleSendOtp(true)}
                 className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-lg shadow-blue-500/25">
                 {loading ? 'در حال ارسال...' : 'ارسال کد بازیابی پیامکی'}
@@ -1246,7 +1246,7 @@ export const AuthProfileModals: React.FC<Props> = ({
               <p className="text-xs text-center text-slate-500 mb-4">کد بازیابی ۵ رقمی و رمز جدید را وارد کنید:</p>
               <input dir="ltr" inputMode="numeric" maxLength={6} placeholder="کد بازیابی" value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center font-mono text-xl dark:text-white mb-2" />
+                className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center tabular-nums text-xl dark:text-white mb-2" />
               <input dir="ltr" type="password" placeholder="رمز عبور جدید (حداقل ۶ کاراکتر)" value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center dark:text-white mb-4" />
@@ -1290,7 +1290,7 @@ export const AuthProfileModals: React.FC<Props> = ({
             </div>
             <div>
               <span className="text-[11px] block text-blue-600 dark:text-blue-400 font-medium">شناسه اختصاصی دادکار:</span>
-              <span className="text-base font-bold font-mono text-slate-800 dark:text-white tracking-wider">
+              <span className="text-base font-bold tabular-nums text-slate-800 dark:text-white tracking-wider">
                 {formData.user_code || user?.user_code || 'DK-USER'}
               </span>
             </div>
@@ -1378,7 +1378,7 @@ export const AuthProfileModals: React.FC<Props> = ({
                 max={15} 
                 value={formData.children_count ?? 0}
                 onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value || '0', 10) })}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-mono text-center dark:text-white" 
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm tabular-nums text-center dark:text-white" 
               />
             </div>
           </div>
@@ -1393,7 +1393,7 @@ export const AuthProfileModals: React.FC<Props> = ({
               <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">حقوق (میلیون ریال)</label>
               <input dir="ltr" inputMode="numeric" placeholder="مثلاً 250" value={formData.last_salary_million_rial as string}
                 onChange={(e) => setFormData({ ...formData, last_salary_million_rial: formatSalary(e.target.value) })}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-mono text-center dark:text-white" />
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm tabular-nums text-center dark:text-white" />
             </div>
           </div>
 
