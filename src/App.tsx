@@ -1931,12 +1931,12 @@ export default function App() {
         user={user}
         token={token}
         onLoginSuccess={(u, t) => {
-          setUser(u);
-          setToken(t);
-          setShowProfileModal(false);
-          // هدایت به تب اصلی پس از ورود موفق
-          setActiveTab('home'); 
+           setUser(u || {});
+           setToken(t || '');
+           setShowProfileModal(false);
+           setActiveTab('home');
         }}
+
 
 
         onProfileUpdate={(u) => setUser(u)}
