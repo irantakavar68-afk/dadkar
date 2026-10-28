@@ -629,33 +629,31 @@ export const AuthProfileModals: React.FC<Props> = ({
     try {
       const data = await post('verify_otp', { mobile: formData.mobile || mobile, code: otpCode });
       
-    if (data.status === 'success') {
-      const tokenVal = data.extra?.token || data.token || '';
-      setSessionToken(tokenVal);
-      localStorage.setItem('dadkar_token', tokenVal);
-      
-      // بررسی واقعی‌تر is_registered (پشتیبانی از رشته، بولین یا عدد)
-      const isRegistered = data.is_registered === true || data.is_registered === 'true' || data.is_registered === 1;
-
-      if (isRegistered) {
-        const fullUser = data.extra?.user || data.user || {};
-        localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
-        onLoginSuccess(fullUser, tokenVal);
-        setMsg('با موفقیت وارد شدید!');
-        setMsgType('success');
-        setShowProfileModal(false);
-      } else {
-        // حتی اگر کاربر جدید است، اگر توکن داریم باید حالت لاگین موقت ایجاد شود یا حداقل کاربر خالی رد نشود
-        const partialUser = data.extra?.user || data.user || { mobile: formData.mobile || mobile };
-        localStorage.setItem('dadkar_user', JSON.stringify(partialUser));
-        onLoginSuccess(partialUser, tokenVal); // اجازه ورود با پروفایل ناقص یا هدایت به ثبت نام همراه با توکن معتبر
+      if (data.status === 'success') {
+        const tokenVal = data.extra?.token || data.token || '';
+        setSessionToken(tokenVal);
+        localStorage.setItem('dadkar_token', tokenVal);
         
-        setStep('register');
-        setMsg('کد تأیید شد. لطفاً اطلاعات پروفایل را تکمیل کنید.');
-        setMsgType('success');
-      }
-    }
+        // بررسی واقعی‌تر is_registered (پشتیبانی از رشته، بولین یا عدد)
+        const isRegistered = data.is_registered === true || data.is_registered === 'true' || data.is_registered == 1;
 
+        if (isRegistered) {
+          const fullUser = data.extra?.user || data.user || {};
+          localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
+          onLoginSuccess(fullUser, tokenVal);
+          setMsg('با موفقیت وارد شدید!');
+          setMsgType('success');
+          setShowProfileModal(false);
+        } else {
+          // کاربر جدید: ذخیره اطلاعات موقت و اجازه لاگین برای جلوگیری از مشکل ماندن در حالت فاقد سشن
+          const partialUser = data.extra?.user || data.user || { mobile: formData.mobile || mobile };
+          localStorage.setItem('dadkar_user', JSON.stringify(partialUser));
+          onLoginSuccess(partialUser, tokenVal);
+          
+          setStep('register');
+          setMsg('کد تأیید شد. لطفاً اطلاعات پروفایل را تکمیل کنید.');
+          setMsgType('success');
+        }
       } else {
         setMsgType('error');
         setMsg(data.message || 'کد تأیید نامعتبر است.');
@@ -663,11 +661,12 @@ export const AuthProfileModals: React.FC<Props> = ({
     } catch (err) {
       console.error('Verify OTP Error:', err);
       setMsgType('error');
-      setMsg('خطای ارتباط با11 سرور');
+      setMsg('خطای ارتباط با سرور');
     } finally {
       setLoading(false);
     }
   };
+
 
 
 
