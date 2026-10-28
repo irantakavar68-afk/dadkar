@@ -156,6 +156,14 @@ export default function App() {
     return saved ? JSON.parse(saved) : null;
   });
   const [showProfileModal, setShowProfileModal] = useState(false);
+    useEffect(() => {
+    if (token && (!user || !user.username || !user.first_name)) {
+      localStorage.removeItem('dadkar_token');
+      localStorage.removeItem('dadkar_user');
+      setToken(null);
+      setUser(null);
+    }
+  }, []);
 
 
   const handleThemeSelect = (theme: AppTheme) => {
