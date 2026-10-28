@@ -437,6 +437,10 @@ export const AuthProfileModals: React.FC<Props> = ({
   const [msgType, setMsgType] = useState<'error' | 'success'>('error');
   
   const [formData, setFormData] = useState<UserProfile>(user || emptyForm);
+    useEffect(() => {
+    if (user) setFormData(prev => ({ ...emptyForm, ...user, password: '' }));
+  }, [user, showProfileModal]);
+
   const [customIndustry, setCustomIndustry] = useState('');
   const [isOtherIndustry, setIsOtherIndustry] = useState(false);
     // --- تایمر ۹۰ ثانیه‌ای ارسال مجدد OTP ---
@@ -567,9 +571,20 @@ export const AuthProfileModals: React.FC<Props> = ({
     try {
       const data = await post('login_password', { identity: identity.trim(), password });
       if (data.status === 'success') {
+        const u = data.user || {};
+        const complete = !!(u.username && u.first_name && u.last_name);
+        if (!complete) {
+          setSessionToken(data.token);
+          setFormData(prev => ({ ...prev, ...u, password: '' }));
+          setStep('register');
+          setMsgType('error');
+          setMsg('لطفاً ابتدا مشخصات خود را تکمیل کنید.');
+          return;
+        }
         localStorage.setItem('dadkar_token', data.token);
-        localStorage.setItem('dadkar_user', JSON.stringify(data.user));
-        onLoginSuccess(data.user, data.token);
+        localStorage.setItem('dadkar_user', JSON.stringify(u));
+        onLoginSuccess(u, data.token);
+
       } else { 
         setMsgType('error'); 
         setMsg(data.message || 'نام کاربری، شماره موبایل یا رمز عبور نادرست است.'); 
@@ -655,20 +670,26 @@ export const AuthProfileModals: React.FC<Props> = ({
       if (data.status === 'success') {
         const tokenVal = data.extra?.token || data.token || '';
         setSessionToken(tokenVal);
-        localStorage.setItem('dadkar_token', tokenVal);
-        
-        if (data.is_registered) {
-          const fullUser = data.extra?.user || data.user || {};
+
+        const fullUser = data.extra?.user || data.user || {};
+        const complete = !!(fullUser.username && fullUser.first_name && fullUser.last_name);
+
+        if (data.is_registered && complete) {
+          localStorage.setItem('dadkar_token', tokenVal);
           localStorage.setItem('dadkar_user', JSON.stringify(fullUser));
           onLoginSuccess(fullUser, tokenVal);
           setMsg('با موفقیت وارد شدید!');
           setMsgType('success');
           setTimeout(() => setShowProfileModal(false), 1000);
         } else {
+          if (fullUser && Object.keys(fullUser).length) {
+            setFormData(prev => ({ ...prev, ...fullUser, password: '' }));
+          }
           setStep('register');
           setMsg('کد تأیید شد. لطفاً اطلاعات پروفایل را تکمیل کنید.');
           setMsgType('success');
         }
+
       } else {
         setMsgType('error');
         setMsg(data.message || 'کد تأیید نامعتبر است.');
@@ -1370,9 +1391,11 @@ export const AuthProfileModals: React.FC<Props> = ({
               type="text"
               dir="ltr"
               value={formData.username || ''}
+              disabled={!!user?.username}
+              readOnly={!!user?.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
               placeholder="نام کاربری خود را وارد کنید"
-              className="w-full px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60 disabled:cursor-not-allowed."
             />
           </div>
 
