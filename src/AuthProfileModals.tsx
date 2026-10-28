@@ -383,7 +383,8 @@ export interface UserProfile {
   first_name: string; 
   last_name: string;
   birth_date: string; 
-  marital_status: 'single' | 'married' | 'divorced';
+  marital_status: 'single' | 'married' | 'divorced'; 
+  gender: 'male' | 'female' | null; 
   children_count?: number;
   insurance_start_date: string; 
   last_salary_million_rial: number | string;
@@ -410,6 +411,7 @@ const emptyForm: UserProfile = {
   last_name: '',
   birth_date: '', 
   marital_status: 'single', 
+  gender: null,  
   children_count: 0,
   insurance_start_date: '',
   last_salary_million_rial: '', 
@@ -711,6 +713,12 @@ export const AuthProfileModals: React.FC<Props> = ({
    const handleRegister = async () => {
     // 1. بررسی دقیق نام کاربری
     const cleanedUsername = (formData.username || '').trim();
+     if (!formData.gender) {
+        setMsgType('error');
+        setMsg('لطفاً جنسیت را انتخاب کنید.');
+        return;
+      }
+
     if (!cleanedUsername || cleanedUsername.length < 3) {
       setMsgType('error');
       setMsg('تعیین نام کاربری معتبر (حداقل ۳ کاراکتر انگلیسی) الزامی است.');
@@ -1182,6 +1190,18 @@ export const AuthProfileModals: React.FC<Props> = ({
                     <option value="single">مجرد</option>
                     <option value="married">متأهل</option>
                     <option value="divorced">مطلقه</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">جنسیت</label>
+                  <select
+                    value={formData.gender ?? ''}
+                    onChange={(e) => setFormData({ ...formData, gender: (e.target.value || null) as 'male' | 'female' | null })}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white"
+                  >
+                    <option value="">انتخاب کنید</option>
+                    <option value="male">مرد</option>
+                    <option value="female">زن</option>
                   </select>
                 </div>
 
