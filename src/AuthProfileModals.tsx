@@ -595,6 +595,26 @@ export const AuthProfileModals: React.FC<Props> = ({
         ? 'send_voice_otp' 
         : (isForgot ? 'forgot_password' : 'send_otp');
 
+            // بررسی وجود شماره در دیتابیس قبل از ارسال کد
+      if (!/^09\d{9}$/.test(mobile)) {
+        setMsgType('error');
+        setMsg('شماره موبایل معتبر نیست.');
+        return;
+      }
+      const chk = await post('check_mobile', { mobile });
+      const registered = chk.registered === true || chk.extra?.registered === true;
+
+      if (!isForgot && registered) {
+        setMsgType('error');
+        setMsg('این شماره قبلاً ثبت‌نام کرده است. از «ورود با نام کاربری و رمز» استفاده کنید یا رمز را بازیابی کنید.');
+        return;
+      }
+      if (isForgot && !registered) {
+        setMsgType('error');
+        setMsg('این شماره در سامانه ثبت نشده است.');
+        return;
+      }
+
       const data = await post(actionName, { mobile, is_forgot: isForgot });
       
       if (data.status === 'success') {
