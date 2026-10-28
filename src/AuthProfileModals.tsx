@@ -239,7 +239,7 @@ const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; pla
         className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm tabular-nums dark:text-white text-center cursor-pointer border border-transparent hover:border-blue-400 transition flex items-center justify-between"
       >
         <Calendar size={18} className="text-blue-500" />
-        <span className="font-bold tracking-wider">{value || placeholder}</span>
+        <span className="font-bold tracking-wider">{toFa(value || placeholder)}</span>
         <div className="w-4" />
       </div>
 
@@ -268,7 +268,7 @@ const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; pla
                 onClick={() => setViewMode(viewMode === 'years' ? 'days' : 'years')}
                 className="font-bold text-sm text-slate-800 dark:text-white hover:underline px-1"
               >
-                {jy}
+                {toFa(jy)}
               </button>
             </div>
 
@@ -291,7 +291,7 @@ const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; pla
                   onClick={() => { setJy(y); setViewMode('months'); }}
                   className={`py-2 text-xs rounded-lg transition tabular-nums ${y === jy ? 'bg-blue-600 text-white font-bold' : 'hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-300'}`}
                 >
-                  {y}
+                  {toFa(y)}
                 </button>
               ))}
             </div>
@@ -325,7 +325,7 @@ const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; pla
                   <button
                     type="button"
                     key={d}
-                    onClick={() => selectDay(d)}
+                    onClick={() => selectDay(d)}{toFa(d)}
                     className={`text-xs rounded-lg py-1.5 font-medium transition ${jd === d ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-500/30' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'}`}
                   >
                     {d}
@@ -357,7 +357,9 @@ const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; pla
   );
 };
 
-const formatSalary = (s: string) => s.replace(/[^\d]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const toFa = (s: string | number) => String(s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[+d]);
+const toEn = (s: string) => s.replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+const formatSalary = (s: string) => toEn(String(s ?? '')).replace(/[^\d]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
 // سنجش میزان قدرت رمز عبور
 const calculatePasswordStrength = (pwd: string) => {
@@ -1193,7 +1195,7 @@ export const AuthProfileModals: React.FC<Props> = ({
                     <option value={0}>۰ (بدون فرزند)</option>
                     {[...Array(10)].map((_, i) => (
                       <option key={i + 1} value={i + 1}>
-                        {i + 1} فرزند
+                        {toFa(i + 1)} فرزند 
                       </option>
                     ))}
                   </select>
@@ -1210,7 +1212,7 @@ export const AuthProfileModals: React.FC<Props> = ({
                 </div>
                 <div>
                   <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">آخرین حقوق (میلیون ریال)</label>
-                  <input dir="ltr" inputMode="numeric" placeholder="مثلاً 250" value={formData.last_salary_million_rial as string}
+                  <input dir="ltr" inputMode="numeric" placeholder="مثلاً 250" value={toFa(formData.last_salary_million_rial ?? '')}
                     onChange={(e) => setFormData({ ...formData, last_salary_million_rial: formatSalary(e.target.value) })}
                     className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm tabular-nums text-center dark:text-white" />
                 </div>
@@ -1418,13 +1420,16 @@ export const AuthProfileModals: React.FC<Props> = ({
             <div>
               <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">تعداد فرزند</label>
               <input 
-                type="number" 
-                min={0} 
-                max={15} 
-                value={formData.children_count ?? 0}
-                onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value || '0', 10) })}
+                type="text" 
+                inputMode="numeric"
+                value={toFa(formData.children_count ?? 0)}
+                onChange={(e) => {
+                  const v = toEn(e.target.value).replace(/[^0-9]/g, '');
+                  setFormData({ ...formData, children_count: v === '' ? 0 : Math.min(15, parseInt(v, 10)) });
+                }}
                 className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm tabular-nums text-center dark:text-white" 
               />
+
             </div>
           </div>
 
