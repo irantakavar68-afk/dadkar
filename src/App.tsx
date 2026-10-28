@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 import { User } from 'lucide-react';
-import { AuthProfileModals, UserProfile } from './AuthProfileModals';
+import { AuthProfileModals, UserProfile, AVATAR_SVGS } from './AuthProfileModals';
 
 
 import TaminBranchesView from './TaminBranchesView';
