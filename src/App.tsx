@@ -1934,9 +1934,10 @@ export default function App() {
           setUser(u);
           setToken(t);
           setShowProfileModal(false);
-          // اجبار به رفرش یا هدایت به تب اصلی (مثلاً home)
-          // setActiveTab('home'); 
+          // هدایت به تب اصلی پس از ورود موفق
+          setActiveTab('home'); 
         }}
+
 
         onProfileUpdate={(u) => setUser(u)}
         showProfileModal={showProfileModal}
