@@ -505,12 +505,15 @@ export default function App() {
           --app-font: ${fontFamily};
           --app-font-size: ${fontSizePx}px;
         }
-        body, #root {
-          font-family: var(--app-font), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-          font-size: var(--app-font-size);
-          letter-spacing: -0.02em;
-          -webkit-font-smoothing: antialiased;
-        }
+      html, body, #root, #root *, input, select, textarea, button, option {
+        font-family: var(--app-font), Vazirmatn, Tahoma, sans-serif !important;
+      }
+      body, #root {
+        font-size: var(--app-font-size);
+        letter-spacing: -0.02em;
+        -webkit-font-smoothing: antialiased;
+      }
+
         .theme-light {
           background-color: #f8fafc;
           color: #0f172a;
