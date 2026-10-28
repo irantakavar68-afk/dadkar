@@ -626,10 +626,11 @@ export const AuthProfileModals: React.FC<Props> = ({
         setMsgType('error');
         setMsg(data.message || 'خطا در ارسال کد تأیید');
       }
-    } catch (err) {
+       } catch (err: any) {
       console.error('Send OTP Error:', err);
       setMsgType('error');
-      setMsg('خطای ارتباط با 10سرور');
+      // پیام سرور (مثلاً «قبلاً ثبت‌نام کرده‌اید») یا خطای شبکه
+      setMsg(err instanceof TypeError ? 'خطای ارتباط با سرور' : (err.message || 'خطای ارتباط با سرور'));
     } finally {
       setLoading(false);
     }
