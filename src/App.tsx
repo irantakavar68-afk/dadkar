@@ -127,6 +127,31 @@ const EMERGENCY_FALLBACK_TEMPLATES: TemplateItem[] = [
 // در صورت نبود یا خالی بودن هر نوع export، مخزن پشتیبان کامل‌تر نمایش داده می‌شود.
 const ALL_TEMPLATES: TemplateItem[] = EXTRACTED_TEMPLATES.length > 0 ? EXTRACTED_TEMPLATES : EMERGENCY_FALLBACK_TEMPLATES;
 
+const getJalaliToday = (): number[] => {
+  const p = new Intl.DateTimeFormat('en-US-u-ca-persian-nu-latn', {
+    year: 'numeric', month: 'numeric', day: 'numeric'
+  }).formatToParts(new Date());
+  const g = (t: string) => Number(p.find(x => x.type === t)!.value);
+  return [g('year'), g('month'), g('day')];
+};
+
+const seniorityFromProfile = (start?: string) => {
+  if (!start) return null;
+  const [sy, sm, sd] = start.split('/').map(Number);
+  if (!sy || !sm || !sd) return null;
+  const [ty, tm, td] = getJalaliToday();
+  let y = ty - sy, m = tm - sm, d = td - sd;
+  if (d < 0) { d += 30; m--; }
+  if (m < 0) { m += 12; y--; }
+  if (y < 0) return null;
+  return { y, m, d, totalMonths: y * 12 + m };
+};
+
+const toFa = (s: string | number) => String(s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[+d]);
+const toEn = (s: string) =>
+  s.replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)))
+   .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+
 export default function App() {
   // تب‌های اصلی اپلیکیشن: اضافه شدن تب خانه (home)
   const [activeTab, setActiveTab] = useState<'home' | 'calculator' | 'tamin' | 'templates' | 'laws' | 'faq' | 'contact'>('home');
@@ -156,7 +181,7 @@ export default function App() {
     return saved ? JSON.parse(saved) : null;
   });
   const [showProfileModal, setShowProfileModal] = useState(false);
-    useEffect(() => {
+  useEffect(() => {
     if (token && (!user || !user.username || !user.first_name)) {
       localStorage.removeItem('dadkar_token');
       localStorage.removeItem('dadkar_user');
@@ -260,7 +285,7 @@ export default function App() {
   // بخش محاسبات: سقف دستمزد ۱۰,۰۰۰,۰۰۰,۰۰۰ ریال (۱ میلیارد تومان)
   const MAX_SALARY_RIAL = 10000000000;
   const [baseSalary, setBaseSalary] = useState<number>(100000000); // پیش‌فرض ۱۰ میلیون تومان
-  const [salaryInputText, setSalaryInputText] = useState<string>('100,000,000');
+  const [salaryInputText, setSalaryInputText] = useState<string>(toFa('100,000,000'));
 
   const [activeCalc, setActiveCalc] = useState<string>('salary');
   const [years, setYears] = useState<number>(1);
@@ -275,6 +300,21 @@ export default function App() {
 
   // پایه سنوات: مستقل از دستمزد و وابسته به سابقه کار (مصوبه شورای عالی کار)
   const [workHistoryYears, setWorkHistoryYears] = useState<number>(1);
+    // مقدار پیش‌فرض از پروفایل کاربر
+  useEffect(() => {
+    if (!user) return;
+    const s = seniorityFromProfile(user.insurance_start_date);
+    if (s) {
+      setYears(s.y);
+      setMonths(s.m);
+      setDays(s.d);
+      setWorkHistoryYears(Math.min(35, s.y));
+      setInsuranceYears(Math.min(35, s.y));
+      setUnemploymentMonths(s.totalMonths);
+    }
+    setDependents(Math.min(4, (Number(user.children_count) || 0) + (user.marital_status === 'married' ? 1 : 0)));
+  }, [user]);
+
 
   // جستجو در قوانین و قالب‌ها
   const [lawSearchQuery, setLawSearchQuery] = useState('');
@@ -292,7 +332,7 @@ export default function App() {
 
   // اجازه خالی ماندن کادر هنگام پاک کردن بدون تبدیل ناخواسته به صفر
   const handleSalaryTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/[^\d]/g, '');
+    const raw = toEn(e.target.value).replace(/[^\d]/g, '');
     if (!raw) {
       setSalaryInputText('');
       setBaseSalary(0);
@@ -300,16 +340,16 @@ export default function App() {
     }
     const num = Math.min(parseInt(raw, 10), MAX_SALARY_RIAL);
     setBaseSalary(num);
-    setSalaryInputText(num.toLocaleString('en-US'));
+    setSalaryInputText(toFa(num.toLocaleString('en-US')));
   };
 
   const handleSalaryTextBlur = () => {
     if (!salaryInputText || salaryInputText.trim() === '') {
       return; // در صورت خالی بودن، به صفر تحمیلی تبدیل نمی‌شود
     }
-    const num = parseInt(salaryInputText.replace(/[^\d]/g, ''), 10);
+    const num = parseInt(toEn(salaryInputText).replace(/[^\d]/g, ''), 10);
     if (!isNaN(num) && num > 0) {
-      setSalaryInputText(num.toLocaleString('en-US'));
+        setSalaryInputText(toFa(num.toLocaleString('en-US')));
     }
   };
 
@@ -317,7 +357,7 @@ export default function App() {
 
   const handleSliderSalaryChange = (val: number) => {
     setBaseSalary(val);
-    setSalaryInputText(val.toLocaleString('en-US'));
+    setSalaryInputText(toFa(val.toLocaleString('en-US')));
   };
 
   // محاسبات دقیق مطابق موازین قانونی
@@ -837,6 +877,7 @@ export default function App() {
                     id="salaryInput"
                     type="text"
                     dir="ltr"
+                    inputMode="numeric"
                     value={salaryInputText}
                     onChange={handleSalaryTextChange}
                     onBlur={handleSalaryTextBlur}
@@ -869,28 +910,28 @@ export default function App() {
                 <div className="text-[11px] text-slate-500 mb-2 font-medium">مقادیر پایه مصوب شورای عالی کار:</div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <button
-                    onClick={() => { setBaseSalary(71661840); setSalaryInputText('71,661,840'); }}
+                    onClick={() => { setBaseSalary(71661840); setSalaryInputText(toFa('71,661,840')); }}
                     className="p-2 text-right rounded-xl border border-slate-200 hover:border-blue-400 bg-slate-50 hover:bg-blue-50 transition"
                   >
                     <div className="text-[10px] text-slate-500">حداقل مزد ۳۰ روزه</div>
                     <div className="text-xs font-bold text-slate-800">۷۱,۶۶۱,۸۴۰ ریال</div>
                   </button>
                   <button
-                    onClick={() => { setBaseSalary(103661840); setSalaryInputText('103,661,840'); }}
+                    onClick={() => { setBaseSalary(103661840); setSalaryInputText(toFa('103,661,840')); }}
                     className="p-2 text-right rounded-xl border border-slate-200 hover:border-blue-400 bg-slate-50 hover:bg-blue-50 transition"
                   >
                     <div className="text-[10px] text-slate-500">حداقل دریافتی مجرد</div>
                     <div className="text-xs font-bold text-slate-800">۱۰۳,۶۶۱,۸۴۰ ریال</div>
                   </button>
                   <button
-                    onClick={() => { setBaseSalary(200000000); setSalaryInputText('200,000,000'); }}
+                    onClick={() => { setBaseSalary(200000000); setSalaryInputText(toFa('200,000,000')); }}
                     className="p-2 text-right rounded-xl border border-slate-200 hover:border-blue-400 bg-slate-50 hover:bg-blue-50 transition"
                   >
                     <div className="text-[10px] text-slate-500">مزد ۲۰ تومانی</div>
                     <div className="text-xs font-bold text-slate-800">۲۰۰,۰۰۰,۰۰۰ ریال</div>
                   </button>
                   <button
-                    onClick={() => { setBaseSalary(501632880); setSalaryInputText('501,632,880'); }}
+                    onClick={() => { setBaseSalary(501632880); setSalaryInputText(toFa('501,632,880')); }}
                     className="p-2 text-right rounded-xl border border-slate-200 hover:border-blue-400 bg-slate-50 hover:bg-blue-50 transition"
                   >
                     <div className="text-[10px] text-slate-500">سقف مشمول بیمه (۷ برابر)</div>
@@ -1045,12 +1086,13 @@ export default function App() {
                   <div>
                     <label className="text-xs text-slate-500 block mb-1">تعداد سال:</label>
                       <input
-                        type="number"
+                        type="text" 
+                        inputMode="numeric"                        
                         min="0"
                         placeholder="0"
-                        value={years === 0 ? '' : years}
+                        value={years === 0 ? '' : toFa(years)}    
                         onChange={(e) => {
-                          const val = e.target.value;
+                          const val = toEn(e.target.value).replace(/[^0-9]/g, ''); 
                           setYears(val === '' ? 0 : Math.max(0, parseInt(val, 10) || 0));
                         }}
                         className="w-full px-3 py-2 text-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold text-sm focus:ring-2 focus:ring-blue-500 outline-none"
@@ -1060,13 +1102,14 @@ export default function App() {
                   <div>
                     <label className="text-xs text-slate-500 block mb-1">تعداد ماه:</label>
                       <input
-                          type="number"
+                          type="text"
+                          inputMode="numeric"
                           min="0"
                           max="11"
                           placeholder="0"
-                          value={months === 0 ? '' : months}
+                          value={months === 0 ? '' : toFa(months)}       
                           onChange={(e) => {
-                            const val = e.target.value;
+                            const val = toEn(e.target.value).replace(/[^0-9]/g, '');  
                             setMonths(val === '' ? 0 : Math.min(11, Math.max(0, parseInt(val, 10) || 0)));
                           }}
                           className="w-full px-3 py-2 text-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold text-sm focus:ring-2 focus:ring-blue-500 outline-none"
@@ -1076,13 +1119,14 @@ export default function App() {
                   <div>
                     <label className="text-xs text-slate-500 block mb-1">تعداد روز:</label>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
                         min="0"
                         max="30"
                         placeholder="0"
-                        value={days === 0 ? '' : days}
+                       value={days === 0 ? '' : toFa(days)}
                         onChange={(e) => {
-                          const val = e.target.value;
+                          const val = toEn(e.target.value).replace(/[^0-9]/g, '');
                           setDays(val === '' ? 0 : Math.min(30, Math.max(0, parseInt(val, 10) || 0)));
                         }}
                         className="w-full px-3 py-2 text-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold text-sm focus:ring-2 focus:ring-blue-500 outline-none"
@@ -1107,12 +1151,13 @@ export default function App() {
                 <div>
                   <label className="text-xs text-slate-500 block mb-1">تعداد ساعات اضافه کاری در ماه:</label>
                      <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
                         min="0"
                         placeholder="0"
-                        value={hours === 0 ? '' : hours}
+                        value={hours === 0 ? '' : toFa(hours)}
                         onChange={(e) => {
-                          const val = e.target.value;
+                          const val = toEn(e.target.value).replace(/[^0-9]/g, '');
                           setHours(val === '' ? 0 : Math.max(0, parseInt(val, 10) || 0));
                         }}
                         className="w-full px-3 py-2 text-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold text-sm focus:ring-2 focus:ring-blue-500 outline-none"
@@ -1163,11 +1208,12 @@ export default function App() {
                 <div>
                   <label className="text-xs text-slate-500 block mb-1">ساعات کار شبانه عادی (ساعت ۲۲ الی ۶ بامداد):</label>
                   <input 
-                    type="number" 
+                    type="text" 
+                    inputMode="numeric" 
                     min="0" 
-                    value={nightHours === 0 ? '' : nightHours}
+                    value={nightHours === 0 ? '' : toFa(nightHours)}
                     placeholder="0"
-                    onChange={(e) => { const v = e.target.value; setNightHours(v === '' ? 0 : Math.max(0, parseInt(v, 10) || 0)); }}
+                    onChange={(e) => { const v = toEn(e.target.value).replace(/[^0-9]/g, ''); setNightHours(v === '' ? 0 : Math.max(0, parseInt(v, 10) || 0)); }}    
                     className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center" 
                   />
                 </div>
@@ -1188,13 +1234,14 @@ export default function App() {
                 <div>
                   <label className="text-xs text-slate-500 block mb-1">تعداد روزهای استفاده‌نشده:</label>
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
                       min="0"
                       max="30"
                       placeholder="0"
-                      value={unworkedLeaveDays === 0 ? '' : unworkedLeaveDays}
+                      value={unworkedLeaveDays === 0 ? '' : toFa(unworkedLeaveDays)}
                       onChange={(e) => {
-                        const val = e.target.value;
+                        const val = toEn(e.target.value).replace(/[^0-9]/g, '');
                         setUnworkedLeaveDays(val === '' ? 0 : Math.min(30, Math.max(0, parseInt(val, 10) || 0)));
                       }}
                       className="w-full px-3 py-2 text-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold text-sm focus:ring-2 focus:ring-blue-500 outline-none"
@@ -1218,13 +1265,14 @@ export default function App() {
                 <div>
                   <label className="text-xs text-slate-600 font-bold block mb-1">تعداد سال‌های اشتغال در کارگاه فعلی (بیش از یک سال):</label>
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
                       min="0"
                       max="35"
                       placeholder="0"
-                      value={workHistoryYears === 0 ? '' : workHistoryYears}
+                      value={workHistoryYears === 0 ? '' : toFa(workHistoryYears)}
                       onChange={(e) => {
-                        const val = e.target.value;
+                        const val = toEn(e.target.value).replace(/[^0-9]/g, '');
                         setWorkHistoryYears(val === '' ? 0 : Math.min(35, Math.max(0, parseInt(val, 10) || 0)));
                       }}
                       className="w-full px-3 py-2 text-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold text-sm focus:ring-2 focus:ring-blue-500 outline-none"
@@ -1255,12 +1303,13 @@ export default function App() {
                   </label>
                   <div className="flex items-center gap-2">
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
                       min="10"
                       max="35"
-                      value={insuranceYears === 0 ? '' : insuranceYears}
+                      value={insuranceYears === 0 ? '' : toFa(insuranceYears)}
                       placeholder="۱۰ تا ۳۵"
-                      onChange={(e) => { const v = e.target.value; setInsuranceYears(v === '' ? 0 : Math.min(35, Math.max(0, parseInt(v, 10) || 0))); }}
+                      onChange={(e) => { const v = toEn(e.target.value).replace(/[^0-9]/g, ''); setInsuranceYears(v === '' ? 0 : Math.min(35, Math.max(0, parseInt(v, 10) || 0))); }}
                       className="w-24 p-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center tabular-nums text-indigo-700"
                     />
                     <span className="text-xs text-slate-500">سال سابقه</span>
@@ -1300,23 +1349,25 @@ export default function App() {
                   <div>
                     <label className="text-xs text-slate-500 block mb-1">ماه‌های سابقه قبلی:</label>
                     <input 
-                      type="number" 
+                      type="text" 
+                      inputMode="numeric"
                       min="0" 
-                      value={unemploymentMonths === 0 ? '' : unemploymentMonths}
+                      value={unemploymentMonths === 0 ? '' : toFa(unemploymentMonths)}
                       placeholder="حداقل ۶ ماه"
-                      onChange={(e) => { const v = e.target.value; setUnemploymentMonths(v === '' ? 0 : Math.max(0, parseInt(v, 10) || 0)); }}
+                      onChange={(e) => { const v = toEn(e.target.value).replace(/[^0-9]/g, ''); setUnemploymentMonths(v === '' ? 0 : Math.max(0, parseInt(v, 10) || 0)); }}
                       className="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center" 
                     />
                   </div>
                   <div>
                     <label className="text-xs text-slate-500 block mb-1">تعداد افراد تحت تکفل:</label>
                     <input 
-                      type="number" 
+                      type="text" 
+                      inputMode="numeric"
                       min="0" 
                       max="4"
-                      value={dependents === 0 ? '' : dependents}
+                      value={dependents === 0 ? '' : toFa(dependents)}
                       placeholder="0"
-                      onChange={(e) => { const v = e.target.value; setDependents(v === '' ? 0 : Math.min(4, Math.max(0, parseInt(v, 10) || 0))); }}
+                      onChange={(e) => { const v = toEn(e.target.value).replace(/[^0-9]/g, ''); setDependents(v === '' ? 0 : Math.min(4, Math.max(0, parseInt(v, 10) || 0))); }}
                       className="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center" 
                     />
                   </div>
@@ -1324,7 +1375,7 @@ export default function App() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="bg-blue-50 p-3 rounded-xl border border-blue-100">
                     <div className="text-[11px] text-blue-700">حداکثر مدت دریافت مقرری:</div>
-                    <div className="text-base font-black text-blue-900 mt-1">{calculations.maxUnemploymentMonths} ماه شمسی</div>
+                    <div className="text-base font-black text-blue-900 mt-1">{toFa(calculations.maxUnemploymentMonths)} ماه شمسی</div>
                   </div>
                   <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
                     <div className="text-[11px] text-emerald-700">مقرری برآوردی ماهانه:</div>
