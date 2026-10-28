@@ -1930,11 +1930,14 @@ export default function App() {
       <AuthProfileModals
         user={user}
         token={token}
-        onLoginSuccess={(u, t) => { 
-          setUser(u); 
-          setToken(t); 
-          setShowProfileModal(false); 
+        onLoginSuccess={(u, t) => {
+          setUser(u);
+          setToken(t);
+          setShowProfileModal(false);
+          // اجبار به رفرش یا هدایت به تب اصلی (مثلاً home)
+          // setActiveTab('home'); 
         }}
+
         onProfileUpdate={(u) => setUser(u)}
         showProfileModal={showProfileModal}
         setShowProfileModal={setShowProfileModal}
