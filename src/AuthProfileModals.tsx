@@ -640,7 +640,7 @@ export const AuthProfileModals: React.FC<Props> = ({
           onLoginSuccess(fullUser, tokenVal);
           setMsg('با موفقیت وارد شدید!');
           setMsgType('success');
-          setTimeout(() => setShowProfileModal(false), 1000);
+          setShowProfileModal(false);
         } else {
           setStep('register');
           setMsg('کد تأیید شد. لطفاً اطلاعات پروفایل را تکمیل کنید.');
