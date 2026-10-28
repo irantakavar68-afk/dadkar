@@ -427,7 +427,9 @@ export const AuthProfileModals: React.FC<Props> = ({
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
-  
+  const [showPwd, setShowPwd] = useState(false);
+  const [showConfirmPwd, setShowConfirmPwd] = useState(false);
+
   // نگهداری توکن موقت کاربر در جریان احراز هویت اولیه
   const [sessionToken, setSessionToken] = useState<string>(token || '');
 
