@@ -325,10 +325,10 @@ const JalaliPicker: React.FC<{ value: string; onChange: (v: string) => void; pla
                   <button
                     type="button"
                     key={d}
-                    onClick={() => selectDay(d)}{toFa(d)}
+                    onClick={() => selectDay(d)}
                     className={`text-xs rounded-lg py-1.5 font-medium transition ${jd === d ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-500/30' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'}`}
                   >
-                    {d}
+                  {toFa(d)}
                   </button>
                 ))}
               </div>
@@ -1441,7 +1441,7 @@ export const AuthProfileModals: React.FC<Props> = ({
             </div>
             <div>
               <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">حقوق (میلیون ریال)</label>
-              <input dir="ltr" inputMode="numeric" placeholder="مثلاً 250" value={formData.last_salary_million_rial as string}
+              <input dir="ltr" inputMode="numeric" placeholder="مثلاً 250" value={toFa(formData.last_salary_million_rial ?? '')}
                 onChange={(e) => setFormData({ ...formData, last_salary_million_rial: formatSalary(e.target.value) })}
                 className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm tabular-nums text-center dark:text-white" />
             </div>
