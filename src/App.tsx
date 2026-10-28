@@ -266,7 +266,7 @@ export default function App() {
   const [years, setYears] = useState<number>(1);
   const [months, setMonths] = useState<number>(0);
   const [days, setDays] = useState<number>(0);
-  const [hours, setHours] = useState<number>(10);
+  const [hours, setHours] = useState<number>(10); const [nightHours, setNightHours] = useState<number>(0);
   const [shiftType, setShiftType] = useState<string>('morning_evening');
   const [unworkedLeaveDays, setUnworkedLeaveDays] = useState<number>(5);
   const [dependents, setDependents] = useState<number>(1);
@@ -342,7 +342,7 @@ export default function App() {
     const leavePay = unworkedLeaveDays * dailyWage;
 
     // ۵. شب‌کاری عادی غیرنوبتی (ماده ۵۸ قانون کار - ۳۵٪ مازاد)
-    const nightPay = hours * hourlyWage * 0.35;
+    const nightPay = nightHours * hourlyWage * 0.35;
 
     // ۶. پایه سنوات طبق مصوبه شورای عالی کار (مبلغ ثابت روزانه ۲,۱۰۰,۰۰۰ ریال در ماه به ازای هر سال سابقه بعد از سال اول)
     const baseSanavatDailyRate = 70000; // ۷۰,۰۰۰ ریال روزانه مصوب
@@ -363,7 +363,7 @@ export default function App() {
     // ۹. مقرری بیمه بیکاری (جدول ماده ۷ قانون بیمه بیکاری)
     const isMarried = dependents > 0;
     let maxUnemploymentMonths = 6;
-    if (unemploymentMonths >= 6 && unemploymentMonths <= 24) maxUnemploymentMonths = isMarried ? 12 : 6;
+    if (unemploymentMonths <= 24) maxUnemploymentMonths = isMarried ? 12 : 6;
     else if (unemploymentMonths >= 25 && unemploymentMonths <= 120) maxUnemploymentMonths = isMarried ? 18 : 12;
     else if (unemploymentMonths >= 121 && unemploymentMonths <= 180) maxUnemploymentMonths = isMarried ? 26 : 14;
     else if (unemploymentMonths >= 181 && unemploymentMonths <= 240) maxUnemploymentMonths = isMarried ? 36 : 18;
@@ -373,7 +373,7 @@ export default function App() {
     const monthlyUnemploymentBenefit = baseSalary * benefitRate;
 
     // ۱۰. مستمری بازنشستگی (ماده ۷۷ قانون تأمین اجتماعی): صرفاً تابع میانگین دستمزد و سنوات
-    const pensionEstimate = (baseSalary * insuranceYears) / 30;
+    const pensionEstimate = (baseSalary * Math.max(10, insuranceYears)) / 30;
 
     return {
       dailyWage,
@@ -396,7 +396,7 @@ export default function App() {
       monthlyUnemploymentBenefit,
       pensionEstimate
     };
-  }, [baseSalary, years, months, days, hours, shiftType, unworkedLeaveDays, dependents, unemploymentMonths, insuranceYears, workHistoryYears]);
+  }, [baseSalary, years, months, days, hours, nightHours, shiftType, unworkedLeaveDays, dependents, unemploymentMonths, insuranceYears, workHistoryYears]);
 
   const formatRial = (val: number) => {
     return Math.round(val).toLocaleString('fa-IR') + ' ریال';
@@ -1165,8 +1165,9 @@ export default function App() {
                   <input 
                     type="number" 
                     min="0" 
-                    value={hours} 
-                    onChange={(e) => setHours(Math.max(0, parseInt(e.target.value) || 0))}
+                    value={nightHours === 0 ? '' : nightHours}
+                    placeholder="0"
+                    onChange={(e) => { const v = e.target.value; setNightHours(v === '' ? 0 : Math.max(0, parseInt(v, 10) || 0)); }}
                     className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center" 
                   />
                 </div>
@@ -1257,8 +1258,9 @@ export default function App() {
                       type="number"
                       min="10"
                       max="35"
-                      value={insuranceYears}
-                      onChange={(e) => setInsuranceYears(Math.min(35, Math.max(10, parseInt(e.target.value) || 10)))}
+                      value={insuranceYears === 0 ? '' : insuranceYears}
+                      placeholder="۱۰ تا ۳۵"
+                      onChange={(e) => { const v = e.target.value; setInsuranceYears(v === '' ? 0 : Math.min(35, Math.max(0, parseInt(v, 10) || 0))); }}
                       className="w-24 p-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center tabular-nums text-indigo-700"
                     />
                     <span className="text-xs text-slate-500">سال سابقه</span>
@@ -1270,7 +1272,7 @@ export default function App() {
                     type="range"
                     min={10}
                     max={35}
-                    value={insuranceYears}
+                    value={Math.max(10, insuranceYears)}
                     onChange={(e) => setInsuranceYears(Number(e.target.value))}
                     className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                   />
@@ -1299,9 +1301,10 @@ export default function App() {
                     <label className="text-xs text-slate-500 block mb-1">ماه‌های سابقه قبلی:</label>
                     <input 
                       type="number" 
-                      min="6" 
-                      value={unemploymentMonths} 
-                      onChange={(e) => setUnemploymentMonths(Math.max(6, parseInt(e.target.value) || 6))}
+                      min="0" 
+                      value={unemploymentMonths === 0 ? '' : unemploymentMonths}
+                      placeholder="حداقل ۶ ماه"
+                      onChange={(e) => { const v = e.target.value; setUnemploymentMonths(v === '' ? 0 : Math.max(0, parseInt(v, 10) || 0)); }}
                       className="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center" 
                     />
                   </div>
@@ -1311,8 +1314,9 @@ export default function App() {
                       type="number" 
                       min="0" 
                       max="4"
-                      value={dependents} 
-                      onChange={(e) => setDependents(Math.max(0, parseInt(e.target.value) || 0))}
+                      value={dependents === 0 ? '' : dependents}
+                      placeholder="0"
+                      onChange={(e) => { const v = e.target.value; setDependents(v === '' ? 0 : Math.min(4, Math.max(0, parseInt(v, 10) || 0))); }}
                       className="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center" 
                     />
                   </div>
