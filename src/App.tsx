@@ -471,7 +471,7 @@ export default function App() {
             />
           </div>
 
-          <div className="w-full flex items-center justify-between text-xs text-slate-400 font-mono px-1">
+          <div className="w-full flex items-center justify-between text-xs text-slate-400 tabular-nums px-1">
             <span className="flex items-center gap-1.5 text-slate-400">
               <RefreshCw className="w-3 h-3 animate-spin text-cyan-400" />
               آماده‌سازی پایگاه جامع...
@@ -822,7 +822,7 @@ export default function App() {
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center text-xs text-slate-600 font-medium">
                   <label htmlFor="salaryInput">وارد کردن مبلغ به ریال (سقف ۱ میلیارد تومان = ۱۰,۰۰۰,۰۰۰,۰۰۰ ریال):</label>
-                  <span className="text-[11px] text-slate-400 font-mono">حداکثر ۱۰ میلیارد ریال</span>
+                  <span className="text-[11px] text-slate-400 tabular-nums">حداکثر ۱۰ میلیارد ریال</span>
                 </div>
                 <div className="relative">
                   <input
@@ -833,7 +833,7 @@ export default function App() {
                     onChange={handleSalaryTextChange}
                     onBlur={handleSalaryTextBlur}
                     placeholder="مبلغ مورد نظر را وارد نمایید..."
-                    className="w-full h-12 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-left font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-base"
+                    className="w-full h-12 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl tabular-nums text-left font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-base"
                   />
                   <span className="absolute right-3 top-3.5 text-xs text-slate-400 font-sans pointer-events-none">ریال</span>
                 </div>
@@ -843,7 +843,7 @@ export default function App() {
               <div className="space-y-1.5 pt-1">
                 <div className="flex justify-between items-center text-xs text-slate-500">
                   <span>اهرم تنظیم سریع:</span>
-                  <span className="font-mono text-blue-600 font-bold">{formatRial(baseSalary)}</span>
+                  <span className="tabular-nums text-blue-600 font-bold">{formatRial(baseSalary)}</span>
                 </div>
                 <input
                   type="range"
@@ -1251,7 +1251,7 @@ export default function App() {
                       max="35"
                       value={insuranceYears}
                       onChange={(e) => setInsuranceYears(Math.min(35, Math.max(10, parseInt(e.target.value) || 10)))}
-                      className="w-24 p-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center font-mono text-indigo-700"
+                      className="w-24 p-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-center tabular-nums text-indigo-700"
                     />
                     <span className="text-xs text-slate-500">سال سابقه</span>
                   </div>
@@ -1445,7 +1445,7 @@ export default function App() {
                           >
                             {copiedTemplateId === tmpl.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                           </button>
-                          <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words p-4 pl-14 pt-12 text-xs leading-7 font-mono select-text" dir="rtl">{tmpl.content}</pre>
+                          <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words p-4 pl-14 pt-12 text-xs leading-7 tabular-nums select-text" dir="rtl">{tmpl.content}</pre>
                         </div>
 
                         {/* هشتگ‌های کلیک‌پذیر: فیلتر آنی + اسکرول به ابتدای لیست */}
@@ -1887,7 +1887,7 @@ export default function App() {
               <div>
                 <div className="flex justify-between items-center mb-1 text-xs font-bold">
                   <span className="text-slate-500 dark:text-slate-400">اندازه متن‌ها</span>
-                  <span className="text-blue-500 font-mono">{fontSizePx}px</span>
+                  <span className="text-blue-500 tabular-nums">{fontSizePx}px</span>
                 </div>
                 <input
                   type="range"
