@@ -1950,15 +1950,11 @@ export default function App() {
                         >
                           ارسال تیکت جدید
                         </button>
-                      </div>
-                    </>
+                        </div>
+                      </section>
+                    </div>
                   )}
 
-                </div>
-              </div>
-            )}
-          </div>
-        )}
 
 
       </main>
