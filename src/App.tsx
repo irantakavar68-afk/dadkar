@@ -1921,16 +1921,18 @@ export default function App() {
                           <span>من ربات نیستم</span>
                         </label>
                         <button
-                          type="button"
-                          disabled={!captchaOk || !ticketSubject.trim() || !ticketBody.trim()}
                           onClick={async () => {
                             try {
+                              const token = localStorage.getItem('token') || '';
                               const res = await fetch('https://daadkaar.ir/api/auth.php?action=create_ticket', {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                  Authorization: `Bearer ${token}`
+                                },
                                 body: JSON.stringify({ subject: ticketSubject, body: ticketBody })
                               });
-                                                           const data = await res.json();
+                              const data = await res.json();
                               if (res.ok && (data.ok || data.status === 'success')) {
                                 setTicketSubject('');
                                 setTicketBody('');
@@ -1940,20 +1942,22 @@ export default function App() {
                                 const j = await r.json();
                                 if (j.tickets || j.data) setTickets(j.tickets || j.data || []);
                               } else {
-                                alert(data.message || 'خطا در ثبت تیکت. لطفاً مجدداً بررسی کنید.');
+                                alert(data.message || 'خطا در ثبت تیکت. لطفاً دوباره تلاش کنید.');
                               }
                             } catch (err) {
-                              alert('خطای ارتباط با سرور. لطفاً اتصال اینترنت خود را بررسی کنید.');
+                              alert('خطای ارتباط با سرور.');
                             }
                           }}
                           className="w-full py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold disabled:opacity-40 transition"
                         >
                           ارسال تیکت جدید
                         </button>
-                        </div>
-                      </section>
-                    </div>
+                      </div>
+                    </>
                   )}
+                </div>
+              </section>
+
 
 
 
