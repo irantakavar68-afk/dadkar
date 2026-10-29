@@ -1168,55 +1168,55 @@ export const AuthProfileModals: React.FC<Props> = ({
 
 
 
-              {/* تاریخ تولد و جنسیت */}
-              <div className="grid grid-cols-2 gap-2 mb-3">
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">تاریخ تولد</label>
-                  <JalaliPicker
-                    value={formData.birth_date}
-                    onChange={(v) => setFormData({ ...formData, birth_date: v })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">جنسیت</label>
-                  <select
-                    value={formData.gender ?? ''}
-                    onChange={(e) => setFormData({ ...formData, gender: e.target.value ? (e.target.value as 'male' | 'female' | null) : null })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
-                  >
-                    <option value="">انتخاب کنید</option>
-                    <option value="male">مرد</option>
-                    <option value="female">زن</option>
-                  </select>
-                </div>
+                     {/* سطر اول در مودال: تاریخ تولد و جنسیت */}
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">تاریخ تولد</label>
+                <JalaliPicker
+                  value={formData.birth_date}
+                  onChange={(v) => setFormData({ ...formData, birth_date: v })}
+                />
               </div>
-              
-              {/* وضعیت تأهل و تعداد فرزندان */}
-              <div className="grid grid-cols-2 gap-2 mb-3">
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">وضعیت تأهل</label>
-                  <select
-                    value={formData.marital_status}
-                    onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as any })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
-                  >
-                    <option value="single">مجرد</option>
-                    <option value="married">متأهل</option>
-                    <option value="divorced">مطلقه</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">تعداد فرزند</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.children_count}
-                    onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">جنسیت</label>
+                <select
+                  value={formData.gender ?? ''}
+                  onChange={(e) => setFormData({ ...formData, gender: e.target.value ? (e.target.value as 'male' | 'female' | null) : null })}
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                >
+                  <option value="">انتخاب کنید</option>
+                  <option value="male">مرد</option>
+                  <option value="female">زن</option>
+                </select>
               </div>
-              
+            </div>
+            
+            {/* سطر دوم در مودال: وضعیت تأهل و تعداد فرزندان */}
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">وضعیت تأهل</label>
+                <select
+                  value={formData.marital_status}
+                  onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as any })}
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                >
+                  <option value="single">مجرد</option>
+                  <option value="married">متأهل</option>
+                  <option value="divorced">مطلقه</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">تعداد فرزند</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.children_count}
+                  onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                />
+              </div>
+            </div>
+
               {/* تاریخ شروع بیمه و حقوق */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
@@ -1420,25 +1420,15 @@ export const AuthProfileModals: React.FC<Props> = ({
               className="w-full px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60 disabled:cursor-not-allowed."
             />
           </div>
-
-          {/* تاریخ تولد، وضعیت تأهل و تعداد فرزند */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {/* سطر اول در مودال: تاریخ تولد و جنسیت */}
+          <div className="grid grid-cols-2 gap-2 mb-3">
             <div>
-              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">تاریخ تولد</label>
-              <JalaliPicker value={formData.birth_date} onChange={(v) => setFormData({ ...formData, birth_date: v })} />
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">تاریخ تولد</label>
+              <JalaliPicker
+                value={formData.birth_date}
+                onChange={(v) => setFormData({ ...formData, birth_date: v })}
+              />
             </div>
-            <div>
-              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">وضعیت تأهل</label>
-              <select value={formData.marital_status}
-                onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as 'single' | 'married' | 'divorced' })}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white">
-                <option value="single">مجرد</option>
-                <option value="married">متأهل</option>
-                <option value="divorced">مطلقه</option>
-              </select>
-            </div>
-
-            {/* جنسیت */}
             <div>
               <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">جنسیت</label>
               <select
@@ -1451,22 +1441,34 @@ export const AuthProfileModals: React.FC<Props> = ({
                 <option value="female">زن</option>
               </select>
             </div>
-
+          </div>
+          
+          {/* سطر دوم در مودال: وضعیت تأهل و تعداد فرزندان */}
+          <div className="grid grid-cols-2 gap-2 mb-3">
             <div>
-              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">تعداد فرزند</label>
-              <input 
-                type="text" 
-                inputMode="numeric"
-                value={toFa(formData.children_count ?? 0)}
-                onChange={(e) => {
-                  const v = toEn(e.target.value).replace(/[^0-9]/g, '');
-                  setFormData({ ...formData, children_count: v === '' ? 0 : Math.min(15, parseInt(v, 10)) });
-                }}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm tabular-nums text-center dark:text-white" 
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">وضعیت تأهل</label>
+              <select
+                value={formData.marital_status}
+                onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as any })}
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+              >
+                <option value="single">مجرد</option>
+                <option value="married">متأهل</option>
+                <option value="divorced">مطلقه</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">تعداد فرزند</label>
+              <input
+                type="number"
+                min="0"
+                value={formData.children_count}
+                onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value) || 0 })}
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
               />
-
             </div>
           </div>
+
 
           {/* سابقه بیمه و آخرین حقوق */}
           <div className="grid grid-cols-2 gap-2">
