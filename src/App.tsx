@@ -1954,17 +1954,12 @@ export default function App() {
                         </button>
                       </div>
                     </>
-                  )}
-                </div>
+                   )}
+                </section>
               </div>
             )}
-          </section>
+          </main>
 
-
-
-
-
-      </main>
 
       {/* نوار ناوبری پایین با هماهنگی کامل تم روشن/تاریک */}
       <nav className={`fixed bottom-0 left-0 right-0 z-40 backdrop-blur-xl border-t transition-colors duration-300 py-1.5 safe-bottom ${
