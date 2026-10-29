@@ -1433,18 +1433,20 @@ export const AuthProfileModals: React.FC<Props> = ({
               </select>
             </div>
 
+            {/* جنسیت */}
             <div>
-              <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">جنسیت</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">جنسیت</label>
               <select
                 value={formData.gender ?? ''}
-                onChange={(e) => setFormData({ ...formData, gender: (e.target.value || null) as 'male' | 'female' | null })}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white"
+                onChange={(e) => setFormData({ ...formData, gender: e.target.value ? (e.target.value as 'male' | 'female' | null) : null })}
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
               >
                 <option value="">انتخاب کنید</option>
                 <option value="male">مرد</option>
                 <option value="female">زن</option>
               </select>
             </div>
+
             <div>
               <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">تعداد فرزند</label>
               <input 
