@@ -1934,29 +1934,32 @@ export default function App() {
                             if (!captchaOk) {
                               alert('لطفاً تایید کنید که ربات نیستید.');
                               return;
+                            }
                             try {
-                              const currentToken = localStorage.getItem('dadkar_token') || localStorage.getItem('token') || '';
-                              
-                              // درخواست ثبت تیکت
                               const res = await fetch('https://daadkaar.ir/api/auth.php?action=create_ticket', {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' }, // دیگر نیازی به هدر Authorization نیست
-                                body: JSON.stringify({ 
-                                  token: currentToken,          // اضافه شدن توکن به بدنه
-                                  subject: ticketSubject, 
-                                  body: ticketBody 
+                                headers: {
+                                  'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                  token: currentToken,
+                                  subject: ticketSubject,
+                                  body: ticketBody
                                 })
                               });
-                            
                               const data = await res.json();
                               if (res.ok && (data.ok || data.status === 'success')) {
-                                // ... (همان کدهای قبلی)
-                                
-                                // درخواست لیست تیکت‌ها (اینجا هم باید token در بدنه باشد)
-                                const r = await fetch('https://daadkaar.ir/api/auth.php?action=list_tickets', { 
+                                setTicketSubject('');
+                                setTicketBody('');
+                                setCaptchaOk(false);
+                                alert(data.message || 'تیکت شما با موفقیت ثبت شد.');
+
+                                const r = await fetch('https://daadkaar.ir/api/auth.php?action=list_tickets', {
                                   method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ token: currentToken }) // اصلاح: ارسال توکن در بدنه
+                                  headers: {
+                                    'Content-Type': 'application/json'
+                                  },
+                                  body: JSON.stringify({ token: currentToken })
                                 });
                                 const j = await r.json();
                                 if (j.tickets || j.data) {
@@ -1966,7 +1969,6 @@ export default function App() {
                                 alert(data.message || 'خطا در ثبت تیکت. لطفاً دوباره تلاش کنید.');
                               }
                             } catch (err) {
-
                               alert('خطای ارتباط با سرور. لطفاً اتصال اینترنت خود را بررسی کنید.');
                             }
                           }}
@@ -1974,6 +1976,7 @@ export default function App() {
                         >
                           ارسال تیکت جدید
                         </button>
+
 
                       </div>
                     </>
