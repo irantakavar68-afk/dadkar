@@ -1168,8 +1168,8 @@ export const AuthProfileModals: React.FC<Props> = ({
 
 
 
-                   {/* سطر اول: تاریخ تولد و جنسیت */}
-              <div className="grid grid-cols-2 gap-2">
+              {/* تاریخ تولد و جنسیت */}
+              <div className="grid grid-cols-2 gap-2 mb-3">
                 <div>
                   <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">تاریخ تولد</label>
                   <JalaliPicker
@@ -1191,8 +1191,8 @@ export const AuthProfileModals: React.FC<Props> = ({
                 </div>
               </div>
               
-              {/* سطر دوم: وضعیت تأهل و تعداد فرزندان */}
-              <div className="grid grid-cols-2 gap-2 mt-2">
+              {/* وضعیت تأهل و تعداد فرزندان */}
+              <div className="grid grid-cols-2 gap-2 mb-3">
                 <div>
                   <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">وضعیت تأهل</label>
                   <select
@@ -1216,24 +1216,27 @@ export const AuthProfileModals: React.FC<Props> = ({
                   />
                 </div>
               </div>
-
-
-
-              </div>
-
+              
               {/* تاریخ شروع بیمه و حقوق */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">تاریخ شروع بیمه</label>
-                  <JalaliPicker value={formData.insurance_start_date} onChange={(v) => setFormData({ ...formData, insurance_start_date: v })} />
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">تاریخ شروع بیمه</label>
+                  <JalaliPicker
+                    value={formData.insurance_start_date}
+                    onChange={(v) => setFormData({ ...formData, insurance_start_date: v })}
+                  />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">آخرین حقوق (میلیون ریال)</label>
-                  <input dir="ltr" inputMode="numeric" placeholder="مثلاً 250" value={toFa(formData.last_salary_million_rial ?? '')}
-                    onChange={(e) => setFormData({ ...formData, last_salary_million_rial: formatSalary(e.target.value) })}
-                    className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm tabular-nums text-center dark:text-white" />
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">حقوق (میلیون ریال)</label>
+                  <input
+                    type="number"
+                    value={formData.base_salary}
+                    onChange={(e) => setFormData({ ...formData, base_salary: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                  />
                 </div>
               </div>
+
 
               {/* محل کار و حوزه فعالیت (با قابلیت سایر) */}
               <div className="space-y-2">
