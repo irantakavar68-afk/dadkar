@@ -1821,19 +1821,30 @@ export default function App() {
             </section>
             
             <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
-              <div><p className="text-xs text-slate-500">طراح و اجرا</p><p className="font-black text-slate-900 dark:text-white mt-1">سیدحسین حجازی</p></div>
-              <div><p className="text-xs text-slate-500">شماره تماس</p><a href="tel:09138003216" className="inline-flex mt-1 items-center gap-2 font-bold text-blue-700 dark:text-blue-400" dir="ltr"><Phone className="w-4 h-4" />09138003216</a></div>
-              
-              {/* گرید دکمه‌ها (۶ ستونه برای تماس، تیکت، ایمیل، وب‌سایت، بله، ایتا) */}
-              <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
-                <a href="tel:09138003216" className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 text-white py-3 text-xs font-bold"><Phone className="w-4 h-4" />تماس</a>
-                <button type="button" onClick={() => setShowTickets(true)} className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white py-3 text-xs font-bold"><MessageSquare className="w-4 h-4" />تیکت</button>
-                <a href="mailto:info@daadkaar.ir" className="flex items-center justify-center gap-2 rounded-xl bg-violet-600 text-white py-3 text-xs font-bold"><Mail className="w-4 h-4" />ایمیل</a>
-                <a href="https://www.daadkaar.ir" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 rounded-xl bg-slate-800 text-white py-3 text-xs font-bold"><Globe className="w-4 h-4" />وب‌سایت</a>
-                <a href="https://ble.ir/daadkaar" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 rounded-xl bg-sky-500 text-white py-3 text-xs font-bold"><MessageCircle className="w-4 h-4" />بله</a>
-                <a href="https://eitaa.com/daadkar" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 rounded-xl bg-amber-600 text-white py-3 text-xs font-bold"><Send className="w-4 h-4" />ایتا</a>
+             <div>
+                <p className="text-xs text-slate-500">طراح و اجرا</p>
+                <p className="font-black text-slate-900 dark:text-white mt-1">گروه تخصصی تحلیل و برنامه نویسی دادکار</p>
               </div>
-            </section>
+              
+              {/* گرید دسترسی‌ها و پیام‌رسان‌ها (بدون شماره تماس مستقیم) */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-2">
+                <button onClick={() => setShowTickets(true)} className="flex items-center justify-center gap-1.5 p-3 rounded-2xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition">
+                  <MessageSquare className="w-4 h-4" /> تیکت‌ها
+                </button>
+                <a href="mailto:info@daadkaar.ir" className="flex items-center justify-center gap-1.5 p-3 rounded-2xl bg-violet-600 text-white text-xs font-bold hover:bg-violet-700 transition">
+                  <Mail className="w-4 h-4" /> ایمیل
+                </a>
+                <a href="https://www.daadkaar.ir" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 p-3 rounded-2xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-900 transition">
+                  <Globe className="w-4 h-4" /> وب‌سایت
+                </a>
+                <a href="https://ble.ir/daadkaar" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 p-3 rounded-2xl bg-sky-500 text-white text-xs font-bold hover:bg-sky-600 transition">
+                  <MessageCircle className="w-4 h-4" /> بله
+                </a>
+                <a href="https://eitaa.com/daadkar" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 p-3 rounded-2xl bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 transition">
+                  <Send className="w-4 h-4" /> ایتا
+                </a>
+              </div>
+
 
             {/* مودال و سیستم تیکت‌ها */}
             {showTickets && (
@@ -1919,16 +1930,21 @@ export default function App() {
                                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                                 body: JSON.stringify({ subject: ticketSubject, body: ticketBody })
                               });
-                              const data = await res.json();
-                              if (data.ok) {
+                                                           const data = await res.json();
+                              if (res.ok && (data.ok || data.status === 'success')) {
                                 setTicketSubject('');
                                 setTicketBody('');
                                 setCaptchaOk(false);
+                                alert('تیکت شما با موفقیت ثبت شد.');
                                 const r = await fetch('https://daadkaar.ir/api/auth.php?action=list_tickets', { headers: { Authorization: `Bearer ${token}` } });
                                 const j = await r.json();
-                                if (j.ok) setTickets(j.tickets);
+                                if (j.tickets || j.data) setTickets(j.tickets || j.data || []);
+                              } else {
+                                alert(data.message || 'خطا در ثبت تیکت. لطفاً مجدداً بررسی کنید.');
                               }
-                            } catch (err) {}
+                            } catch (err) {
+                              alert('خطای ارتباط با سرور. لطفاً اتصال اینترنت خود را بررسی کنید.');
+                            }
                           }}
                           className="w-full py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold disabled:opacity-40 transition"
                         >
@@ -1937,6 +1953,7 @@ export default function App() {
                       </div>
                     </>
                   )}
+
                 </div>
               </div>
             )}
