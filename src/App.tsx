@@ -6,8 +6,8 @@ import {
   Share2, ChevronDown, CheckCircle2, Award, Briefcase, 
   Percent, ArrowRight, X, ExternalLink, Sparkles, Sliders, 
   RefreshCw, Layers, Check, Info, FileSpreadsheet, Home,
-  FileCheck2, ShieldAlert, Copy, Mail, Globe, MessageSquare,
-  ChevronUp, Settings, Moon, Sun, Type
+  FileCheck2, ShieldAlert, Copy, Mail, Globe, MessageSquare,          
+  ChevronUp, Settings, Moon, Sun, Type, MessageCircle, Send           
 } from 'lucide-react';
 
 import { User } from 'lucide-react';
@@ -181,6 +181,14 @@ export default function App() {
     return saved ? JSON.parse(saved) : null;
   });
   const [showProfileModal, setShowProfileModal] = useState(false);
+    // تیکت‌های پشتیبانی
+  const [showTickets, setShowTickets] = useState(false);
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [ticketSubject, setTicketSubject] = useState('');
+  const [ticketBody, setTicketBody] = useState('');
+  const [captchaOk, setCaptchaOk] = useState(false);
+
   useEffect(() => {
     if (token && (!user || !user.username || !user.first_name)) {
       localStorage.removeItem('dadkar_token');
