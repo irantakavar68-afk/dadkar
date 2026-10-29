@@ -1179,15 +1179,17 @@ export const AuthProfileModals: React.FC<Props> = ({
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">جنسیت</label>
-                <select
+               <select
                   value={formData.gender ?? ''}
                   onChange={(e) => setFormData({ ...formData, gender: e.target.value ? (e.target.value as 'male' | 'female' | null) : null })}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white"
                 >
                   <option value="">انتخاب کنید</option>
                   <option value="male">مرد</option>
                   <option value="female">زن</option>
                 </select>
+
+
               </div>
             </div>
             
@@ -1195,25 +1197,28 @@ export const AuthProfileModals: React.FC<Props> = ({
             <div className="grid grid-cols-2 gap-2 mb-3">
               <div>
                 <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">وضعیت تأهل</label>
-                <select
-                  value={formData.marital_status}
-                  onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as any })}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
-                >
-                  <option value="single">مجرد</option>
-                  <option value="married">متأهل</option>
-                  <option value="divorced">مطلقه</option>
-                </select>
+             <select
+                value={formData.marital_status}
+                onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as any })}
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white"
+              >
+                <option value="single">مجرد</option>
+                <option value="married">متأهل</option>
+                <option value="divorced">مطلقه</option>
+              </select>
+
+
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">تعداد فرزند</label>
-                <input
+               <input
                   type="number"
                   min="0"
                   value={formData.children_count}
                   onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm tabular-nums text-center dark:text-white"
                 />
+
               </div>
             </div>
 
@@ -1431,15 +1436,16 @@ export const AuthProfileModals: React.FC<Props> = ({
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">جنسیت</label>
-              <select
-                value={formData.gender ?? ''}
-                onChange={(e) => setFormData({ ...formData, gender: e.target.value ? (e.target.value as 'male' | 'female' | null) : null })}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
-              >
-                <option value="">انتخاب کنید</option>
-                <option value="male">مرد</option>
-                <option value="female">زن</option>
-              </select>
+             <select
+              value={formData.gender ?? ''}
+              onChange={(e) => setFormData({ ...formData, gender: e.target.value ? (e.target.value as 'male' | 'female' | null) : null })}
+              className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white"
+            >
+              <option value="">انتخاب کنید</option>
+              <option value="male">مرد</option>
+              <option value="female">زن</option>
+            </select>
+
             </div>
           </div>
           
@@ -1447,25 +1453,27 @@ export const AuthProfileModals: React.FC<Props> = ({
           <div className="grid grid-cols-2 gap-2 mb-3">
             <div>
               <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">وضعیت تأهل</label>
-              <select
-                value={formData.marital_status}
-                onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as any })}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
-              >
-                <option value="single">مجرد</option>
-                <option value="married">متأهل</option>
-                <option value="divorced">مطلقه</option>
-              </select>
+           <select
+              value={formData.marital_status}
+              onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as any })}
+              className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white"
+            >
+              <option value="single">مجرد</option>
+              <option value="married">متأهل</option>
+              <option value="divorced">مطلقه</option>
+            </select>
+
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">تعداد فرزند</label>
-              <input
+             <input
                 type="number"
                 min="0"
                 value={formData.children_count}
                 onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value) || 0 })}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm tabular-nums text-center dark:text-white"
               />
+
             </div>
           </div>
 
