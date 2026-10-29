@@ -1168,53 +1168,55 @@ export const AuthProfileModals: React.FC<Props> = ({
 
 
 
-              {/* تاریخ تولد، وضعیت تأهل و تعداد فرزند */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                   {/* سطر اول: تاریخ تولد و جنسیت */}
+              <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">تاریخ تولد</label>
-                  <JalaliPicker value={formData.birth_date} onChange={(v) => setFormData({ ...formData, birth_date: v })} />
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">تاریخ تولد</label>
+                  <JalaliPicker
+                    value={formData.birth_date}
+                    onChange={(v) => setFormData({ ...formData, birth_date: v })}
+                  />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">وضعیت تأهل</label>
-                  <select 
-                    value={formData.marital_status}
-                    onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as 'single' | 'married' | 'divorced' })}
-                    className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white"
-                  >
-                    <option value="single">مجرد</option>
-                    <option value="married">متأهل</option>
-                    <option value="divorced">مطلقه</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs text-slate-600 dark:text-slate-400 block mb-1">جنسیت</label>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">جنسیت</label>
                   <select
                     value={formData.gender ?? ''}
-                    onChange={(e) => setFormData({ ...formData, gender: (e.target.value || null) as 'male' | 'female' | null })}
-                    className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white"
+                    onChange={(e) => setFormData({ ...formData, gender: e.target.value ? (e.target.value as 'male' | 'female' | null) : null })}
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
                   >
                     <option value="">انتخاب کنید</option>
                     <option value="male">مرد</option>
                     <option value="female">زن</option>
                   </select>
                 </div>
-
+              </div>
+              
+              {/* سطر دوم: وضعیت تأهل و تعداد فرزندان */}
+              <div className="grid grid-cols-2 gap-2 mt-2">
                 <div>
-                  <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">تعداد فرزندان</label>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">وضعیت تأهل</label>
                   <select
-                    value={formData.children_count}
-                    onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm dark:text-white border border-transparent focus:border-cyan-500 focus:outline-none"
+                    value={formData.marital_status}
+                    onChange={(e) => setFormData({ ...formData, marital_status: e.target.value as any })}
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
                   >
-                    <option value={0}>۰ (بدون فرزند)</option>
-                    {[...Array(10)].map((_, i) => (
-                      <option key={i + 1} value={i + 1}>
-                        {toFa(i + 1)} فرزند 
-                      </option>
-                    ))}
+                    <option value="single">مجرد</option>
+                    <option value="married">متأهل</option>
+                    <option value="divorced">مطلقه</option>
                   </select>
                 </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">تعداد فرزند</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.children_count}
+                    onChange={(e) => setFormData({ ...formData, children_count: parseInt(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                  />
+                </div>
+              </div>
+
 
 
               </div>
