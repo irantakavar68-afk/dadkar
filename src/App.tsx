@@ -1920,7 +1920,7 @@ export default function App() {
                           <input type="checkbox" checked={captchaOk} onChange={e => setCaptchaOk(e.target.checked)} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
                           <span>من ربات نیستم</span>
                         </label>
-                                           <button
+                        <button
                           onClick={async () => {
                             try {
                               const token = localStorage.getItem('dadkar_token') || localStorage.getItem('token') || '';
@@ -1954,11 +1954,15 @@ export default function App() {
                         </button>
                       </div>
                     </>
-                   )}
-                </section>
+                  )}
+                </div>
               </div>
             )}
-          </main>
+          </section>
+        </div>
+      )}
+    </main>
+
 
 
       {/* نوار ناوبری پایین با هماهنگی کامل تم روشن/تاریک */}
@@ -2135,7 +2139,7 @@ export default function App() {
       {/* مودال‌های احراز هویت و مشخصات کاربری */}
       <AuthProfileModals
         user={user}
-        token={token}
+        token={localStorage.getItem('dadkar_token') || ''}
         onLoginSuccess={(u, t) => { 
           setUser(u); 
           setToken(t); 
