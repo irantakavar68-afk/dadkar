@@ -575,7 +575,7 @@ export const AuthProfileModals: React.FC<Props> = ({
     try {
       const data = await post('login_password', { identity: identity.trim(), password });
       if (data.status === 'success') {
-        const u = data.user || {};
+        const u = data.extra?.user || data.user || {};
         const complete = !!(u.username && u.first_name && u.last_name);
         if (!complete) {
           setSessionToken(data.token);
@@ -585,9 +585,16 @@ export const AuthProfileModals: React.FC<Props> = ({
           setMsg('لطفاً ابتدا مشخصات خود را تکمیل کنید.');
           return;
         }
-        localStorage.setItem('dadkar_token', data.token);
+        const tokenValue = data.extra?.token || data.token;
+        
+        if (!tokenValue) {
+          throw new Error('ورود تأیید شد، اما توکن در پاسخ سرور دریافت نشد.');
+        }
+        
+        localStorage.setItem('dadkar_token', tokenValue);
         localStorage.setItem('dadkar_user', JSON.stringify(u));
-        onLoginSuccess(u, data.token);
+        onLoginSuccess(u, tokenValue);
+
 
       } else { 
         setMsgType('error'); 
