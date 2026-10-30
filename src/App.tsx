@@ -253,12 +253,12 @@ export default function App() {
     nationalId: user?.username || user?.national_code || '---',
     workshopName: user?.company_name || 'کارگاه مشمول قانون کار',
     month: getCurrentJalaliMonthLabel(),
-    baseSalary: Number(user?.last_salary_million_rial || 100000000),
-    housingAllowance: 9000000,
-    groceryAllowance: 14000000,
-    childAllowance: (user?.children_count || 0) * 7166184,
+    baseSalary: Number(user?.last_salary_million_rial || 100) * 1_000_000,
+    housingAllowance: 30000000, // ۳۰ میلیون ریال (حق مسکن)
+    groceryAllowance: 22000000, // ۲۲ میلیون ریال (بن خواربار)
+    childAllowance: (user?.children_count || 0) * 16625550, // ۱۶،۶۲۵،۵۵۰ ریال (حق اولاد)
     overtimeHours: 20,
-    overtimeRate: Math.round(Number(user?.last_salary_million_rial || 100000000) / 220 * 1.4),
+    overtimeRate: Math.round((Number(user?.last_salary_million_rial || 100) * 1_000_000) / 220 * 1.4),
     insuranceDeduction: true,
     taxDeduction: false
   });
@@ -271,9 +271,10 @@ export default function App() {
         nationalId: user.username || user.national_code || prev.nationalId,
         workshopName: user.company_name || prev.workshopName,
         month: getCurrentJalaliMonthLabel(),
-        baseSalary: Number(user.last_salary_million_rial || prev.baseSalary),
-        childAllowance: (user.children_count || 0) * 7166184,
-        overtimeRate: Math.round(Number(user.last_salary_million_rial || prev.baseSalary) / 220 * 1.4)
+        baseSalary: Number(user.last_salary_million_rial || 100) * 1_000_000,
+        childAllowance: (user?.children_count || 0) * 16625550,
+        overtimeRate: Math.round((Number(user.last_salary_million_rial || 100) * 1_000_000) / 220 * 1.4)
+
       }));
     }
   }, [user]);
@@ -1754,12 +1755,10 @@ export default function App() {
                   >
                     بازگشت به خانه
                   </button>
-                  <button
-                    onClick={() => handlePrintDocument('payslip-print-area')}
-                    className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-colors flex items-center gap-2 shadow-md"
-                  >
-                    <span>🖨️ چاپ و ذخیره PDF رسمی</span>
-                  </button>
+                  {/Android/i.test(navigator.userAgent) ? null : (
+                    <button onClick={() => handlePrintDocument('payslip-print-area')}>چاپ فیش</button>
+                  )}
+
                 </div>
               </div>
 
