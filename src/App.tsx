@@ -237,37 +237,38 @@ export default function App() {
 
 
   // --- فیش حقوقی پویا متصل به پروفایل کاربر ---
-  const [payslipData, setPayslipData] = useState(() => {
-    // محاسبه ماه جاری شمسی
-    const now = new Date();
-    const jalaliMonths = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
-    // تبدیل تقویم (محاسبه ساده یا استفاده از توابع کمکی تاریخ پروژه)
-    const currentMonthName = jalaliMonths[now.getMonth() % 12]; 
-    const currentYear = '۱۴۰۵';
-
-    const baseSalaryFromUser = user?.last_salary_million_rial 
-      ? Number(user.last_salary_million_rial) * 1000000 
-      : 71661840; // حداقل دستمزد پایه مصوب
-
-    const childCount = user?.children_count ? Number(user.children_count) : 0;
-    const childAllowanceVal = childCount * (7166184); // حق اولاد به ازای هر فرزند
-
-    return {
-      empName: user?.first_name ? `${user.first_name} ${user.last_name || ''}` : 'همکار گرامی',
-      nationalId: user?.username || '---',
-      insuranceNo: user?.insurance_no || '---',
-      workshopName: user?.workshop_name || 'کارگاه / شرکت نمونه',
-      month: `${currentMonthName} ${currentYear}`,
-      baseSalary: baseSalaryFromUser,
-      housingAllowance: 9000000,
-      groceryAllowance: 14000000,
-      childAllowance: childAllowanceVal,
-      overtimeHours: 0,
-      overtimeRate: Math.round(baseSalaryFromUser / 220 * 1.4), // نرخ قانونی هر ساعت اضافه کار (۱.۴ برابر)
-      insuranceDeduction: true,
-      taxDeduction: false
-    };
+  const [payslipData, setPayslipData] = useState({
+    empName: user?.first_name ? `${user.first_name} ${user.last_name || ''}` : 'همکار گرامی',
+    nationalId: user?.username || '---',
+    workshopName: user?.company_name || 'کارگاه / شرکت نمونه',
+    month: 'آبان ۱۴۰۵',
+    baseSalary: user?.last_salary_million_rial ? Number(user.last_salary_million_rial) * 1000000 : 71661840,
+    housingAllowance: 9000000,
+    groceryAllowance: 14000000,
+    childAllowance: user?.children_count ? Number(user.children_count) * 7166184 : 0,
+    overtimeHours: 0,
+    overtimeRate: 450000,
+    insuranceDeduction: true,
+    taxDeduction: false
   });
+
+  // همگام‌سازی لحظه‌ای با تغییرات پروفایل کاربر
+  useEffect(() => {
+    if (user) {
+      const sal = user.last_salary_million_rial ? Number(user.last_salary_million_rial) * 1000000 : 71661840;
+      const children = user.children_count ? Number(user.children_count) : 0;
+      setPayslipData(prev => ({
+        ...prev,
+        empName: user.first_name ? `${user.first_name} ${user.last_name || ''}` : prev.empName,
+        nationalId: user.username || prev.nationalId,
+        workshopName: user.company_name || prev.workshopName,
+        baseSalary: sal,
+        childAllowance: children * 7166184,
+        overtimeRate: Math.round(sal / 220 * 1.4)
+      }));
+    }
+  }, [user]);
+
 
 
   
@@ -1518,47 +1519,213 @@ export default function App() {
 
           </div>
         )}
+               {/* --- شاخه رندر تب شبیه‌ساز هیئت تشخیص (۱۵ مرحله‌ای تخصصی) --- */}
         {activeTab === 'tribunal' && (
-          <div className="max-w-4xl mx-auto p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm space-y-6">
-            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">⚖️ شبیه‌ساز هوشمند رأی هیئت تشخیص (ماده ۱۵۷)</h2>
-            {tribunalStep === 1 && (
-              <div className="space-y-4">
-                <label className="block font-medium text-gray-700 dark:text-gray-300">۱. آیا قرارداد کار کتبی دارید؟</label>
-                <div className="flex gap-4">
-                  <button onClick={() => setTribunalData({...tribunalData, hasContract: 'yes'})} className={`px-4 py-2 rounded-lg border ${tribunalData.hasContract === 'yes' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>بله</button>
-                  <button onClick={() => setTribunalData({...tribunalData, hasContract: 'no'})} className={`px-4 py-2 rounded-lg border ${tribunalData.hasContract === 'no' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>خیر</button>
+          <div className="space-y-6 max-w-3xl mx-auto pb-12">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">⚖️ شبیه‌ساز حرفه‌ای هیئت تشخیص (ماده ۱۵۷)</h2>
+                  <p className="text-xs text-gray-500 mt-1">ارزیابی ریسک و شانس موفقیت پرونده بر اساس ۱۵ فاکتور کلیدی قوانین کار</p>
                 </div>
-                <button onClick={() => setTribunalStep(2)} className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-lg">مرحله بعد</button>
+                <span className="px-3 py-1 bg-amber-50 text-amber-800 rounded-full text-xs font-bold">
+                  مرحله {tribunalStep} از ۱۵
+                </span>
               </div>
-            )}
-            {tribunalStep === 2 && (
-              <div className="space-y-4">
-                <label className="block font-medium text-gray-700 dark:text-gray-300">۲. آیا حق بیمه تأمین اجتماعی کامل واریز شده است؟</label>
-                <div className="flex gap-4">
-                  <button onClick={() => setTribunalData({...tribunalData, hasInsurance: 'yes'})} className={`px-4 py-2 rounded-lg border ${tribunalData.hasInsurance === 'yes' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>بله</button>
-                  <button onClick={() => setTribunalData({...tribunalData, hasInsurance: 'no'})} className={`px-4 py-2 rounded-lg border ${tribunalData.hasInsurance === 'no' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>خیر</button>
+
+              {tribunalStep <= 15 ? (
+                <div className="space-y-6">
+                  {/* سوالات گام‌به‌گام */}
+                  <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 space-y-4">
+                    <h3 className="font-bold text-base text-gray-900 dark:text-white">
+                      {tribunalStep === 1 && "۱. آیا قرارداد کار کتبی (نسخه کارگر/کارفرما) در اختیار دارید؟"}
+                      {tribunalStep === 2 && "۲. نوع قرارداد کار شما چگونه منعقد شده است؟"}
+                      {tribunalStep === 3 && "۳. آیا حق بیمه تأمین اجتماعی شما ماهیانه و به موقع واریز شده است؟"}
+                      {tribunalStep === 4 && "۴. مجموع سابقه بیمه واریز‌شده شما در کارگاه چقدر است؟"}
+                      {tribunalStep === 5 && "۵. دستمزد و حقوق شما از چه طریق پرداخت شده است؟"}
+                      {tribunalStep === 6 && "۶. آیا فیش حقوقی ممهور یا پرینت رسمی حقوق دریافت می‌کنید؟"}
+                      {tribunalStep === 7 && "۷. آیا فرم تسویه حساب یا قرارداد سفیدامضا / سفته امضا کرده‌اید؟"}
+                      {tribunalStep === 8 && "۸. نحوه قطع همکاری و پایان کار شما چگونه بوده است؟"}
+                      {tribunalStep === 9 && "۹. آیا اخطار کتبی، تذکر یا فرم کمیته انضباطی دریافت کرده‌اید؟"}
+                      {tribunalStep === 10 && "۱۰. آیا شاهد یا مطلعی (همکاران) برای اثبات ادعای حضور دارید؟"}
+                      {tribunalStep === 11 && "۱۱. آیا مدارک یا ساعت‌زن / کارت‌ساعت اضافه کار دارید؟"}
+                      {tribunalStep === 12 && "۱۲. آیا مطالبات مرخصی استفاده‌نشده ذخیره دارید؟"}
+                      {tribunalStep === 13 && "۱۳. آیا مبلغی بابت سنوات یا عیدی به صورت نقدی بدون رسید گرفته‌اید؟"}
+                      {tribunalStep === 14 && "۱۴. آیا سابقه طرح شکایت قبلی در اداره کار دارید؟"}
+                      {tribunalStep === 15 && "۱۵. آیا توافق‌نامه دستی یا تعهدنامه محضری خارج از اداره کار امضا کرده‌اید؟"}
+                    </h3>
+
+                    {/* گزینه‌ها بر اساس نوع سوال */}
+                    {tribunalStep === 2 ? (
+                      <div className="grid grid-cols-3 gap-3">
+                        {['formal', 'temporary', 'project'].map((opt) => (
+                          <button
+                            key={opt}
+                            onClick={() => setTribunalData({...tribunalData, contractType: opt})}
+                            className={`p-3 rounded-xl border text-sm font-medium transition-all ${tribunalData.contractType === opt ? 'bg-amber-600 text-white border-amber-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'}`}
+                          >
+                            {opt === 'formal' ? 'رسمی / دائمی' : opt === 'temporary' ? 'موقت / شرکتی' : 'پروژه‌ای / کارمزدی'}
+                          </button>
+                        ))}
+                      </div>
+                    ) : tribunalStep === 4 ? (
+                      <div className="grid grid-cols-3 gap-3">
+                        {['زیر ۱ سال', '۱ تا ۵ سال', 'بالای ۵ سال'].map((opt, idx) => (
+                          <button
+                            key={opt}
+                            onClick={() => setTribunalData({...tribunalData, insuranceMonths: idx === 0 ? '6' : idx === 1 ? '36' : '72'})}
+                            className={`p-3 rounded-xl border text-sm font-medium transition-all ${tribunalData.insuranceMonths === (idx === 0 ? '6' : idx === 1 ? '36' : '72') ? 'bg-amber-600 text-white border-amber-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'}`}
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    ) : tribunalStep === 8 ? (
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          {val: 'dismiss', label: 'اخراج توسط کارفرما'},
+                          {val: 'resign', label: 'استعفای شخصی'},
+                          {val: 'expire', label: 'پایان قرارداد'},
+                          {val: 'abandon', label: 'ترك کار'}
+                        ].map((item) => (
+                          <button
+                            key={item.val}
+                            onClick={() => setTribunalData({...tribunalData, terminationType: item.val})}
+                            className={`p-3 rounded-xl border text-sm font-medium transition-all ${tribunalData.terminationType === item.val ? 'bg-amber-600 text-white border-amber-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'}`}
+                          >
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-4">
+                        <button
+                          onClick={() => {
+                            const keys = ['hasContract','hasContract','hasInsurance','insuranceMonths','hasBankTransfer','hasPaySlip','hasWhiteSign','terminationType','hasWrittenNotice','hasWitness','hasOvertimeRecords','hasLeaveRecords','hasBenevolence','hasComplaintHistory','hasMOU'];
+                            // نگاشت کلیدهای بله/خیر
+                            const currentKey = ['hasContract','hasContract','hasInsurance','insuranceMonths','hasBankTransfer','hasPaySlip','hasWhiteSign','terminationType','hasWrittenNotice','hasWitness','hasOvertimeRecords','hasLeaveRecords','hasBenevolence','hasComplaintHistory','hasMOU'][tribunalStep-1];
+                            setTribunalData({...tribunalData, [currentKey]: 'yes'});
+                          }}
+                          className={`p-4 rounded-xl border font-bold text-sm transition-all ${
+                            (tribunalStep === 1 && tribunalData.hasContract === 'yes') ||
+                            (tribunalStep === 3 && tribunalData.hasInsurance === 'yes') ||
+                            (tribunalStep === 5 && tribunalData.hasBankTransfer === 'yes') ||
+                            (tribunalStep === 6 && tribunalData.hasPaySlip === 'yes') ||
+                            (tribunalStep === 7 && tribunalData.hasWhiteSign === 'yes') ||
+                            (tribunalStep === 9 && tribunalData.hasWrittenNotice === 'yes') ||
+                            (tribunalStep === 10 && tribunalData.hasWitness === 'yes') ||
+                            (tribunalStep === 11 && tribunalData.hasOvertimeRecords === 'yes') ||
+                            (tribunalStep === 12 && tribunalData.hasLeaveRecords === 'yes') ||
+                            (tribunalStep === 13 && tribunalData.hasBenevolence === 'yes') ||
+                            (tribunalStep === 14 && tribunalData.hasComplaintHistory === 'yes') ||
+                            (tribunalStep === 15 && tribunalData.hasMOU === 'yes')
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-md'
+                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'
+                          }`}
+                          onClickCapture={() => {
+                            const mapKey = ['hasContract','contractType','hasInsurance','insuranceMonths','hasBankTransfer','hasPaySlip','hasWhiteSign','terminationType','hasWrittenNotice','hasWitness','hasOvertimeRecords','hasLeaveRecords','hasBenevolence','hasComplaintHistory','hasMOU'][tribunalStep-1];
+                            if(mapKey) setTribunalData({...tribunalData, [mapKey]: 'yes'});
+                          }}
+                        >
+                          بله / مثبت / دارم
+                        </button>
+
+                        <button
+                          onClickCapture={() => {
+                            const mapKey = ['hasContract','contractType','hasInsurance','insuranceMonths','hasBankTransfer','hasPaySlip','hasWhiteSign','terminationType','hasWrittenNotice','hasWitness','hasOvertimeRecords','hasLeaveRecords','hasBenevolence','hasComplaintHistory','hasMOU'][tribunalStep-1];
+                            if(mapKey) setTribunalData({...tribunalData, [mapKey]: 'no'});
+                          }}
+                          className={`p-4 rounded-xl border font-bold text-sm transition-all ${
+                            (tribunalStep === 1 && tribunalData.hasContract === 'no') ||
+                            (tribunalStep === 3 && tribunalData.hasInsurance === 'no') ||
+                            (tribunalStep === 5 && tribunalData.hasBankTransfer === 'no') ||
+                            (tribunalStep === 6 && tribunalData.hasPaySlip === 'no') ||
+                            (tribunalStep === 7 && tribunalData.hasWhiteSign === 'no') ||
+                            (tribunalStep === 9 && tribunalData.hasWrittenNotice === 'no') ||
+                            (tribunalStep === 10 && tribunalData.hasWitness === 'no') ||
+                            (tribunalStep === 11 && tribunalData.hasOvertimeRecords === 'no') ||
+                            (tribunalStep === 12 && tribunalData.hasLeaveRecords === 'no') ||
+                            (tribunalStep === 13 && tribunalData.hasBenevolence === 'no') ||
+                            (tribunalStep === 14 && tribunalData.hasComplaintHistory === 'no') ||
+                            (tribunalStep === 15 && tribunalData.hasMOU === 'no')
+                            ? 'bg-rose-600 text-white border-rose-600 shadow-md'
+                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'
+                          }`}
+                        >
+                          خیر / منفی / ندارم
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* دکمه‌های ناوبری مرحله */}
+                  <div className="flex justify-between pt-4">
+                    <button
+                      disabled={tribunalStep === 1}
+                      onClick={() => setTribunalStep(tribunalStep - 1)}
+                      className="px-5 py-2.5 bg-gray-100 dark:bg-gray-700 disabled:opacity-40 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-medium"
+                    >
+                      مرحله قبل
+                    </button>
+
+                    {tribunalStep < 15 ? (
+                      <button
+                        onClick={() => setTribunalStep(tribunalStep + 1)}
+                        className="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold shadow-md"
+                      >
+                        مرحله بعد
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          calculateTribunal();
+                          setTribunalStep(16);
+                        }}
+                        className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md animate-pulse"
+                      >
+                        محاسبه نهایی نتیجه پرونده
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="flex gap-2 mt-4">
-                  <button onClick={() => setTribunalStep(1)} className="px-4 py-2 bg-gray-500 text-white rounded-lg">بازگشت</button>
-                  <button onClick={() => { calculateTribunal(); setTribunalStep(3); }} className="px-6 py-2 bg-emerald-600 text-white rounded-lg">مشاهده نتیجه شبیه‌سازی</button>
+              ) : (
+                /* نمایش نتیجه تحلیل */
+                <div className="space-y-6">
+                  {tribunalResult && (
+                    <div className="p-6 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl border border-amber-200 dark:border-amber-900/50 space-y-4">
+                      <div className="text-center pb-4 border-b border-amber-200 dark:border-gray-700">
+                        <span className="text-xs text-gray-500 block">امتیاز تخمینی موفقیت در هیئت تشخیص</span>
+                        <span className="text-4xl font-extrabold text-amber-700 dark:text-amber-400">{tribunalResult.score} از ۱۰۰</span>
+                        <p className="text-sm font-bold text-gray-800 dark:text-gray-200 mt-2">{tribunalResult.recommendation}</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <h4 className="font-bold text-sm text-gray-800 dark:text-gray-200">تحلیل استناد قانونی:</h4>
+                        <ul className="space-y-2">
+                          {tribunalResult.notes.map((note: string, idx: number) => (
+                            <li key={idx} className="text-xs bg-white dark:bg-gray-800 p-3 rounded-xl border border-amber-100 dark:border-gray-700 text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                              <span className="text-amber-600 font-bold">•</span>
+                              <span>{note}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <button
+                        onClick={() => { setTribunalStep(1); setTribunalResult(null); }}
+                        className="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold text-sm shadow-md transition-colors"
+                      >
+                        شروع مجدد ارزیابی
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
-            {tribunalStep === 3 && tribunalResult && (
-              <div className="space-y-4">
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-xl">
-                  <p className="text-lg font-bold text-blue-800 dark:text-blue-200">احتمال موفقیت حقوقی: {tribunalResult.score}%</p>
-                </div>
-                <ul className="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-300">
-                  {tribunalResult.notes.map((n: string, i: number) => <li key={i}>{n}</li>)}
-                </ul>
-                <button onClick={() => { setTribunalStep(1); setTribunalResult(null); }} className="px-6 py-2 bg-gray-600 text-white rounded-lg">شروع مجدد ارزیابی</button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
-                {/* --- شاخه رندر تب فیش حقوقی پرسنلی --- */}
-              {/* --- شاخه رندر تب فیش حقوقی پرسنلی (طراحی رسمی و استاندارد اداره کار) --- */}
+
+                {/* --- شاخه رندر تب فیش حقوقی پرسنلی (طراحی حرفه‌ای و استاندارد) --- */}
         {activeTab === 'payslip' && (
           <div className="space-y-6 max-w-4xl mx-auto pb-12">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
@@ -1566,8 +1733,8 @@ export default function App() {
               {/* هدر کنترل */}
               <div className="flex justify-between items-center mb-6 print:hidden">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">📄 فیش حقوق و دستمزد پرسنل</h2>
-                  <p className="text-xs text-gray-500 mt-1">مبتنی بر اطلاعات پروفایل و قوانین کار و تأمین اجتماعی</p>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">📄 فیش حقوق و دستمزد پرسنلی</h2>
+                  <p className="text-xs text-gray-500 mt-1">تولید خودکار بر اساس پروفایل کاربری و ضوابط قانون کار ۱۴۰۵</p>
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -1580,68 +1747,68 @@ export default function App() {
                     onClick={() => handlePrintDocument('payslip-print-area')}
                     className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-colors flex items-center gap-2 shadow-md"
                   >
-                    <span>🖨️ چاپ / ذخیره PDF رسمی</span>
+                    <span>🖨️ چاپ و ذخیره PDF رسمی</span>
                   </button>
                 </div>
               </div>
 
-              {/* کادر اصلی فیش حقوقی (مخصوص چاپ A4 و نمایش شیک) */}
-              <div id="payslip-print-area" className="p-8 bg-white text-gray-900 rounded-2xl border-2 border-gray-200 shadow-sm space-y-6 font-sans">
+              {/* کادر فیش حقوقی (طراحی استاندارد شرکتی مجهز به inline style برای چاپ تمیز) */}
+              <div id="payslip-print-area" style={{ fontFamily: 'Tahoma, Arial, sans-serif', direction: 'rtl', padding: '24px', background: '#ffffff', color: '#111827', borderRadius: '16px', border: '1px solid #e5e7eb' }}>
                 
-                {/* سربرگ رسمی */}
-                <div className="text-center border-b-2 border-gray-800 pb-4 flex justify-between items-center">
-                  <div className="text-right">
-                    <h3 className="text-lg font-extrabold text-gray-900">{payslipData.workshopName}</h3>
-                    <p className="text-xs text-gray-600 mt-0.5">سیستم جامع حقوق و دستمزد دادکار</p>
+                {/* سربرگ */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #1f2937', paddingBottom: '16px', marginBottom: '20px' }}>
+                  <div>
+                    <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 4px 0' }}>{payslipData.workshopName}</h3>
+                    <p style={{ fontSize: '11px', color: '#4b5563', margin: 0 }}>سیستم جامع حقوق و دستمزد دادکار</p>
                   </div>
-                  <div className="text-center">
-                    <h2 className="text-xl font-bold text-emerald-800">فیش حقوق و مزایای پرسنلی</h2>
-                    <span className="inline-block px-3 py-1 bg-emerald-50 text-emerald-800 rounded-full text-xs font-bold mt-1">
+                  <div style={{ textAlign: 'center' }}>
+                    <h2 style={{ fontSize: '16px', fontWeight: 'bold', color: '#047857', margin: '0 0 4px 0' }}>فیش حقوق و مزایای پرسنلی</h2>
+                    <span style={{ display: 'inline-block', padding: '2px 10px', background: '#ecfdf5', color: '#065f46', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>
                       عملکرد ماه: {payslipData.month}
                     </span>
                   </div>
-                  <div className="text-left text-xs text-gray-600 space-y-1">
-                    <p>تاریخ صدور: {new Date().toLocaleDateString('fa-IR')}</p>
+                  <div style={{ textAlign: 'left', fontSize: '11px', color: '#4b5563' }}>
+                    <p style={{ margin: 0 }}>تاریخ صدور: {new Date().toLocaleDateString('fa-IR')}</p>
                   </div>
                 </div>
 
-                {/* مشخصات پرسنلی */}
-                <div className="grid grid-cols-3 gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200 text-xs">
-                  <div><span className="text-gray-500">نام و نام خانوادگی:</span> <strong className="text-gray-900">{payslipData.empName}</strong></div>
-                  <div><span className="text-gray-500">کد ملی / شناسه:</span> <strong className="text-gray-900">{payslipData.nationalId}</strong></div>
-                  <div><span className="text-gray-500">شماره بیمه:</span> <strong className="text-gray-900">{payslipData.insuranceNo}</strong></div>
+                {/* مشخصات */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', background: '#f9fafb', padding: '12px', borderRadius: '10px', border: '1px solid #e5e7eb', fontSize: '11px', marginBottom: '20px' }}>
+                  <div><span style={{ color: '#6b7280' }}>نام و نام خانوادگی:</span> <strong>{payslipData.empName}</strong></div>
+                  <div><span style={{ color: '#6b7280' }}>کد ملی / شناسه:</span> <strong>{payslipData.nationalId}</strong></div>
+                  <div><span style={{ color: '#6b7280' }}>تاریخ استخدام / بیمه:</span> <strong>{user?.insurance_start_date || 'نامشخص'}</strong></div>
                 </div>
 
-                {/* جدول اقلام حقوق و مزایا */}
-                <div className="grid grid-cols-2 gap-6">
+                {/* جداول درآمد و کسورات */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
                   
-                  {/* ستون مزایا (درآمدها) */}
-                  <div className="space-y-2 border border-gray-200 rounded-xl p-4 bg-emerald-50/30">
-                    <h4 className="font-bold text-emerald-900 text-sm border-b pb-2 flex justify-between">
+                  {/* مزایا */}
+                  <div style={{ border: '1px solid #d1d5db', borderRadius: '10px', padding: '14px', background: '#fcfcfc' }}>
+                    <h4 style={{ fontSize: '12px', fontWeight: 'bold', color: '#065f46', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px', margin: '0 0 10px 0', display: 'flex', justifyContent: 'space-between' }}>
                       <span>مزایای مستمر و رفاهی</span>
                       <span>مبلغ (ریال)</span>
                     </h4>
-                    <div className="flex justify-between text-xs py-1">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0' }}>
                       <span>پایه حقوق ماهیانه:</span>
-                      <span className="font-semibold">{payslipData.baseSalary.toLocaleString()}</span>
+                      <strong>{payslipData.baseSalary.toLocaleString()}</strong>
                     </div>
-                    <div className="flex justify-between text-xs py-1">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0' }}>
                       <span>پایه مسکن مصوب:</span>
-                      <span className="font-semibold">{payslipData.housingAllowance.toLocaleString()}</span>
+                      <strong>{payslipData.housingAllowance.toLocaleString()}</strong>
                     </div>
-                    <div className="flex justify-between text-xs py-1">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0' }}>
                       <span>بن کارگری (خواربار):</span>
-                      <span className="font-semibold">{payslipData.groceryAllowance.toLocaleString()}</span>
+                      <strong>{payslipData.groceryAllowance.toLocaleString()}</strong>
                     </div>
-                    <div className="flex justify-between text-xs py-1">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0' }}>
                       <span>حق اولاد (فرزندان):</span>
-                      <span className="font-semibold">{payslipData.childAllowance.toLocaleString()}</span>
+                      <strong>{payslipData.childAllowance.toLocaleString()}</strong>
                     </div>
-                    <div className="flex justify-between text-xs py-1">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0' }}>
                       <span>اضافه کاری ({payslipData.overtimeHours} ساعت):</span>
-                      <span className="font-semibold">{(payslipData.overtimeHours * payslipData.overtimeRate).toLocaleString()}</span>
+                      <strong>{(payslipData.overtimeHours * payslipData.overtimeRate).toLocaleString()}</strong>
                     </div>
-                    <div className="border-t pt-2 flex justify-between text-xs font-bold text-emerald-900">
+                    <div style={{ borderTop: '1px solid #e5e7eb', marginTop: '10px', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 'bold', color: '#065f46' }}>
                       <span>جمع مزایای ناخالص:</span>
                       <span>
                         {(
@@ -1655,25 +1822,25 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* ستون کسورات قانونی */}
-                  <div className="space-y-2 border border-gray-200 rounded-xl p-4 bg-rose-50/30">
-                    <h4 className="font-bold text-rose-900 text-sm border-b pb-2 flex justify-between">
+                  {/* کسورات */}
+                  <div style={{ border: '1px solid #d1d5db', borderRadius: '10px', padding: '14px', background: '#fcfcfc' }}>
+                    <h4 style={{ fontSize: '12px', fontWeight: 'bold', color: '#991b1b', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px', margin: '0 0 10px 0', display: 'flex', justifyContent: 'space-between' }}>
                       <span>کسورات قانونی</span>
                       <span>مبلغ (ریال)</span>
                     </h4>
-                    <div className="flex justify-between text-xs py-1">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0' }}>
                       <span>بیمه سهم کارگر (۷٪ پایه و مزایا):</span>
-                      <span className="font-semibold text-rose-700">
+                      <strong style={{ color: '#991b1b' }}>
                         {payslipData.insuranceDeduction 
                           ? Math.round((payslipData.baseSalary + payslipData.housingAllowance + payslipData.groceryAllowance) * 0.07).toLocaleString() 
                           : '۰'}
-                      </span>
+                      </strong>
                     </div>
-                    <div className="flex justify-between text-xs py-1">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0' }}>
                       <span>مالیات بر درآمد حقوق:</span>
-                      <span className="font-semibold text-rose-700">{payslipData.taxDeduction ? 'محاسبه شده' : 'معاف / صفر'}</span>
+                      <strong style={{ color: '#991b1b' }}>{payslipData.taxDeduction ? 'محاسبه شده' : 'معاف / صفر'}</strong>
                     </div>
-                    <div className="border-t pt-2 flex justify-between text-xs font-bold text-rose-900 mt-20">
+                    <div style={{ borderTop: '1px solid #e5e7eb', marginTop: '48px', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 'bold', color: '#991b1b' }}>
                       <span>جمع کل کسورات:</span>
                       <span>
                         {payslipData.insuranceDeduction 
@@ -1685,11 +1852,11 @@ export default function App() {
 
                 </div>
 
-                {/* خالص پرداختی نهایی */}
-                <div className="bg-gray-900 text-white p-4 rounded-xl flex justify-between items-center">
+                {/* خالص پرداختی */}
+                <div style={{ background: '#111827', color: '#ffffff', padding: '14px 20px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                   <div>
-                    <span className="text-xs text-gray-300 block">مبلغ قابل پرداخت نهایی به پرسنل:</span>
-                    <span className="text-lg font-bold text-emerald-400">
+                    <span style={{ fontSize: '10px', color: '#9ca3af', display: 'block' }}>مبلغ قابل پرداخت نهایی به پرسنل:</span>
+                    <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#34d399' }}>
                       {(
                         (payslipData.baseSalary +
                          payslipData.housingAllowance +
@@ -1697,25 +1864,25 @@ export default function App() {
                          payslipData.childAllowance +
                          (payslipData.overtimeHours * payslipData.overtimeRate)) -
                         (payslipData.insuranceDeduction 
-                          ? Math.round((payslipData.baseSalary + payslipData.housingAllowance + payslipData.groceryAllowance) * 0.07) 
+                          ? Math.round((payslipData.baseSalary + paysල්జిانته + payslipData.housingAllowance + payslipData.groceryAllowance) * 0.07) 
                           : 0)
                       ).toLocaleString()} ریال
                     </span>
                   </div>
-                  <div className="text-left text-xs text-gray-400">
-                    <p>وضعیت واریز: آماده انتقال بانکی</p>
+                  <div style={{ textAlign: 'left', fontSize: '10px', color: '#9ca3af' }}>
+                    <p style={{ margin: 0 }}>وضعیت: آماده واریز بانکی</p>
                   </div>
                 </div>
 
                 {/* امضاها */}
-                <div className="grid grid-cols-2 gap-8 pt-8 border-t text-center text-xs text-gray-600">
-                  <div className="space-y-6">
-                    <p className="font-bold">امضا و مهر کارفرما / امور مالی</p>
-                    <div className="h-12 border-b border-dashed border-gray-300"></div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', borderTop: '1px solid #e5e7eb', paddingTop: '20px', textAlign: 'center', fontSize: '11px', color: '#4b5563' }}>
+                  <div>
+                    <p style={{ fontWeight: 'bold', margin: '0 0 25px 0' }}>امضا و مهر کارفرما / امور مالی</p>
+                    <div style={{ borderBottom: '1px dashed #9ca3af', width: '80%', margin: '0 auto' }}></div>
                   </div>
-                  <div className="space-y-6">
-                    <p className="font-bold">امضا و تایید دریافت پرسنل</p>
-                    <div className="h-12 border-b border-dashed border-gray-300"></div>
+                  <div>
+                    <p style={{ fontWeight: 'bold', margin: '0 0 25px 0' }}>امضا و تأیید دریافت پرسنل</p>
+                    <div style={{ borderBottom: '1px dashed #9ca3af', width: '80%', margin: '0 auto' }}></div>
                   </div>
                 </div>
 
@@ -2485,19 +2652,25 @@ export default function App() {
         </div>
       )}
 
-      {/* مودال‌های احراز هویت و مشخصات کاربری */}
-      <AuthProfileModals
-        user={user}
-        token={localStorage.getItem('dadkar_token') || ''}
-        onLoginSuccess={(u, t) => { 
-          setUser(u); 
-          setToken(t); 
-          setShowProfileModal(false); 
-        }}
-        onProfileUpdate={(u) => setUser(u)}
-        showProfileModal={showProfileModal}
-        setShowProfileModal={setShowProfileModal}
-      />
+  {/* مودال‌های پروفایل و احراز هویت */}
+  <AuthProfileModals
+    isOpen={authModalOpen}
+    onClose={() => setAuthModalOpen(false)}
+    onLoginSuccess={(userData, tokenStr) => {
+      setUser(userData);
+      setToken(tokenStr);
+      localStorage.setItem('dadkar_user', JSON.stringify(userData));
+      localStorage.setItem('dadkar_token', tokenStr);
+      setAuthModalOpen(false);
+    }}
+    onProfileUpdate={(updatedUser) => {
+      setUser(updatedUser);
+      localStorage.setItem('dadkar_user', JSON.stringify(updatedUser));
+    }}
+    currentUser={user}
+    token={token}
+  />
+
 
 
 
