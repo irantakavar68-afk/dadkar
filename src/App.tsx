@@ -302,6 +302,10 @@ export default function App() {
     
       return () => clearInterval(timer);
     }, []);
+
+
+
+  
   // --- افزونه ۱: شبیه‌ساز جلسه هیئت تشخیص (ماده ۱۵۷) ---
   const [tribunalStep, setTribunalStep] = useState(1);
   const [tribunalData, setTribunalData] = useState({ hasContract: 'yes', hasInsurance: 'yes', hasBankTransfer: 'yes', hasWhiteSign: 'no' });
@@ -1439,24 +1443,6 @@ export default function App() {
 
           </div>
         )}
-        // --- افزونه ۱: شبیه‌ساز جلسه هیئت تشخیص (ماده ۱۵۷) ---
-        const [tribunalStep, setTribunalStep] = useState(1);
-        const [tribunalData, setTribunalData] = useState({ hasContract: 'yes', hasInsurance: 'yes', hasBankTransfer: 'yes', hasWhiteSign: 'no' });
-        const [tribunalResult, setTribunalResult] = useState<any>(null);
-      
-        const calculateTribunal = () => {
-          let score = 50;
-          let notes = [];
-          if (tribunalData.hasContract === 'yes') { score += 20; notes.notes = "وجود قرارداد کتبی به نفع کارفرما/کارگر است."; }
-          else { score -= 30; notes.push("نبود قرارداد کتبی طبق ماده ۱۰ قانون کار تخلف کارفرما محسوب می‌شود."); }
-          
-          if (tribunalData.hasInsurance === 'yes') { score += 25; notes.push("واریز حق بیمه سابقه مستند ایجاد می‌کند."); }
-          else { score -= 40; notes.push("عدم ارسال لیست بیمه (ماده ۱۴۸) جرایم سنگینی برای کارفرما دارد."); }
-      
-          if (tribunalData.hasWhiteSign === 'yes') { score -= 25; notes.push("تسویه یا قرارداد سفیدامضا از نظر دیوان عدالت اداری فاقد اعتبار قانونی است."); }
-          
-          setTribunalResult({ score: Math.max(10, Math.min(95, score)), notes });
-        };
         {activeTab === 'tribunal' && (
           <div className="max-w-4xl mx-auto p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm space-y-6">
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">⚖️ شبیه‌ساز هوشمند رأی هیئت تشخیص (ماده ۱۵۷)</h2>
