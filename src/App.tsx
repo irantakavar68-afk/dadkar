@@ -153,18 +153,35 @@ const toEn = (s: string) =>
    .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
 
   // --- افزونه ۲: موتور چاپ و خروجی PDF فیش/قرارداد ---
-  const handlePrintDocument = (elementId: string) => {
-    const printContent = document.getElementById(elementId)?.innerHTML;
-    if (!printContent) return;
-    const win = window.open('', '', 'height=700,width=900');
-    win?.document.write('<html><head><title>چاپ سند - دادکار</title>');
-    win?.document.write('<style>body { font-family: Tahoma; direction: rtl; padding: 20px; }</style>');
-    win?.document.write('</head><body>');
-    win?.document.write(printContent);
-    win?.document.write('</body></html>');
-    win?.document.close();
-    win?.print();
-  };
+    const handlePrintDocument = (elementId: string) => {
+      const printContent = document.getElementById(elementId)?.innerHTML;
+      if (!printContent) return;
+      const win = window.open('', '', 'height=800,width=1000');
+      win?.document.write('<html><head><title>فیش حقوقی - سامانه جامع دادکار</title>');
+      win?.document.write(`
+        <style>
+          body { font-family: Tahoma, Vazirmatn, sans-serif; direction: rtl; padding: 30px; background: #fff; color: #111; }
+          .print-footer { margin-top: 40px; text-align: center; font-size: 11px; color: #666; border-top: 1px dashed #ccc; padding-top: 15px; }
+          .watermark { font-weight: bold; color: #047857; }
+        </style>
+      `);
+      win?.document.write('</head><body>');
+      win?.document.write(printContent);
+      win?.document.write(`
+        <div class="print-footer">
+          این سند به صورت رسمی از <span class="watermark">سامانه جامع حقوق و دستمزد دادکار (daadkaar.ir)</span> صادر شده است.<br/>
+          تاریخ صدور خروجی: ${new Date().toLocaleDateString('fa-IR')}
+        </div>
+      `);
+      win?.document.write('</body></html>');
+      win?.document.close();
+      win?.focus();
+      setTimeout(() => {
+        win?.print();
+        win?.close();
+      }, 500);
+    };
+
 
 
 
@@ -278,6 +295,10 @@ export default function App() {
       }));
     }
   }, [user]);
+// همگام‌سازی ساعات اضافه‌کاری از ماشین‌حساب به فیش حقوقی
+useEffect(() => {
+  setPayslipData(prev => ({ ...prev, overtimeHours: hours }));
+}, [hours]);
 
 
 
@@ -1755,19 +1776,26 @@ export default function App() {
                   >
                     بازگشت به خانه
                   </button>
-                  {/Android/i.test(navigator.userAgent) ? null : (
-                    <button onClick={() => handlePrintDocument('payslip-print-area')}>چاپ فیش</button>
+                 {/Android/i.test(navigator.userAgent) ? null : (
+                    <button 
+                      onClick={() => handlePrintDocument('payslip-print-area')} 
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
+                    >
+                      <span>🖨️</span> چاپ فیش حقوقی
+                    </button>
                   )}
+
 
                 </div>
               </div>
 
               {/* کنترلر تعاملی ساعت اضافه کار برای اعمال آنی در فیش */}
-              <div className="p-4 bg-emerald-50 dark:bg-gray-900 rounded-xl border border-emerald-200 dark:border-gray-700 mb-6 print:hidden flex items-center justify-between">
-                <div>
-                  <span className="font-bold text-sm text-emerald-900 dark:text-emerald-300 block">تنظیم ساعت اضافه کاری ماهانه:</span>
-                  <span className="text-xs text-emerald-700 dark:text-gray-400">نرخ هر ساعت: {payslipData.overtimeRate.toLocaleString()} ریال (محاسبه خودکار از پایه حقوق)</span>
+                {/* بعد: نمایش خودکار مقدار ماشین‌حساب */}
+                <div className="flex items-center justify-between bg-emerald-50 px-3 py-2 rounded-xl text-emerald-800 text-sm font-medium">
+                  <span>ساعات اضافه‌کاری (گرفته شده از بخش محاسبات):</span>
+                  <span className="font-bold">{payslipData.overtimeHours} ساعت</span>
                 </div>
+
                 <div className="flex items-center gap-3">
                   <input
                     type="number"
@@ -1837,7 +1865,7 @@ export default function App() {
                     {user?.marital_status === 'married' && (
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0', color: '#047857' }}>
                         <span>حق تأهل (حق همسر):</span>
-                        <strong>{Math.round(7166184 * 0.5).toLocaleString()}</strong>
+                        <strong>{Math.round(5000000).toLocaleString()}</strong>
                       </div>
                     )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0' }}>
@@ -1852,7 +1880,7 @@ export default function App() {
                           payslipData.housingAllowance +
                           payslipData.groceryAllowance +
                           payslipData.childAllowance +
-                          (user?.marital_status === 'married' ? Math.round(7166184 * 0.5) : 0) +
+                          (user?.marital_status === 'married' ? 5000000 : 0) +
                           (payslipData.overtimeHours * payslipData.overtimeRate)
                         ).toLocaleString()}
                       </span>
@@ -1900,7 +1928,7 @@ export default function App() {
                           payslipData.housingAllowance +
                           payslipData.groceryAllowance +
                           payslipData.childAllowance +
-                          (user?.marital_status === 'married' ? Math.round(7166184 * 0.5) : 0) +
+                          (user?.marital_status === 'married' ? 5000000 : 0) +
                           (payslipData.overtimeHours * payslipData.overtimeRate)
                         ) -
                         (
