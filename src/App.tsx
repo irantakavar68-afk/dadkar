@@ -2697,6 +2697,7 @@ export default function App() {
       {/* مودال پروفایل و احراز هویت */}
       <AuthProfileModals
         user={user}
+        token={token}
         showProfileModal={showProfileModal}
         setShowProfileModal={setShowProfileModal}
         onLoginSuccess={(userData, tokenStr) => {
