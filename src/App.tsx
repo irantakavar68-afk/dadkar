@@ -237,6 +237,9 @@ export default function App() {
     localStorage.setItem('dadkar_theme', theme);
   };
 
+  const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
+
+  
   const handleFontChange = (font: string) => {
     setFontFamily(font);
     localStorage.setItem('dadkar_font', font);
@@ -1776,8 +1779,7 @@ useEffect(() => {
                   >
                     بازگشت به خانه
                   </button>
-                  const isAndroid = /Android/i.test(navigator.userAgent);
-                  {!isAndroid && (
+                 {!isAndroid && (
                     <button 
                       onClick={() => handlePrintDocument('payslip-print-area')}
                       className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
@@ -1785,6 +1787,7 @@ useEffect(() => {
                       <span>🖨️</span> چاپ فیش حقوقی
                     </button>
                   )}
+
 
 
 
