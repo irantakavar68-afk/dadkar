@@ -236,20 +236,39 @@ export default function App() {
   };
 
 
-  // --- ماژول ۲: فیش حقوقی پرسنلی ---
-  const [payslipData, setPayslipData] = useState({
-    empName: 'مهندس / همکار گرامی',
-    workshopName: 'شرکت / کارگاه نمونه',
-    month: 'مهر ۱۴۰۵',
-    baseSalary: 71661840,
-    housingAllowance: 9000000,
-    groceryAllowance: 14000000,
-    childAllowance: 7166184,
-    overtimeHours: 20,
-    overtimeRate: 450000,
-    insuranceDeduction: true,
-    taxDeduction: false
+  // --- فیش حقوقی پویا متصل به پروفایل کاربر ---
+  const [payslipData, setPayslipData] = useState(() => {
+    // محاسبه ماه جاری شمسی
+    const now = new Date();
+    const jalaliMonths = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+    // تبدیل تقویم (محاسبه ساده یا استفاده از توابع کمکی تاریخ پروژه)
+    const currentMonthName = jalaliMonths[now.getMonth() % 12]; 
+    const currentYear = '۱۴۰۵';
+
+    const baseSalaryFromUser = user?.last_salary_million_rial 
+      ? Number(user.last_salary_million_rial) * 1000000 
+      : 71661840; // حداقل دستمزد پایه مصوب
+
+    const childCount = user?.children_count ? Number(user.children_count) : 0;
+    const childAllowanceVal = childCount * (7166184); // حق اولاد به ازای هر فرزند
+
+    return {
+      empName: user?.first_name ? `${user.first_name} ${user.last_name || ''}` : 'همکار گرامی',
+      nationalId: user?.username || '---',
+      insuranceNo: user?.insurance_no || '---',
+      workshopName: user?.workshop_name || 'کارگاه / شرکت نمونه',
+      month: `${currentMonthName} ${currentYear}`,
+      baseSalary: baseSalaryFromUser,
+      housingAllowance: 9000000,
+      groceryAllowance: 14000000,
+      childAllowance: childAllowanceVal,
+      overtimeHours: 0,
+      overtimeRate: Math.round(baseSalaryFromUser / 220 * 1.4), // نرخ قانونی هر ساعت اضافه کار (۱.۴ برابر)
+      insuranceDeduction: true,
+      taxDeduction: false
+    };
   });
+
 
   
   // استیت‌های بنر اسلایدر صفحه اصلی
@@ -319,24 +338,24 @@ export default function App() {
 
 
 
-   // --- افزونه ۱: شبیه‌ساز حرفه‌ای جلسه هیئت تشخیص (ماده ۱۵۷ قانون کار) ---
+    // --- شبیه‌ساز حرفه‌ای ۱۵ مرحله‌ای هیئت تشخیص (ماده ۱۵۷) ---
   const [tribunalStep, setTribunalStep] = useState(1);
   const [tribunalData, setTribunalData] = useState({
-    hasContract: 'yes',        // ۱. قرارداد کتبی
-    contractType: 'formal',    // ۲. نوع قرارداد (رسمی/موقت/پروژه‌ای)
-    hasInsurance: 'yes',       // ۳. واریز حق بیمه تأمین اجتماعی
-    insuranceMonths: '12',     // ۴. سابقه بیمه
-    hasBankTransfer: 'yes',    // ۵. واریز حقوق از طریق بانک (فیش واریزی)
-    hasPaySlip: 'yes',         // ۶. دریافت فیش حقوقی
-    hasWhiteSign: 'no',        // ۷. سفته یا قرارداد سفیدامضا
-    terminationType: 'dismiss',// ۸. نوع پایان کار (اخراج / استعفا / پایان قرارداد)
-    hasWrittenNotice: 'no',    // ۹. اخطار کتبی یا نامه اخراج
-    hasWitness: 'yes',         // ۱۰. شهود یا مطلعین همکار
-    hasOvertimeRecords: 'no',  // ۱۱. مدارک اضافه کاری اثبات‌شده
-    hasLeaveRecords: 'no',     // ۱۲. مدارک مرخصی استفاده‌نشده
-    hasBenevolence: 'no',      // ۱۳. دریافت تسویه حساب نهایی امضاشده
-    hasComplaintHistory: 'no', // ۱۴. سابقه شکایت قبلی در اداره کار
-    hasMOU: 'no'               // ۱۵. توافق‌نامه دستی یا شرط ضمن عقد خارج
+    hasContract: 'yes',          // ۱. قرارداد کتبی
+    contractType: 'formal',      // ۲. نوع قرارداد
+    hasInsurance: 'yes',         // ۳. واریز حق بیمه
+    insuranceMonths: '12',       // ۴. سابقه بیمه
+    hasBankTransfer: 'yes',      // ۵. واریز بانکی حقوق
+    hasPaySlip: 'yes',           // ۶. فیش حقوقی
+    hasWhiteSign: 'no',          // ۷. تسویه سفید امضا
+    terminationType: 'dismiss',  // ۸. نحوه پایان کار
+    hasWrittenNotice: 'no',      // ۹. اخطار کتبی اخراج
+    hasWitness: 'yes',           // ۱۰. شهود مطلع
+    hasOvertimeRecords: 'no',    // ۱۱. مدارک اضافه کاری
+    hasLeaveRecords: 'no',       // ۱۲. مرخصی استفاده نشده
+    hasBenevolence: 'no',        // ۱۳. تسویه حساب مالی نهایی
+    hasComplaintHistory: 'no',   // ۱۴. شکایت قبلی اداره کار
+    hasMOU: 'no'                 // ۱۵. توافق‌نامه دستی
   });
   const [tribunalResult, setTribunalResult] = useState<any>(null);
 
@@ -344,71 +363,30 @@ export default function App() {
     let score = 50;
     let notes: string[] = [];
 
-    // ۱. قرارداد کتبی (ماده ۱۰ قانون کار)
-    if (tribunalData.hasContract === 'yes') {
+    if (tribunalData.hasContract === 'yes') { score += 10; notes.push("ماده ۱۰: وجود قرارداد کتبی از حقوق شما صیانت می‌کند."); }
+    else { score -= 20; notes.push("ماده ۱۰: نبود قرارداد کتبی بار اثبات رابطه کار را سنگین‌تر می‌کند."); }
+
+    if (tribunalData.hasInsurance === 'yes') { score += 15; notes.push("ماده ۱۴۸: واریز حق بیمه قوی‌ترین مستند در هیئت تشخیص است."); }
+    else { score -= 25; notes.push("ماده ۱۴۸: عدم ارسال لیست بیمه تخلف آشکار و قابل پیگرد است."); }
+
+    if (tribunalData.hasBankTransfer === 'yes') { score += 10; notes.push("گردش حساب بانکی واریز حقوق را به طور رسمی اثبات می‌کند."); }
+    else { score -= 15; notes.push("پرداخت نقدی دستمزد اثبات مطالبات را با چالش مواجه می‌کند."); }
+
+    if (tribunalData.hasWhiteSign === 'yes') { score -= 25; notes.push("قرارداد یا تسویه‌حساب سفیدامضا طبق آرای دیوان عدالت باطل است."); }
+
+    if (tribunalData.terminationType === 'dismiss' && tribunalData.hasWrittenNotice === 'no') {
       score += 15;
-      notes.push("✅ وجود قرارداد کتبی مطابق ماده ۱۰ قانون کار به عنوان سند پایه به نفع شماست.");
-    } else {
-      score -= 25;
-      notes.push("❌ نبود قرارداد کتبی اثبات رابطه کار را دشوار می‌کند، اما طبق رویه دیوان، واریز بیمه یا شهادت شهود قابل استناد است.");
+      notes.push("ماده ۱۶۵: اخراج بدون دلیل موجه یا بدون اخطار کتبی به نفع کارگر است.");
     }
 
-    // ۲. حق بیمه (ماده ۱۴۸ قانون کار)
-    if (tribunalData.hasInsurance === 'yes') {
-      score += 25;
-      notes.push("✅ واریز حق بیمه توسط کارفرما قوی‌ترین دلیل اثبات رابطه کارگری و کارفرمایی است.");
-    } else {
-      score -= 35;
-      notes.push("❌ عدم ارسال لیست و واریز بیمه تخلف آشکار کارفرماست (ماده ۱۴۸) و جریمه سنگین به دنبال دارد.");
-    }
+    if (tribunalData.hasWitness === 'yes') { score += 10; notes.push("وجود شهود مطلع به اثبات ادعا در جلسه کمک می‌کند."); }
 
-    // ۳. واریز بانکی حقوق
-    if (tribunalData.hasBankTransfer === 'yes') {
-      score += 15;
-      notes.push("✅ گردش حساب و فیش‌های واریزی بانک، دریافت حقوق و دستمزد را به طور مستند ثابت می‌کند.");
-    } else {
-      score -= 15;
-      notes.push("⚠️ پرداخت نقدی دستمزد اثبات مطالبات مالی (عیدی، سنوات، دستمزد) را در هیئت با چالش مواجه می‌کند.");
-    }
-
-    // ۴. اسناد سفیدامضا (رویهمرفته)
-    if (tribunalData.hasWhiteSign === 'yes') {
-      score -= 30;
-      notes.push("❌ قرارداد یا تسویه‌حساب سفیدامضا یا سفته اخذ شده در بدو استخدام طبق آرای دیوان عدالت اداری فاقد اعتبار قانونی است.");
-    } else {
-      score += 10;
-      notes.push("✅ عدم وجود اوراق سفیدامضا به استحکام پرونده شما کمک می‌کند.");
-    }
-
-    // ۵. نحوه پایان کار و اخراج (ماده ۱۶۵)
-    if (tribunalData.terminationType === 'dismiss') {
-      if (tribunalData.hasWrittenNotice === 'no') {
-        score += 15;
-        notes.push("✅ اخراج بدون دلیل موجه یا بدون اخطار کتبی، دعوای بازگشت به کار یا مطالبه حق سنوات و خسارت اخراج را تقویت می‌کند.");
-      } else {
-        score -= 10;
-        notes.push("⚠️ وجود نامه اخراج کتبی با ذکر دلیل، بررسی انضباطی را وارد فاز کارشناسی می‌کند.");
-      }
-    }
-
-    // ۶. شهود و مستندات تکمیلی
-    if (tribunalData.hasWitness === 'yes') {
-      score += 10;
-      notes.push("✅ حضور شهود مطلع در روز جلسه هیئت تشخیص، اظهارات شما را پشتیبانی می‌کند.");
-    }
-
-    // امتیاز نهایی محدود بین ۱۰ تا ۹۵ درصد
     const finalScore = Math.max(10, Math.min(95, score));
-    let recommendation = "";
-    if (finalScore >= 75) {
-      recommendation = "شانس موفقیت شما در هیئت تشخیص بسیار بالا است. ثبت دادخواست توصیه می‌شود.";
-    } else if (finalScore >= 45) {
-      recommendation = "پرونده شما ابهاماتی دارد؛ ارائه مستندات تکمیلی و فیش حقوقی پیش از جلسه الزامی است.";
-    } else {
-      recommendation = "بدلیل ضعف مستندات، پیش از طرح دعوا در هیئت تشخیص، جمع‌آوری مدارک و مشاوره تخصصی توصیه می‌شود.";
-    }
-
-    setTribunalResult({ score: finalScore, notes, recommendation });
+    setTribunalResult({ 
+      score: finalScore, 
+      notes, 
+      recommendation: finalScore >= 70 ? "شانس موفقیت در هیئت تشخیص بسیار بالا است." : "پیش از طرح دعوا، تکمیل مستندات و مشاوره حقوقی توصیه می‌شود." 
+    });
   };
 
 
@@ -972,7 +950,18 @@ export default function App() {
 
               </div>
             </div>
-
+            {/* کارت دسترسی سریع: فیش حقوقی پرسنلی */}
+            <div 
+              onClick={() => setActiveTab('payslip')}
+              className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-5 rounded-2xl shadow-md cursor-pointer hover:scale-[1.02] transition-transform flex items-center justify-between"
+            >
+              <div>
+                <h3 className="font-bold text-lg">📄 فیش حقوقی پرسنلی</h3>
+                <p className="text-emerald-100 text-xs mt-1">محاسبه و خروجی فیش بر اساس پروفایل</p>
+              </div>
+              <FileText className="w-8 h-8 text-emerald-100 opacity-80" />
+            </div>
+          
             {/* کارت راهنما و اطلاعات مبنا */}
             <div className="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-2xl p-4 text-white flex items-center justify-between">
               <div className="space-y-1">
@@ -1569,62 +1558,172 @@ export default function App() {
           </div>
         )}
                 {/* --- شاخه رندر تب فیش حقوقی پرسنلی --- */}
+              {/* --- شاخه رندر تب فیش حقوقی پرسنلی (طراحی رسمی و استاندارد اداره کار) --- */}
         {activeTab === 'payslip' && (
-          <div className="space-y-6">
+          <div className="space-y-6 max-w-4xl mx-auto pb-12">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">📄 محاسبه و فیش حقوقی پرسنلی (قانون کار)</h2>
-                <button
-                  onClick={() => handlePrintDocument('payslip-print-area')}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
-                >
-                  <span>چاپ / دانلود فیش PDF</span>
-                </button>
+              
+              {/* هدر کنترل */}
+              <div className="flex justify-between items-center mb-6 print:hidden">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">📄 فیش حقوق و دستمزد پرسنل</h2>
+                  <p className="text-xs text-gray-500 mt-1">مبتنی بر اطلاعات پروفایل و قوانین کار و تأمین اجتماعی</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setActiveTab('home')}
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-medium transition-colors"
+                  >
+                    بازگشت به خانه
+                  </button>
+                  <button
+                    onClick={() => handlePrintDocument('payslip-print-area')}
+                    className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-colors flex items-center gap-2 shadow-md"
+                  >
+                    <span>🖨️ چاپ / ذخیره PDF رسمی</span>
+                  </button>
+                </div>
               </div>
 
-              {/* کادر قابل چاپ فیش */}
-              <div id="payslip-print-area" className="p-6 bg-white rounded-xl border border-gray-200 text-gray-900 space-y-4">
-                <div className="text-center border-b pb-4">
-                  <h3 className="text-lg font-bold">{payslipData.workshopName}</h3>
-                  <p className="text-sm text-gray-600">فیش حقوق و دستمزد - ماه: {payslipData.month}</p>
-                  <p className="text-xs text-gray-500 mt-1">نام پرسنل: {payslipData.empName}</p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <span className="text-gray-500 block text-xs">پایه حقوق ماهیانه:</span>
-                    <span className="font-bold">{payslipData.baseSalary.toLocaleString()} ریال</span>
+              {/* کادر اصلی فیش حقوقی (مخصوص چاپ A4 و نمایش شیک) */}
+              <div id="payslip-print-area" className="p-8 bg-white text-gray-900 rounded-2xl border-2 border-gray-200 shadow-sm space-y-6 font-sans">
+                
+                {/* سربرگ رسمی */}
+                <div className="text-center border-b-2 border-gray-800 pb-4 flex justify-between items-center">
+                  <div className="text-right">
+                    <h3 className="text-lg font-extrabold text-gray-900">{payslipData.workshopName}</h3>
+                    <p className="text-xs text-gray-600 mt-0.5">سیستم جامع حقوق و دستمزد دادکار</p>
                   </div>
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <span className="text-gray-500 block text-xs">پایه مسکن:</span>
-                    <span className="font-bold">{payslipData.housingAllowance.toLocaleString()} ریال</span>
+                  <div className="text-center">
+                    <h2 className="text-xl font-bold text-emerald-800">فیش حقوق و مزایای پرسنلی</h2>
+                    <span className="inline-block px-3 py-1 bg-emerald-50 text-emerald-800 rounded-full text-xs font-bold mt-1">
+                      عملکرد ماه: {payslipData.month}
+                    </span>
                   </div>
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <span className="text-gray-500 block text-xs">بن کارگری:</span>
-                    <span className="font-bold">{payslipData.groceryAllowance.toLocaleString()} ریال</span>
-                  </div>
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <span className="text-gray-500 block text-xs">حق اولاد:</span>
-                    <span className="font-bold">{payslipData.childAllowance.toLocaleString()} ریال</span>
+                  <div className="text-left text-xs text-gray-600 space-y-1">
+                    <p>تاریخ صدور: {new Date().toLocaleDateString('fa-IR')}</p>
                   </div>
                 </div>
 
-                <div className="border-t pt-4 flex justify-between items-center text-base font-bold bg-emerald-50 p-4 rounded-xl text-emerald-900">
-                  <span>جمع حقوق و مزایای ناخالص:</span>
-                  <span>
-                    {(
-                      payslipData.baseSalary +
-                      payslipData.housingAllowance +
-                      payslipData.groceryAllowance +
-                      payslipData.childAllowance +
-                      (payslipData.overtimeHours * payslipData.overtimeRate)
-                    ).toLocaleString()} ریال
-                  </span>
+                {/* مشخصات پرسنلی */}
+                <div className="grid grid-cols-3 gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200 text-xs">
+                  <div><span className="text-gray-500">نام و نام خانوادگی:</span> <strong className="text-gray-900">{payslipData.empName}</strong></div>
+                  <div><span className="text-gray-500">کد ملی / شناسه:</span> <strong className="text-gray-900">{payslipData.nationalId}</strong></div>
+                  <div><span className="text-gray-500">شماره بیمه:</span> <strong className="text-gray-900">{payslipData.insuranceNo}</strong></div>
                 </div>
+
+                {/* جدول اقلام حقوق و مزایا */}
+                <div className="grid grid-cols-2 gap-6">
+                  
+                  {/* ستون مزایا (درآمدها) */}
+                  <div className="space-y-2 border border-gray-200 rounded-xl p-4 bg-emerald-50/30">
+                    <h4 className="font-bold text-emerald-900 text-sm border-b pb-2 flex justify-between">
+                      <span>مزایای مستمر و رفاهی</span>
+                      <span>مبلغ (ریال)</span>
+                    </h4>
+                    <div className="flex justify-between text-xs py-1">
+                      <span>پایه حقوق ماهیانه:</span>
+                      <span className="font-semibold">{payslipData.baseSalary.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-xs py-1">
+                      <span>پایه مسکن مصوب:</span>
+                      <span className="font-semibold">{payslipData.housingAllowance.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-xs py-1">
+                      <span>بن کارگری (خواربار):</span>
+                      <span className="font-semibold">{payslipData.groceryAllowance.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-xs py-1">
+                      <span>حق اولاد (فرزندان):</span>
+                      <span className="font-semibold">{payslipData.childAllowance.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-xs py-1">
+                      <span>اضافه کاری ({payslipData.overtimeHours} ساعت):</span>
+                      <span className="font-semibold">{(payslipData.overtimeHours * payslipData.overtimeRate).toLocaleString()}</span>
+                    </div>
+                    <div className="border-t pt-2 flex justify-between text-xs font-bold text-emerald-900">
+                      <span>جمع مزایای ناخالص:</span>
+                      <span>
+                        {(
+                          payslipData.baseSalary +
+                          payslipData.housingAllowance +
+                          payslipData.groceryAllowance +
+                          payslipData.childAllowance +
+                          (payslipData.overtimeHours * payslipData.overtimeRate)
+                        ).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* ستون کسورات قانونی */}
+                  <div className="space-y-2 border border-gray-200 rounded-xl p-4 bg-rose-50/30">
+                    <h4 className="font-bold text-rose-900 text-sm border-b pb-2 flex justify-between">
+                      <span>کسورات قانونی</span>
+                      <span>مبلغ (ریال)</span>
+                    </h4>
+                    <div className="flex justify-between text-xs py-1">
+                      <span>بیمه سهم کارگر (۷٪ پایه و مزایا):</span>
+                      <span className="font-semibold text-rose-700">
+                        {payslipData.insuranceDeduction 
+                          ? Math.round((payslipData.baseSalary + payslipData.housingAllowance + payslipData.groceryAllowance) * 0.07).toLocaleString() 
+                          : '۰'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs py-1">
+                      <span>مالیات بر درآمد حقوق:</span>
+                      <span className="font-semibold text-rose-700">{payslipData.taxDeduction ? 'محاسبه شده' : 'معاف / صفر'}</span>
+                    </div>
+                    <div className="border-t pt-2 flex justify-between text-xs font-bold text-rose-900 mt-20">
+                      <span>جمع کل کسورات:</span>
+                      <span>
+                        {payslipData.insuranceDeduction 
+                          ? Math.round((payslipData.baseSalary + payslipData.housingAllowance + payslipData.groceryAllowance) * 0.07).toLocaleString() 
+                          : '۰'}
+                      </span>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* خالص پرداختی نهایی */}
+                <div className="bg-gray-900 text-white p-4 rounded-xl flex justify-between items-center">
+                  <div>
+                    <span className="text-xs text-gray-300 block">مبلغ قابل پرداخت نهایی به پرسنل:</span>
+                    <span className="text-lg font-bold text-emerald-400">
+                      {(
+                        (payslipData.baseSalary +
+                         payslipData.housingAllowance +
+                         payslipData.groceryAllowance +
+                         payslipData.childAllowance +
+                         (payslipData.overtimeHours * payslipData.overtimeRate)) -
+                        (payslipData.insuranceDeduction 
+                          ? Math.round((payslipData.baseSalary + payslipData.housingAllowance + payslipData.groceryAllowance) * 0.07) 
+                          : 0)
+                      ).toLocaleString()} ریال
+                    </span>
+                  </div>
+                  <div className="text-left text-xs text-gray-400">
+                    <p>وضعیت واریز: آماده انتقال بانکی</p>
+                  </div>
+                </div>
+
+                {/* امضاها */}
+                <div className="grid grid-cols-2 gap-8 pt-8 border-t text-center text-xs text-gray-600">
+                  <div className="space-y-6">
+                    <p className="font-bold">امضا و مهر کارفرما / امور مالی</p>
+                    <div className="h-12 border-b border-dashed border-gray-300"></div>
+                  </div>
+                  <div className="space-y-6">
+                    <p className="font-bold">امضا و تایید دریافت پرسنل</p>
+                    <div className="h-12 border-b border-dashed border-gray-300"></div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
         )}
+
 
         {/* ===================== ۳. تب شعب تأمین اجتماعی ===================== */}
         {activeTab === 'tamin' && (
@@ -2228,7 +2327,6 @@ export default function App() {
             { id: 'tamin', label: 'شعب', icon: Building2 },
             { id: 'templates', label: 'قالب‌ها', icon: FileSpreadsheet },
             { id: 'laws', label: 'قوانین', icon: BookOpen },
-            { id: 'payslip', label: 'فیش حقوقی', icon: FileText },
             { id: 'faq', label: 'راهنما', icon: HelpCircle },
             { id: 'contact', label: 'ارتباط', icon: Phone },
           ].map((item) => {
