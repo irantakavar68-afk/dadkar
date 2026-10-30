@@ -2694,7 +2694,7 @@ export default function App() {
         </div>
       )}
 
-       {/* مودال پروفایل و احراز هویت */}
+      {/* مودال پروفایل و احراز هویت */}
       <AuthProfileModals
         user={user}
         showProfileModal={showProfileModal}
@@ -2713,12 +2713,7 @@ export default function App() {
         }}
       />
 
-
-
-
-
-
-    </div>
+     </div>
   );
 }
 
