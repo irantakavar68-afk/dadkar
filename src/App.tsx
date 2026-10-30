@@ -235,39 +235,49 @@ export default function App() {
     localStorage.setItem('dadkar_contrast', checked.toString());
   };
 
+  // دریافت خودکار و پویای نام ماه و سال جاری خورشیدی سیستم (بدون مقدار ثابتی)
+  const getCurrentJalaliMonthLabel = () => {
+    try {
+      const formatter = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { year: 'numeric', month: 'long' });
+      return formatter.format(new Date());
+    } catch {
+      const jalaliMonths = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+      const [jy, jm] = typeof getJalaliToday === 'function' ? getJalaliToday() : [1405, 8];
+      return `${jalaliMonths[jm - 1]} ${jy}`;
+    }
+  };
 
   // --- فیش حقوقی پویا متصل به پروفایل کاربر ---
-  const [payslipData, setPayslipData] = useState({
-    empName: user?.first_name ? `${user.first_name} ${user.last_name || ''}` : 'همکار گرامی',
-    nationalId: user?.username || '---',
-    workshopName: user?.company_name || 'کارگاه / شرکت نمونه',
-    month: 'آبان ۱۴۰۵',
-    baseSalary: user?.last_salary_million_rial ? Number(user.last_salary_million_rial) * 1000000 : 71661840,
+    const [payslipData, setPayslipData] = useState({
+    empName: user?.full_name || (user?.first_name ? `${user.first_name} ${user.last_name}` : 'همکار گرامی'),
+    nationalId: user?.username || user?.national_code || '---',
+    workshopName: user?.company_name || 'کارگاه مشمول قانون کار',
+    month: getCurrentJalaliMonthLabel(),
+    baseSalary: Number(user?.last_salary_million_rial || 100000000),
     housingAllowance: 9000000,
     groceryAllowance: 14000000,
-    childAllowance: user?.children_count ? Number(user.children_count) * 7166184 : 0,
-    overtimeHours: 0,
-    overtimeRate: 450000,
+    childAllowance: (user?.children_count || 0) * 7166184,
+    overtimeHours: 20,
+    overtimeRate: Math.round(Number(user?.last_salary_million_rial || 100000000) / 220 * 1.4),
     insuranceDeduction: true,
     taxDeduction: false
   });
 
-  // همگام‌سازی لحظه‌ای با تغییرات پروفایل کاربر
   useEffect(() => {
     if (user) {
-      const sal = user.last_salary_million_rial ? Number(user.last_salary_million_rial) * 1000000 : 71661840;
-      const children = user.children_count ? Number(user.children_count) : 0;
       setPayslipData(prev => ({
         ...prev,
-        empName: user.first_name ? `${user.first_name} ${user.last_name || ''}` : prev.empName,
-        nationalId: user.username || prev.nationalId,
+        empName: user.full_name || (user.first_name ? `${user.first_name} ${user.last_name}` : prev.empName),
+        nationalId: user.username || user.national_code || prev.nationalId,
         workshopName: user.company_name || prev.workshopName,
-        baseSalary: sal,
-        childAllowance: children * 7166184,
-        overtimeRate: Math.round(sal / 220 * 1.4)
+        month: getCurrentJalaliMonthLabel(),
+        baseSalary: Number(user.last_salary_million_rial || prev.baseSalary),
+        childAllowance: (user.children_count || 0) * 7166184,
+        overtimeRate: Math.round(Number(user.last_salary_million_rial || prev.baseSalary) / 220 * 1.4)
       }));
     }
   }, [user]);
+
 
 
 
