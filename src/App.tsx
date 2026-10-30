@@ -248,7 +248,7 @@ export default function App() {
   };
 
   // --- فیش حقوقی پویا متصل به پروفایل کاربر ---
-    const [payslipData, setPayslipData] = useState({
+      const [payslipData, setPayslipData] = useState({
     empName: user?.full_name || (user?.first_name ? `${user.first_name} ${user.last_name}` : 'همکار گرامی'),
     nationalId: user?.username || user?.national_code || '---',
     workshopName: user?.company_name || 'کارگاه مشمول قانون کار',
@@ -277,6 +277,7 @@ export default function App() {
       }));
     }
   }, [user]);
+
 
 
 
@@ -2693,24 +2694,23 @@ export default function App() {
         </div>
       )}
 
-  {/* مودال‌های پروفایل و احراز هویت */}
-  <AuthProfileModals
-    isOpen={authModalOpen}
-    onClose={() => setAuthModalOpen(false)}
-    onLoginSuccess={(userData, tokenStr) => {
-      setUser(userData);
-      setToken(tokenStr);
-      localStorage.setItem('dadkar_user', JSON.stringify(userData));
-      localStorage.setItem('dadkar_token', tokenStr);
-      setAuthModalOpen(false);
-    }}
-    onProfileUpdate={(updatedUser) => {
-      setUser(updatedUser);
-      localStorage.setItem('dadkar_user', JSON.stringify(updatedUser));
-    }}
-    currentUser={user}
-    token={token}
-  />
+        {/* مودال پروفایل و احراز هویت */}
+        <AuthProfileModals
+          user={user}
+          showProfileModal={showProfileModal}
+          setShowProfileModal={setShowProfileModal}
+          onLoginSuccess={(userData, tokenStr) => {
+            setUser(userData);
+            setToken(tokenStr);
+            localStorage.setItem('dadkar_user', JSON.stringify(userData));
+            localStorage.setItem('dadkar_token', tokenStr);
+          }}
+          onProfileUpdate={(updatedUser) => {
+            setUser(updatedUser);
+            localStorage.setItem('dadkar_user', JSON.stringify(updatedUser));
+          }}
+        />
+
 
 
 
