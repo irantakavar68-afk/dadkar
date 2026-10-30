@@ -1776,14 +1776,16 @@ useEffect(() => {
                   >
                     بازگشت به خانه
                   </button>
-                 {/Android/i.test(navigator.userAgent) ? null : (
+                  const isAndroid = /Android/i.test(navigator.userAgent);
+                  {!isAndroid && (
                     <button 
-                      onClick={() => handlePrintDocument('payslip-print-area')} 
+                      onClick={() => handlePrintDocument('payslip-print-area')}
                       className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
                     >
                       <span>🖨️</span> چاپ فیش حقوقی
                     </button>
                   )}
+
 
 
                 </div>
