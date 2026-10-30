@@ -186,6 +186,8 @@ const toEn = (s: string) =>
 
 
 export default function App() {
+  const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
+
   // تب‌های اصلی اپلیکیشن: اضافه شدن تب خانه (home)
   const [activeTab, setActiveTab] = useState<'home' | 'calculator' | 'tamin' | 'templates' | 'laws' | 'faq' | 'contact' | 'payslip' | 'tribunal'>('home');
 
@@ -237,7 +239,6 @@ export default function App() {
     localStorage.setItem('dadkar_theme', theme);
   };
 
-  const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
 
   
   const handleFontChange = (font: string) => {
