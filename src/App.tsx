@@ -2695,23 +2695,24 @@ export default function App() {
       )}
 
       {/* مودال پروفایل و احراز هویت */}
-      <AuthProfileModals
-        user={user}
-        token={token}
-        showProfileModal={showProfileModal}
-        setShowProfileModal={setShowProfileModal}
-        onLoginSuccess={(userData, tokenStr) => {
-          setUser(userData);
-          setToken(tokenStr);
-          localStorage.setItem('dadkar_user', JSON.stringify(userData));
-          localStorage.setItem('dadkar_token', tokenStr);
-          setShowProfileModal(false); // بستن مودال پس از ورود موفق
-          setActiveTab('home');     // هدایت به صفحه اصلی
-        }}
-        onProfileUpdate={(updatedUser) => {
-          setUser(updatedUser);
-          localStorage.setItem('dadkar_user', JSON.stringify(updatedUser));
-        }}
+        <AuthProfileModals
+          user={user}
+          token={token}
+          showProfileModal={showProfileModal}
+
+          setShowProfileModal={setShowProfileModal}
+          onLoginSuccess={(userData, tokenStr) => {
+            setUser(userData);
+            setToken(tokenStr);
+            localStorage.setItem('dadkar_user', JSON.stringify(userData));
+            localStorage.setItem('dadkar_token', tokenStr);
+            setShowProfileModal(false); // بستن مودال پس از ورود موفق
+            setActiveTab('home');     // هدایت به صفحه اصلی
+          }}
+          onProfileUpdate={(updatedUser) => {
+            setUser(updatedUser);
+            localStorage.setItem('dadkar_user', JSON.stringify(updatedUser));
+          }}
       />
 
      </div>
