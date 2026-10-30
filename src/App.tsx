@@ -170,7 +170,7 @@ const toEn = (s: string) =>
 
 export default function App() {
   // تب‌های اصلی اپلیکیشن: اضافه شدن تب خانه (home)
-  const [activeTab, setActiveTab] = useState<'home' | 'calculator' | 'tamin' | 'templates' | 'laws' | 'faq' | 'contact' | 'tribunal'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'calculator' | 'tamin' | 'templates' | 'laws' | 'faq' | 'contact' | 'payslip' | 'tribunal'>('home');
 
   // --- وضعیت‌های پیشرفته تنظیمات دادکار ---
     type AppTheme = 'light' | 'dark';
@@ -236,6 +236,20 @@ export default function App() {
   };
 
 
+  // --- ماژول ۲: فیش حقوقی پرسنلی ---
+  const [payslipData, setPayslipData] = useState({
+    empName: 'مهندس / همکار گرامی',
+    workshopName: 'شرکت / کارگاه نمونه',
+    month: 'مهر ۱۴۰۵',
+    baseSalary: 71661840,
+    housingAllowance: 9000000,
+    groceryAllowance: 14000000,
+    childAllowance: 7166184,
+    overtimeHours: 20,
+    overtimeRate: 450000,
+    insuranceDeduction: true,
+    taxDeduction: false
+  });
 
   
   // استیت‌های بنر اسلایدر صفحه اصلی
@@ -305,24 +319,96 @@ export default function App() {
 
 
 
-  
-  // --- افزونه ۱: شبیه‌ساز جلسه هیئت تشخیص (ماده ۱۵۷) ---
+   // --- افزونه ۱: شبیه‌ساز حرفه‌ای جلسه هیئت تشخیص (ماده ۱۵۷ قانون کار) ---
   const [tribunalStep, setTribunalStep] = useState(1);
-  const [tribunalData, setTribunalData] = useState({ hasContract: 'yes', hasInsurance: 'yes', hasBankTransfer: 'yes', hasWhiteSign: 'no' });
+  const [tribunalData, setTribunalData] = useState({
+    hasContract: 'yes',        // ۱. قرارداد کتبی
+    contractType: 'formal',    // ۲. نوع قرارداد (رسمی/موقت/پروژه‌ای)
+    hasInsurance: 'yes',       // ۳. واریز حق بیمه تأمین اجتماعی
+    insuranceMonths: '12',     // ۴. سابقه بیمه
+    hasBankTransfer: 'yes',    // ۵. واریز حقوق از طریق بانک (فیش واریزی)
+    hasPaySlip: 'yes',         // ۶. دریافت فیش حقوقی
+    hasWhiteSign: 'no',        // ۷. سفته یا قرارداد سفیدامضا
+    terminationType: 'dismiss',// ۸. نوع پایان کار (اخراج / استعفا / پایان قرارداد)
+    hasWrittenNotice: 'no',    // ۹. اخطار کتبی یا نامه اخراج
+    hasWitness: 'yes',         // ۱۰. شهود یا مطلعین همکار
+    hasOvertimeRecords: 'no',  // ۱۱. مدارک اضافه کاری اثبات‌شده
+    hasLeaveRecords: 'no',     // ۱۲. مدارک مرخصی استفاده‌نشده
+    hasBenevolence: 'no',      // ۱۳. دریافت تسویه حساب نهایی امضاشده
+    hasComplaintHistory: 'no', // ۱۴. سابقه شکایت قبلی در اداره کار
+    hasMOU: 'no'               // ۱۵. توافق‌نامه دستی یا شرط ضمن عقد خارج
+  });
   const [tribunalResult, setTribunalResult] = useState<any>(null);
 
   const calculateTribunal = () => {
     let score = 50;
     let notes: string[] = [];
-    if (tribunalData.hasContract === 'yes') { score += 20; notes.push("وجود قرارداد کتبی به نفع طرفین است."); }
-    else { score -= 30; notes.push("نبود قرارداد کتبی طبق ماده ۱۰ قانون کار تخلف کارفرما محسوب می‌شود."); }
-    
-    if (tribunalData.hasInsurance === 'yes') { score += 25; notes.push("واریز حق بیمه سابقه مستند ایجاد می‌کند."); }
-    else { score -= 40; notes.push("عدم ارسال لیست بیمه (ماده ۱۴۸) جرایم سنگینی برای کارفرما دارد."); }
 
-    if (tribunalData.hasWhiteSign === 'yes') { score -= 25; notes.push("تسویه یا قرارداد سفیدامضا از نظر دیوان عدالت اداری فاقد اعتبار قانونی است."); }
-    
-    setTribunalResult({ score: Math.max(10, Math.min(95, score)), notes });
+    // ۱. قرارداد کتبی (ماده ۱۰ قانون کار)
+    if (tribunalData.hasContract === 'yes') {
+      score += 15;
+      notes.push("✅ وجود قرارداد کتبی مطابق ماده ۱۰ قانون کار به عنوان سند پایه به نفع شماست.");
+    } else {
+      score -= 25;
+      notes.push("❌ نبود قرارداد کتبی اثبات رابطه کار را دشوار می‌کند، اما طبق رویه دیوان، واریز بیمه یا شهادت شهود قابل استناد است.");
+    }
+
+    // ۲. حق بیمه (ماده ۱۴۸ قانون کار)
+    if (tribunalData.hasInsurance === 'yes') {
+      score += 25;
+      notes.push("✅ واریز حق بیمه توسط کارفرما قوی‌ترین دلیل اثبات رابطه کارگری و کارفرمایی است.");
+    } else {
+      score -= 35;
+      notes.push("❌ عدم ارسال لیست و واریز بیمه تخلف آشکار کارفرماست (ماده ۱۴۸) و جریمه سنگین به دنبال دارد.");
+    }
+
+    // ۳. واریز بانکی حقوق
+    if (tribunalData.hasBankTransfer === 'yes') {
+      score += 15;
+      notes.push("✅ گردش حساب و فیش‌های واریزی بانک، دریافت حقوق و دستمزد را به طور مستند ثابت می‌کند.");
+    } else {
+      score -= 15;
+      notes.push("⚠️ پرداخت نقدی دستمزد اثبات مطالبات مالی (عیدی، سنوات، دستمزد) را در هیئت با چالش مواجه می‌کند.");
+    }
+
+    // ۴. اسناد سفیدامضا (رویهمرفته)
+    if (tribunalData.hasWhiteSign === 'yes') {
+      score -= 30;
+      notes.push("❌ قرارداد یا تسویه‌حساب سفیدامضا یا سفته اخذ شده در بدو استخدام طبق آرای دیوان عدالت اداری فاقد اعتبار قانونی است.");
+    } else {
+      score += 10;
+      notes.push("✅ عدم وجود اوراق سفیدامضا به استحکام پرونده شما کمک می‌کند.");
+    }
+
+    // ۵. نحوه پایان کار و اخراج (ماده ۱۶۵)
+    if (tribunalData.terminationType === 'dismiss') {
+      if (tribunalData.hasWrittenNotice === 'no') {
+        score += 15;
+        notes.push("✅ اخراج بدون دلیل موجه یا بدون اخطار کتبی، دعوای بازگشت به کار یا مطالبه حق سنوات و خسارت اخراج را تقویت می‌کند.");
+      } else {
+        score -= 10;
+        notes.push("⚠️ وجود نامه اخراج کتبی با ذکر دلیل، بررسی انضباطی را وارد فاز کارشناسی می‌کند.");
+      }
+    }
+
+    // ۶. شهود و مستندات تکمیلی
+    if (tribunalData.hasWitness === 'yes') {
+      score += 10;
+      notes.push("✅ حضور شهود مطلع در روز جلسه هیئت تشخیص، اظهارات شما را پشتیبانی می‌کند.");
+    }
+
+    // امتیاز نهایی محدود بین ۱۰ تا ۹۵ درصد
+    const finalScore = Math.max(10, Math.min(95, score));
+    let recommendation = "";
+    if (finalScore >= 75) {
+      recommendation = "شانس موفقیت شما در هیئت تشخیص بسیار بالا است. ثبت دادخواست توصیه می‌شود.";
+    } else if (finalScore >= 45) {
+      recommendation = "پرونده شما ابهاماتی دارد؛ ارائه مستندات تکمیلی و فیش حقوقی پیش از جلسه الزامی است.";
+    } else {
+      recommendation = "بدلیل ضعف مستندات، پیش از طرح دعوا در هیئت تشخیص، جمع‌آوری مدارک و مشاوره تخصصی توصیه می‌شود.";
+    }
+
+    setTribunalResult({ score: finalScore, notes, recommendation });
   };
 
 
@@ -1482,6 +1568,63 @@ export default function App() {
             )}
           </div>
         )}
+                {/* --- شاخه رندر تب فیش حقوقی پرسنلی --- */}
+        {activeTab === 'payslip' && (
+          <div className="space-y-6">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">📄 محاسبه و فیش حقوقی پرسنلی (قانون کار)</h2>
+                <button
+                  onClick={() => handlePrintDocument('payslip-print-area')}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
+                >
+                  <span>چاپ / دانلود فیش PDF</span>
+                </button>
+              </div>
+
+              {/* کادر قابل چاپ فیش */}
+              <div id="payslip-print-area" className="p-6 bg-white rounded-xl border border-gray-200 text-gray-900 space-y-4">
+                <div className="text-center border-b pb-4">
+                  <h3 className="text-lg font-bold">{payslipData.workshopName}</h3>
+                  <p className="text-sm text-gray-600">فیش حقوق و دستمزد - ماه: {payslipData.month}</p>
+                  <p className="text-xs text-gray-500 mt-1">نام پرسنل: {payslipData.empName}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <span className="text-gray-500 block text-xs">پایه حقوق ماهیانه:</span>
+                    <span className="font-bold">{payslipData.baseSalary.toLocaleString()} ریال</span>
+                  </div>
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <span className="text-gray-500 block text-xs">پایه مسکن:</span>
+                    <span className="font-bold">{payslipData.housingAllowance.toLocaleString()} ریال</span>
+                  </div>
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <span className="text-gray-500 block text-xs">بن کارگری:</span>
+                    <span className="font-bold">{payslipData.groceryAllowance.toLocaleString()} ریال</span>
+                  </div>
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <span className="text-gray-500 block text-xs">حق اولاد:</span>
+                    <span className="font-bold">{payslipData.childAllowance.toLocaleString()} ریال</span>
+                  </div>
+                </div>
+
+                <div className="border-t pt-4 flex justify-between items-center text-base font-bold bg-emerald-50 p-4 rounded-xl text-emerald-900">
+                  <span>جمع حقوق و مزایای ناخالص:</span>
+                  <span>
+                    {(
+                      payslipData.baseSalary +
+                      payslipData.housingAllowance +
+                      payslipData.groceryAllowance +
+                      payslipData.childAllowance +
+                      (payslipData.overtimeHours * payslipData.overtimeRate)
+                    ).toLocaleString()} ریال
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ===================== ۳. تب شعب تأمین اجتماعی ===================== */}
         {activeTab === 'tamin' && (
@@ -2085,6 +2228,7 @@ export default function App() {
             { id: 'tamin', label: 'شعب', icon: Building2 },
             { id: 'templates', label: 'قالب‌ها', icon: FileSpreadsheet },
             { id: 'laws', label: 'قوانین', icon: BookOpen },
+            { id: 'payslip', label: 'فیش حقوقی', icon: FileText },
             { id: 'faq', label: 'راهنما', icon: HelpCircle },
             { id: 'contact', label: 'ارتباط', icon: Phone },
           ].map((item) => {
