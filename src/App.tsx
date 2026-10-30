@@ -152,9 +152,25 @@ const toEn = (s: string) =>
   s.replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)))
    .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
 
+  // --- افزونه ۲: موتور چاپ و خروجی PDF فیش/قرارداد ---
+  const handlePrintDocument = (elementId: string) => {
+    const printContent = document.getElementById(elementId)?.innerHTML;
+    if (!printContent) return;
+    const win = window.open('', '', 'height=700,width=900');
+    win?.document.write('<html><head><title>چاپ سند - دادکار</title>');
+    win?.document.write('<style>body { font-family: Tahoma; direction: rtl; padding: 20px; }</style>');
+    win?.document.write('</head><body>');
+    win?.document.write(printContent);
+    win?.document.write('</body></html>');
+    win?.document.close();
+    win?.print();
+  };
+
+
+
 export default function App() {
   // تب‌های اصلی اپلیکیشن: اضافه شدن تب خانه (home)
-  const [activeTab, setActiveTab] = useState<'home' | 'calculator' | 'tamin' | 'templates' | 'laws' | 'faq' | 'contact'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'calculator' | 'tamin' | 'templates' | 'laws' | 'faq' | 'contact' | 'tribunal'>('home');
 
   // --- وضعیت‌های پیشرفته تنظیمات دادکار ---
     type AppTheme = 'light' | 'dark';
@@ -286,6 +302,24 @@ export default function App() {
     
       return () => clearInterval(timer);
     }, []);
+  // --- افزونه ۱: شبیه‌ساز جلسه هیئت تشخیص (ماده ۱۵۷) ---
+  const [tribunalStep, setTribunalStep] = useState(1);
+  const [tribunalData, setTribunalData] = useState({ hasContract: 'yes', hasInsurance: 'yes', hasBankTransfer: 'yes', hasWhiteSign: 'no' });
+  const [tribunalResult, setTribunalResult] = useState<any>(null);
+
+  const calculateTribunal = () => {
+    let score = 50;
+    let notes: string[] = [];
+    if (tribunalData.hasContract === 'yes') { score += 20; notes.push("وجود قرارداد کتبی به نفع طرفین است."); }
+    else { score -= 30; notes.push("نبود قرارداد کتبی طبق ماده ۱۰ قانون کار تخلف کارفرما محسوب می‌شود."); }
+    
+    if (tribunalData.hasInsurance === 'yes') { score += 25; notes.push("واریز حق بیمه سابقه مستند ایجاد می‌کند."); }
+    else { score -= 40; notes.push("عدم ارسال لیست بیمه (ماده ۱۴۸) جرایم سنگینی برای کارفرما دارد."); }
+
+    if (tribunalData.hasWhiteSign === 'yes') { score -= 25; notes.push("تسویه یا قرارداد سفیدامضا از نظر دیوان عدالت اداری فاقد اعتبار قانونی است."); }
+    
+    setTribunalResult({ score: Math.max(10, Math.min(95, score)), notes });
+  };
 
 
 
@@ -841,6 +875,10 @@ export default function App() {
                     <p className="text-[10px] text-slate-500 mt-0.5">پاسخ رسمی به ابهامات کارگری</p>
                   </div>
                 </button>
+                  <div onClick={() => setActiveTab('tribunal')} className="cursor-pointer p-5 bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-2xl shadow-lg hover:scale-105 transition">
+                    <h3 className="text-lg font-bold">⚖️ شبیه‌ساز هیئت تشخیص</h3>
+                    <p className="text-sm opacity-90 mt-1">تست احتمال پیروزی در دعاوی کارگر و کارفرما</p>
+                  </div>
 
               </div>
             </div>
@@ -1399,6 +1437,63 @@ export default function App() {
               </div>
             )}
 
+          </div>
+        )}
+        // --- افزونه ۱: شبیه‌ساز جلسه هیئت تشخیص (ماده ۱۵۷) ---
+        const [tribunalStep, setTribunalStep] = useState(1);
+        const [tribunalData, setTribunalData] = useState({ hasContract: 'yes', hasInsurance: 'yes', hasBankTransfer: 'yes', hasWhiteSign: 'no' });
+        const [tribunalResult, setTribunalResult] = useState<any>(null);
+      
+        const calculateTribunal = () => {
+          let score = 50;
+          let notes = [];
+          if (tribunalData.hasContract === 'yes') { score += 20; notes.notes = "وجود قرارداد کتبی به نفع کارفرما/کارگر است."; }
+          else { score -= 30; notes.push("نبود قرارداد کتبی طبق ماده ۱۰ قانون کار تخلف کارفرما محسوب می‌شود."); }
+          
+          if (tribunalData.hasInsurance === 'yes') { score += 25; notes.push("واریز حق بیمه سابقه مستند ایجاد می‌کند."); }
+          else { score -= 40; notes.push("عدم ارسال لیست بیمه (ماده ۱۴۸) جرایم سنگینی برای کارفرما دارد."); }
+      
+          if (tribunalData.hasWhiteSign === 'yes') { score -= 25; notes.push("تسویه یا قرارداد سفیدامضا از نظر دیوان عدالت اداری فاقد اعتبار قانونی است."); }
+          
+          setTribunalResult({ score: Math.max(10, Math.min(95, score)), notes });
+        };
+        {activeTab === 'tribunal' && (
+          <div className="max-w-4xl mx-auto p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm space-y-6">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">⚖️ شبیه‌ساز هوشمند رأی هیئت تشخیص (ماده ۱۵۷)</h2>
+            {tribunalStep === 1 && (
+              <div className="space-y-4">
+                <label className="block font-medium text-gray-700 dark:text-gray-300">۱. آیا قرارداد کار کتبی دارید؟</label>
+                <div className="flex gap-4">
+                  <button onClick={() => setTribunalData({...tribunalData, hasContract: 'yes'})} className={`px-4 py-2 rounded-lg border ${tribunalData.hasContract === 'yes' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>بله</button>
+                  <button onClick={() => setTribunalData({...tribunalData, hasContract: 'no'})} className={`px-4 py-2 rounded-lg border ${tribunalData.hasContract === 'no' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>خیر</button>
+                </div>
+                <button onClick={() => setTribunalStep(2)} className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-lg">مرحله بعد</button>
+              </div>
+            )}
+            {tribunalStep === 2 && (
+              <div className="space-y-4">
+                <label className="block font-medium text-gray-700 dark:text-gray-300">۲. آیا حق بیمه تأمین اجتماعی کامل واریز شده است؟</label>
+                <div className="flex gap-4">
+                  <button onClick={() => setTribunalData({...tribunalData, hasInsurance: 'yes'})} className={`px-4 py-2 rounded-lg border ${tribunalData.hasInsurance === 'yes' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>بله</button>
+                  <button onClick={() => setTribunalData({...tribunalData, hasInsurance: 'no'})} className={`px-4 py-2 rounded-lg border ${tribunalData.hasInsurance === 'no' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>خیر</button>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <button onClick={() => setTribunalStep(1)} className="px-4 py-2 bg-gray-500 text-white rounded-lg">بازگشت</button>
+                  <button onClick={() => { calculateTribunal(); setTribunalStep(3); }} className="px-6 py-2 bg-emerald-600 text-white rounded-lg">مشاهده نتیجه شبیه‌سازی</button>
+                </div>
+              </div>
+            )}
+            {tribunalStep === 3 && tribunalResult && (
+              <div className="space-y-4">
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-xl">
+                  <p className="text-lg font-bold text-blue-800 dark:text-blue-200">احتمال موفقیت حقوقی: {tribunalResult.score}%</p>
+                </div>
+                <ul className="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-300">
+                  {tribunalResult.notes.map((n: string, i: number) => <li key={i}>{n}</li>)}
+                </ul>
+                <button onClick={() => { setTribunalStep(1); setTribunalResult(null); }} className="px-6 py-2 bg-gray-600 text-white rounded-lg">شروع مجدد ارزیابی</button>
+              </div>
+            )}
           </div>
         )}
 
