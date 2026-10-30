@@ -1725,7 +1725,7 @@ export default function App() {
           </div>
         )}
 
-                {/* --- شاخه رندر تب فیش حقوقی پرسنلی (طراحی حرفه‌ای و استاندارد) --- */}
+            {/* --- شاخه رندر تب فیش حقوقی پرسنلی (پویا، تعاملی و مجهز به حق همسر و اضافه‌کاری قابل تنظیم) --- */}
         {activeTab === 'payslip' && (
           <div className="space-y-6 max-w-4xl mx-auto pb-12">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
@@ -1734,7 +1734,7 @@ export default function App() {
               <div className="flex justify-between items-center mb-6 print:hidden">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white">📄 فیش حقوق و دستمزد پرسنلی</h2>
-                  <p className="text-xs text-gray-500 mt-1">تولید خودکار بر اساس پروفایل کاربری و ضوابط قانون کار ۱۴۰۵</p>
+                  <p className="text-xs text-gray-500 mt-1">محاسبه آنی بر اساس مشخصات پروفایل، قانون کار و ضوابط تأمین اجتماعی</p>
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -1752,7 +1752,26 @@ export default function App() {
                 </div>
               </div>
 
-              {/* کادر فیش حقوقی (طراحی استاندارد شرکتی مجهز به inline style برای چاپ تمیز) */}
+              {/* کنترلر تعاملی ساعت اضافه کار برای اعمال آنی در فیش */}
+              <div className="p-4 bg-emerald-50 dark:bg-gray-900 rounded-xl border border-emerald-200 dark:border-gray-700 mb-6 print:hidden flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-sm text-emerald-900 dark:text-emerald-300 block">تنظیم ساعت اضافه کاری ماهانه:</span>
+                  <span className="text-xs text-emerald-700 dark:text-gray-400">نرخ هر ساعت: {payslipData.overtimeRate.toLocaleString()} ریال (محاسبه خودکار از پایه حقوق)</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="number"
+                    min="0"
+                    max="150"
+                    value={payslipData.overtimeHours}
+                    onChange={(e) => setPayslipData({...payslipData, overtimeHours: Number(e.target.value) || 0})}
+                    className="w-24 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl text-center font-bold text-gray-900 dark:text-white"
+                  />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">ساعت</span>
+                </div>
+              </div>
+
+              {/* کادر فیش حقوقی (طراحی رسمی مجهز به inline style برای چاپ تمیز) */}
               <div id="payslip-print-area" style={{ fontFamily: 'Tahoma, Arial, sans-serif', direction: 'rtl', padding: '24px', background: '#ffffff', color: '#111827', borderRadius: '16px', border: '1px solid #e5e7eb' }}>
                 
                 {/* سربرگ */}
@@ -1776,7 +1795,7 @@ export default function App() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', background: '#f9fafb', padding: '12px', borderRadius: '10px', border: '1px solid #e5e7eb', fontSize: '11px', marginBottom: '20px' }}>
                   <div><span style={{ color: '#6b7280' }}>نام و نام خانوادگی:</span> <strong>{payslipData.empName}</strong></div>
                   <div><span style={{ color: '#6b7280' }}>کد ملی / شناسه:</span> <strong>{payslipData.nationalId}</strong></div>
-                  <div><span style={{ color: '#6b7280' }}>تاریخ استخدام / بیمه:</span> <strong>{user?.insurance_start_date || 'نامشخص'}</strong></div>
+                  <div><span style={{ color: '#6b7280' }}>وضعیت تأهل و عائله:</span> <strong>{user?.marital_status === 'married' ? 'متأهل (دارای حق تأهل)' : 'مجرد / سایر'}</strong></div>
                 </div>
 
                 {/* جداول درآمد و کسورات */}
@@ -1804,6 +1823,13 @@ export default function App() {
                       <span>حق اولاد (فرزندان):</span>
                       <strong>{payslipData.childAllowance.toLocaleString()}</strong>
                     </div>
+                    {/* حق همسر (فقط برای متأهلان) */}
+                    {user?.marital_status === 'married' && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0', color: '#047857' }}>
+                        <span>حق تأهل (حق همسر):</span>
+                        <strong>{Math.round(7166184 * 0.5).toLocaleString()}</strong>
+                      </div>
+                    )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0' }}>
                       <span>اضافه کاری ({payslipData.overtimeHours} ساعت):</span>
                       <strong>{(payslipData.overtimeHours * payslipData.overtimeRate).toLocaleString()}</strong>
@@ -1816,6 +1842,7 @@ export default function App() {
                           payslipData.housingAllowance +
                           payslipData.groceryAllowance +
                           payslipData.childAllowance +
+                          (user?.marital_status === 'married' ? Math.round(7166184 * 0.5) : 0) +
                           (payslipData.overtimeHours * payslipData.overtimeRate)
                         ).toLocaleString()}
                       </span>
@@ -1858,14 +1885,19 @@ export default function App() {
                     <span style={{ fontSize: '10px', color: '#9ca3af', display: 'block' }}>مبلغ قابل پرداخت نهایی به پرسنل:</span>
                     <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#34d399' }}>
                       {(
-                        (payslipData.baseSalary +
-                         payslipData.housingAllowance +
-                         payslipData.groceryAllowance +
-                         payslipData.childAllowance +
-                         (payslipData.overtimeHours * payslipData.overtimeRate)) -
-                        (payslipData.insuranceDeduction 
-                          ? Math.round((payslipData.baseSalary + paysල්జిانته + payslipData.housingAllowance + payslipData.groceryAllowance) * 0.07) 
-                          : 0)
+                        (
+                          payslipData.baseSalary +
+                          payslipData.housingAllowance +
+                          payslipData.groceryAllowance +
+                          payslipData.childAllowance +
+                          (user?.marital_status === 'married' ? Math.round(7166184 * 0.5) : 0) +
+                          (payslipData.overtimeHours * payslipData.overtimeRate)
+                        ) -
+                        (
+                          payslipData.insuranceDeduction 
+                            ? Math.round((payslipData.baseSalary + payslipData.housingAllowance + payslipData.groceryAllowance) * 0.07) 
+                            : 0
+                        )
                       ).toLocaleString()} ریال
                     </span>
                   </div>
@@ -1890,7 +1922,6 @@ export default function App() {
             </div>
           </div>
         )}
-
 
         {/* ===================== ۳. تب شعب تأمین اجتماعی ===================== */}
         {activeTab === 'tamin' && (
