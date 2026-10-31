@@ -1796,7 +1796,7 @@ useEffect(() => {
               </div>
 
               {/* کنترلر تعاملی ساعت اضافه کار برای اعمال آنی در فیش */}
-                {/* بعد: نمایش خودکار مقدار ماشین‌حساب */}
+              <div className="space-y-3 mb-6">
                 <div className="flex items-center justify-between bg-emerald-50 px-3 py-2 rounded-xl text-emerald-800 text-sm font-medium">
                   <span>ساعات اضافه‌کاری (گرفته شده از بخش محاسبات):</span>
                   <span className="font-bold">{payslipData.overtimeHours} ساعت</span>
@@ -1867,7 +1867,6 @@ useEffect(() => {
                       <span>حق اولاد (فرزندان):</span>
                       <strong>{payslipData.childAllowance.toLocaleString()}</strong>
                     </div>
-                    {/* حق همسر (فقط برای متأهلان) */}
                     {user?.marital_status === 'married' && (
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0', color: '#047857' }}>
                         <span>حق تأهل (حق همسر):</span>
@@ -1963,9 +1962,7 @@ useEffect(() => {
                 </div>
 
               </div>
-            </div>
-          </div>
-        )}
+
 
         {/* ===================== ۳. تب شعب تأمین اجتماعی ===================== */}
         {activeTab === 'tamin' && (
