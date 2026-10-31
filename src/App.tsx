@@ -1662,7 +1662,7 @@ export default function App() {
                 </span>
               </div>
 
-              {tribunalStep <= 15 ? (
+                {tribunalStep <= 15 && (
                 <div className="space-y-6">
                   {/* سوالات گام‌به‌گام */}
                   <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 space-y-4">
@@ -2051,17 +2051,17 @@ export default function App() {
                 <span>محاسبه نهایی نتیجه پرونده</span>
               </button>
             )}
-          </div>
+                 </div>
         </div>
       )}
 
       {/* بخش نمایش نتیجه شبیه‌ساز (مرحله ۱۶) */}
       {tribunalStep === 16 && tribunalResult && (
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b pb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-200 dark:border-gray-700 shadow-sm space-y-6">
+          <div className="flex items-center justify-between border-b dark:border-gray-700 pb-4">
             <div>
-              <h3 className="text-lg font-bold text-slate-800">نتیجه ارزیابی و تحلیل ریسک پرونده</h3>
-              <p className="text-xs text-slate-500 mt-1">بر اساس ۱۵ فاکتور قانونی و رویه هیئت‌های تشخیص</p>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">نتیجه ارزیابی و تحلیل ریسک پرونده</h3>
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">بر اساس ۱۵ فاکتور قانونی و رویه هیئت‌های تشخیص</p>
             </div>
             <div className="text-left">
               <span className="text-3xl font-extrabold text-amber-600">{tribunalResult.score}</span>
@@ -2069,16 +2069,16 @@ export default function App() {
             </div>
           </div>
 
-          <div className="p-4 bg-amber-50 rounded-xl border border-amber-200">
-            <h4 className="text-sm font-bold text-amber-900 mb-1">توصیه حقوقی کارشناس:</h4>
-            <p className="text-sm font-medium text-slate-700">{tribunalResult.status}</p>
+          <div className="p-4 bg-amber-50 dark:bg-amber-950/30 rounded-xl border border-amber-200 dark:border-amber-900/50">
+            <h4 className="text-sm font-bold text-amber-900 dark:text-amber-300 mb-1">توصیه حقوقی کارشناس:</h4>
+            <p className="text-sm font-medium text-slate-700 dark:text-gray-300">{tribunalResult.status}</p>
           </div>
 
           <div className="space-y-3">
-            <h4 className="text-sm font-bold text-slate-800">تحلیل استناد قانونی:</h4>
+            <h4 className="text-sm font-bold text-slate-800 dark:text-white">تحلیل استناد قانونی:</h4>
             <ul className="space-y-2">
               {tribunalResult.notes.map((note, idx) => (
-                <li key={idx} className="flex items-start gap-2 text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <li key={idx} className="flex items-start gap-2 text-sm text-slate-600 dark:text-gray-300 bg-slate-50 dark:bg-gray-900/50 p-3 rounded-xl border border-slate-100 dark:border-gray-700">
                   <span className="text-amber-600 font-bold">•</span>
                   <span>{note}</span>
                 </li>
@@ -2086,14 +2086,14 @@ export default function App() {
             </ul>
           </div>
 
-          <div className="pt-4 border-t flex justify-end">
+          <div className="pt-4 border-t dark:border-gray-700 flex justify-end">
             <button
               type="button"
               onClick={() => {
                 setTribunalStep(1);
                 setTribunalResult(null);
               }}
-              className="px-6 py-2.5 bg-slate-800 text-white rounded-xl text-sm font-medium hover:bg-slate-900 transition-all"
+              className="px-6 py-2.5 bg-slate-800 dark:bg-gray-700 text-white rounded-xl text-sm font-medium hover:bg-slate-900 dark:hover:bg-gray-600 transition-all"
             >
               شروع مجدد ارزیابی
             </button>
@@ -2102,7 +2102,8 @@ export default function App() {
       )}
     </div>
   </div>
-</div>
+)}
+
 
             {/* --- شاخه رندر تب فیش حقوقی پرسنلی (پویا، تعاملی و مجهز به حق همسر و اضافه‌کاری قابل تنظیم) --- */}
         {activeTab === 'payslip' && (
