@@ -1949,7 +1949,7 @@ useEffect(() => {
                   </div>
                 </div>
 
-                {/* امضاها */}
+                            {/* امضاها */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', borderTop: '1px solid #e5e7eb', paddingTop: '20px', textAlign: 'center', fontSize: '11px', color: '#4b5563' }}>
                   <div>
                     <p style={{ fontWeight: 'bold', margin: '0 0 25px 0' }}>امضا و مهر کارفرما / امور مالی</p>
@@ -1961,11 +1961,10 @@ useEffect(() => {
                   </div>
                 </div>
 
-              </div>              {/* <-- ۲. بستن #payslip-print-area */}
-            </div>                {/* <-- ۳. بستن کارت سفید اصلی (خط ۱۷۶۸) */}
-          </div>                  {/* <-- ۴. بستن space-y-6 max-w-4xl (خط ۱۷۶۷) */}
-        )}   
-
+              </div>              {/* بستن #payslip-print-area */}
+            </div>                {/* بستن کارت سفید اصلی */}
+          </div>                  {/* بستن فضای ریشه تب */}
+        )}                        {/* بستن شرط {activeTab === 'payslip' && (...)} */}
 
         {/* ===================== ۳. تب شعب تأمین اجتماعی ===================== */}
         {activeTab === 'tamin' && (
