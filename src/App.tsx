@@ -398,35 +398,120 @@ export default function App() {
   });
   const [tribunalResult, setTribunalResult] = useState<any>(null);
 
-  const calculateTribunal = () => {
-    let score = 50;
-    let notes: string[] = [];
+ const calculateTribunal = () => {
+  let score = 50;
+  const notes = [];
 
-    if (tribunalData.hasContract === 'yes') { score += 10; notes.push("ماده ۱۰: وجود قرارداد کتبی از حقوق شما صیانت می‌کند."); }
-    else { score -= 20; notes.push("ماده ۱۰: نبود قرارداد کتبی بار اثبات رابطه کار را سنگین‌تر می‌کند."); }
+  // ۱. قرارداد کار (ماده ۱۰ و ۷)
+  if (tribunalData.hasContract === 'formal_two_copies') {
+    score += 15;
+    notes.push('استناد به ماده ۱۰ قانون کار: وجود قرارداد کتبی دو نسخه‌ای به نفع کارگر است.');
+  } else if (tribunalData.hasContract === 'verbal') {
+    score -= 20;
+    notes.push('ریسک بالا (ماده ۷): شفاهی بودن قرارداد اثبات رابطه کارگری را دشوار می‌کند اما قابل اثبات با سایر قرائن است.');
+  }
 
-    if (tribunalData.hasInsurance === 'yes') { score += 15; notes.push("ماده ۱۴۸: واریز حق بیمه قوی‌ترین مستند در هیئت تشخیص است."); }
-    else { score -= 25; notes.push("ماده ۱۴۸: عدم ارسال لیست بیمه تخلف آشکار و قابل پیگرد است."); }
+  // ۲. نوع قرارداد
+  if (tribunalData.contractType === 'temporary_invalid') {
+    score -= 10;
+    notes.push('تبصره ۲ ماده ۷: قراردادهای موقت در کارهای مستمر بدون ثبت قانونی، دائم تلقی می‌شوند.');
+  }
 
-    if (tribunalData.hasBankTransfer === 'yes') { score += 10; notes.push("گردش حساب بانکی واریز حقوق را به طور رسمی اثبات می‌کند."); }
-    else { score -= 15; notes.push("پرداخت نقدی دستمزد اثبات مطالبات را با چالش مواجه می‌کند."); }
+  // ۳. بیمه تأمین اجتماعی (ماده ۱۴۸)
+  if (tribunalData.hasInsurance === 'full_insurance') {
+    score += 15;
+    notes.push('ماده ۱۴۸ قانون کار: واریز کامل حق بیمه، سابقه اشتغال و مزد را مستند می‌کند.');
+  } else if (tribunalData.hasInsurance === 'no_insurance') {
+    score -= 25;
+    notes.push('تخلف آشکار کارفرما (ماده ۱۴۸): عدم پرداخت حق بیمه؛ الزام به بیمه و پرداخت خسارات.');
+  } else if (tribunalData.hasInsurance === 'partial_insurance') {
+    score -= 15;
+    notes.push('عدم تطابق دستمزد بیمه با حقوق واقعی؛ امکان مطالبه مابه‌التفاوت حق بیمه.');
+  }
 
-    if (tribunalData.hasWhiteSign === 'yes') { score -= 25; notes.push("قرارداد یا تسویه‌حساب سفیدامضا طبق آرای دیوان عدالت باطل است."); }
+  // ۵. طریق پرداخت دستمزد (ماده ۳۷)
+  if (tribunalData.hasBankTransfer === 'bank_transfer') {
+    score += 10;
+    notes.push('ماده ۳۷ قانون کار: واریز بانکی مستند، پرداخت حقوق را اثبات می‌کند.');
+  } else if (tribunalData.hasBankTransfer === 'cash_or_third_party') {
+    score -= 15;
+    notes.push('پرداخت دستی یا از طریق اشخاص ثالث؛ اثبات دریافت حقوق را با چالش مواجه می‌کند.');
+  } else if (tribunalData.hasBankTransfer === 'unpaid_or_deducted') {
+    score += 10; // امتیاز مثبت برای مطالبه گر در هیئت
+    notes.push('وجود معوقات حقوقی؛ هیئت تشخیص به نفع کارگر رای به وصول مطالبات می‌دهد.');
+  }
 
-    if (tribunalData.terminationType === 'dismiss' && tribunalData.hasWrittenNotice === 'no') {
-      score += 15;
-      notes.push("ماده ۱۶۵: اخراج بدون دلیل موجه یا بدون اخطار کتبی به نفع کارگر است.");
+  // ۶. فیش حقوقی
+  if (tribunalData.hasPaySlip === 'has_payslip_official') {
+    score += 10;
+    notes.push('وجود فیش حقوقی ممهور؛ سند رسمی احراز میزان دستمزد و مزایا.');
+  } else if (tribunalData.hasPaySlip === 'no_payslip') {
+    score -= 10;
+    notes.push('عدم وجود فیش حقوقی؛ نیاز به استناد به تراکنش‌های بانکی یا شهادت شهود.');
+  }
+
+  // ۷. سفیدامضا / سفته
+  if (tribunalData.hasWhiteSign === 'white_sign_risk') {
+    score -= 25;
+    notes.push('استناد به رویه قضایی و دیوان عدالت: برگه‌های سفیدامضا و اخذ سفته بدون رسید فاقد اعتبار قانونی شناخته می‌شوند.');
+  }
+
+  // ۸ و ۹. اخراج و اخطار کتبی (ماده ۱۶۵ و ۲۷)
+  if (tribunalData.terminationType === 'dismiss') {
+    if (tribunalData.hasWrittenNotice === 'no_notice') {
+      score += 20;
+      notes.push('ماده ۱۶۵ قانون کار: اخراج بدون دلیل موجه و بدون اخطار کتبی؛ حق بازگشت به کار یا دریافت حق سنوات حبس/اخراج.');
+    } else {
+      score -= 10;
+      notes.push('وجود مستندات انضباطی کارفرما، اثبات اخراج غیرقانونی را دشوار می‌کند.');
     }
+  }
 
-    if (tribunalData.hasWitness === 'yes') { score += 10; notes.push("وجود شهود مطلع به اثبات ادعا در جلسه کمک می‌کند."); }
+  // ۱۰. شهود
+  if (tribunalData.hasWitness === 'witness_available') {
+    score += 10;
+    notes.push('شهادت شهود مطلع، از ادله اثباتی معتبر در مراجع حل اختلاف است.');
+  } else {
+    score -= 10;
+    notes.push('نبود شهود؛ تکیه صرف به مدارک کتبی (که ضعف مستندات را افزایش می‌دهد).');
+  }
 
-    const finalScore = Math.max(10, Math.min(95, score));
-    setTribunalResult({ 
-      score: finalScore, 
-      notes, 
-      recommendation: finalScore >= 70 ? "شانس موفقیت در هیئت تشخیص بسیار بالا است." : "پیش از طرح دعوا، تکمیل مستندات و مشاوره حقوقی توصیه می‌شود." 
-    });
-  };
+  // ۱۱. اضافه‌کار (ماده ۵۹)
+  if (tribunalData.hasOvertimeRecords === 'overtime_records_valid') {
+    score += 10;
+    notes.push('ماده ۵۹ و ۸۷: وجود کارت‌ساعت یا مستندات تردد، مطالبات اضافه‌کاری را اثبات می‌کند.');
+  } else if (tribunalData.hasOvertimeRecords === 'overtime_no_doc') {
+    score -= 10;
+    notes.push('نبود سند کتبی اضافه‌کاری؛ اثبات ساعات کار اضافی در هیئت تشخیص دشوار است.');
+  }
+
+  // ۱۲. مرخصی (ماده ۶۶)
+  if (tribunalData.hasLeaveRecords === 'leave_documented') {
+    score += 5;
+    notes.push('ماده ۶۶: مطالبات مرخصی ذخیره شده قابل بازخرید در پایان کار است.');
+  }
+
+  // ۱۳. مطالبات سنوات و عیدی
+  if (tribunalData.hasBenevolence === 'benefits_unpaid') {
+    score += 10;
+    notes.push('مطالبات سنوات، عیدی و پاداش قانونی کارگران قابل مطالبه قطعی است.');
+  }
+
+  // ۱۵. توافق‌نامه / تعهدنامه
+  if (tribunalData.hasMOU === 'mou_waiver') {
+    score -= 15;
+    notes.push('ماده ۸ قانون کار: هرگونه شرط و توافق‌نامه که حقوق قانونی کارگر را ساقط کند باطل و بلااثربود.');
+  }
+
+  const finalScore = Math.max(10, Math.min(95, score));
+  
+  setTribunalResult({
+    score: finalScore,
+    status: finalScore >= 75 ? 'وضعیت عالی و شانس موفقیت بالا' : finalScore >= 50 ? 'وضعیت متوسط - نیازمند تقویت مستندات' : 'ریسک بالا - نیازمند دفاع تخصصی و کارشناسی',
+    notes
+  });
+  setTribunalStep(16);
+};
 
 
 
