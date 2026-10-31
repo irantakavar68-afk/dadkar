@@ -212,8 +212,13 @@ export default function App() {
 
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('dadkar_token'));
   const [user, setUser] = useState<UserProfile | null>(() => {
-    const saved = localStorage.getItem('dadkar_user');
-    return saved ? JSON.parse(saved) : null;
+    try {
+        const saved = localStorage.getItem('dadkar_user');
+        return saved ? JSON.parse(saved) : null;
+      } catch (e) {
+  return null;
+}
+
   });
   const [showProfileModal, setShowProfileModal] = useState(false);
     // تیکت‌های پشتیبانی
