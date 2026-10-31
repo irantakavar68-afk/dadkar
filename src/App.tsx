@@ -299,10 +299,6 @@ export default function App() {
       }));
     }
   }, [user]);
-// همگام‌سازی ساعات اضافه‌کاری از ماشین‌حساب به فیش حقوقی
-useEffect(() => {
-  setPayslipData(prev => ({ ...prev, overtimeHours: hours }));
-}, [hours]);
 
 
 
@@ -440,6 +436,11 @@ useEffect(() => {
   const [months, setMonths] = useState<number>(0);
   const [days, setDays] = useState<number>(0);
   const [hours, setHours] = useState<number>(10); const [nightHours, setNightHours] = useState<number>(0);
+  // همگام‌سازی ساعات اضافه‌کاری از ماشین‌حساب به فیش حقوقی
+  useEffect(() => {
+    setPayslipData(prev => ({ ...prev, overtimeHours: hours }));
+  }, [hours]);
+
   const [shiftType, setShiftType] = useState<string>('morning_evening');
   const [unworkedLeaveDays, setUnworkedLeaveDays] = useState<number>(5);
   const [dependents, setDependents] = useState<number>(1);
