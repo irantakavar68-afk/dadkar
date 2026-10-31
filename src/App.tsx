@@ -2102,10 +2102,11 @@ export default function App() {
       )}
     </div>
   </div>
+  </div>     {/* این دایو دقیقاً برای بستن ظرف بازمانده خط 1653 اضافه شد */}
 )}
 
 
-            {/* --- شاخه رندر تب فیش حقوقی پرسنلی (پویا، تعاملی و مجهز به حق همسر و اضافه‌کاری قابل تنظیم) --- */}
+            {/* --- شاخه رندر تب فیش حقوقی پرسنلی --- */}
         {activeTab === 'payslip' && (
           <div className="space-y-6 max-w-4xl mx-auto pb-12">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
