@@ -220,6 +220,7 @@ export default function App() {
 }
 
   });
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
     // تیکت‌های پشتیبانی
   const [showTickets, setShowTickets] = useState(false);
@@ -3073,8 +3074,8 @@ export default function App() {
 
       {/* مودال پروفایل و احراز هویت */}
         <AuthProfileModals
-          isOpen={isAuthModalOpen} 
-          onClose={() => setIsAuthModalOpen(false)} 
+          isOpen={showProfileModal}
+          onClose={() => setShowProfileModal(false)}
           user={user}
           token={token}
           showProfileModal={showProfileModal}
