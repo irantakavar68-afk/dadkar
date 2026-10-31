@@ -2023,6 +2023,86 @@ export default function App() {
             </div>
           )}
 
+                    {/* دکمه‌های ناوبری مراحل شبیه‌ساز */}
+          <div className="flex justify-between items-center pt-6 border-t border-slate-200 mt-6">
+            <button
+              type="button"
+              onClick={() => setTribunalStep(prev => Math.max(1, prev - 1))}
+              disabled={tribunalStep === 1}
+              className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${tribunalStep === 1 ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}
+            >
+              مرحله قبل
+            </button>
+
+            {tribunalStep < 15 ? (
+              <button
+                type="button"
+                onClick={() => setTribunalStep(prev => Math.min(15, prev + 1))}
+                className="px-6 py-2.5 bg-amber-600 text-white rounded-xl text-sm font-medium hover:bg-amber-700 transition-all shadow-sm"
+              >
+                مرحله بعد
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={calculateTribunal}
+                className="px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-all shadow-sm flex items-center gap-2"
+              >
+                <span>محاسبه نهایی نتیجه پرونده</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* بخش نمایش نتیجه شبیه‌ساز (مرحله ۱۶) */}
+      {tribunalStep === 16 && tribunalResult && (
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
+          <div className="flex items-center justify-between border-b pb-4">
+            <div>
+              <h3 className="text-lg font-bold text-slate-800">نتیجه ارزیابی و تحلیل ریسک پرونده</h3>
+              <p className="text-xs text-slate-500 mt-1">بر اساس ۱۵ فاکتور قانونی و رویه هیئت‌های تشخیص</p>
+            </div>
+            <div className="text-left">
+              <span className="text-3xl font-extrabold text-amber-600">{tribunalResult.score}</span>
+              <span className="text-sm text-slate-400"> از ۱۰۰</span>
+            </div>
+          </div>
+
+          <div className="p-4 bg-amber-50 rounded-xl border border-amber-200">
+            <h4 className="text-sm font-bold text-amber-900 mb-1">توصیه حقوقی کارشناس:</h4>
+            <p className="text-sm font-medium text-slate-700">{tribunalResult.status}</p>
+          </div>
+
+          <div className="space-y-3">
+            <h4 className="text-sm font-bold text-slate-800">تحلیل استناد قانونی:</h4>
+            <ul className="space-y-2">
+              {tribunalResult.notes.map((note, idx) => (
+                <li key={idx} className="flex items-start gap-2 text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                  <span className="text-amber-600 font-bold">•</span>
+                  <span>{note}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="pt-4 border-t flex justify-end">
+            <button
+              type="button"
+              onClick={() => {
+                setTribunalStep(1);
+                setTribunalResult(null);
+              }}
+              className="px-6 py-2.5 bg-slate-800 text-white rounded-xl text-sm font-medium hover:bg-slate-900 transition-all"
+            >
+              شروع مجدد ارزیابی
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
 
             {/* --- شاخه رندر تب فیش حقوقی پرسنلی (پویا، تعاملی و مجهز به حق همسر و اضافه‌کاری قابل تنظیم) --- */}
         {activeTab === 'payslip' && (
