@@ -1813,7 +1813,7 @@ useEffect(() => {
                   />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">ساعت</span>
                 </div>
-              </div>
+
 
               {/* کادر فیش حقوقی (طراحی رسمی مجهز به inline style برای چاپ تمیز) */}
               <div id="payslip-print-area" style={{ fontFamily: 'Tahoma, Arial, sans-serif', direction: 'rtl', padding: '24px', background: '#ffffff', color: '#111827', borderRadius: '16px', border: '1px solid #e5e7eb' }}>
