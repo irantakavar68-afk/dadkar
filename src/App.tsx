@@ -3069,6 +3069,8 @@ export default function App() {
 
       {/* مودال پروفایل و احراز هویت */}
         <AuthProfileModals
+          isOpen={isAuthModalOpen} 
+          onClose={() => setIsAuthModalOpen(false)} 
           user={user}
           token={token}
           showProfileModal={showProfileModal}
