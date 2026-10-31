@@ -379,23 +379,24 @@ export default function App() {
 
     // --- شبیه‌ساز حرفه‌ای ۱۵ مرحله‌ای هیئت تشخیص (ماده ۱۵۷) ---
   const [tribunalStep, setTribunalStep] = useState(1);
-  const [tribunalData, setTribunalData] = useState({
-    hasContract: 'yes',          // ۱. قرارداد کتبی
-    contractType: 'formal',      // ۲. نوع قرارداد
-    hasInsurance: 'yes',         // ۳. واریز حق بیمه
-    insuranceMonths: '12',       // ۴. سابقه بیمه
-    hasBankTransfer: 'yes',      // ۵. واریز بانکی حقوق
-    hasPaySlip: 'yes',           // ۶. فیش حقوقی
-    hasWhiteSign: 'no',          // ۷. تسویه سفید امضا
-    terminationType: 'dismiss',  // ۸. نحوه پایان کار
-    hasWrittenNotice: 'no',      // ۹. اخطار کتبی اخراج
-    hasWitness: 'yes',           // ۱۰. شهود مطلع
-    hasOvertimeRecords: 'no',    // ۱۱. مدارک اضافه کاری
-    hasLeaveRecords: 'no',       // ۱۲. مرخصی استفاده نشده
-    hasBenevolence: 'no',        // ۱۳. تسویه حساب مالی نهایی
-    hasComplaintHistory: 'no',   // ۱۴. شکایت قبلی اداره کار
-    hasMOU: 'no'                 // ۱۵. توافق‌نامه دستی
+   const [tribunalData, setTribunalData] = useState({
+    hasContract: 'formal_two_copies', // تغییر از yes به اسلاگ جدید
+    contractType: 'permanent',
+    hasInsurance: 'full_insurance',
+    insuranceMonths: '36',
+    hasBankTransfer: 'bank_transfer',
+    hasPaySlip: 'has_payslip_official',
+    hasWhiteSign: 'clean',
+    terminationType: 'expire',
+    hasWrittenNotice: 'no_notice',
+    hasWitness: 'witness_available',
+    hasOvertimeRecords: 'overtime_records_valid',
+    hasLeaveRecords: 'leave_documented',
+    hasBenevolence: 'benefits_paid',
+    hasComplaintHistory: 'no_prior_complaint',
+    hasMOU: 'mou_none'
   });
+
   const [tribunalResult, setTribunalResult] = useState<any>(null);
 
  const calculateTribunal = () => {
@@ -1683,175 +1684,345 @@ export default function App() {
                       {tribunalStep === 15 && "۱۵. آیا توافق‌نامه دستی یا تعهدنامه محضری خارج از اداره کار امضا کرده‌اید؟"}
                     </h3>
 
-                    {/* گزینه‌ها بر اساس نوع سوال */}
-                    {tribunalStep === 2 ? (
-                      <div className="grid grid-cols-3 gap-3">
-                        {['formal', 'temporary', 'project'].map((opt) => (
-                          <button
-                            key={opt}
-                            onClick={() => setTribunalData({...tribunalData, contractType: opt})}
-                            className={`p-3 rounded-xl border text-sm font-medium transition-all ${tribunalData.contractType === opt ? 'bg-amber-600 text-white border-amber-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'}`}
-                          >
-                            {opt === 'formal' ? 'رسمی / دائمی' : opt === 'temporary' ? 'موقت / شرکتی' : 'پروژه‌ای / کارمزدی'}
-                          </button>
-                        ))}
-                      </div>
-                    ) : tribunalStep === 4 ? (
-                      <div className="grid grid-cols-3 gap-3">
-                        {['زیر ۱ سال', '۱ تا ۵ سال', 'بالای ۵ سال'].map((opt, idx) => (
-                          <button
-                            key={opt}
-                            onClick={() => setTribunalData({...tribunalData, insuranceMonths: idx === 0 ? '6' : idx === 1 ? '36' : '72'})}
-                            className={`p-3 rounded-xl border text-sm font-medium transition-all ${tribunalData.insuranceMonths === (idx === 0 ? '6' : idx === 1 ? '36' : '72') ? 'bg-amber-600 text-white border-amber-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'}`}
-                          >
-                            {opt}
-                          </button>
-                        ))}
-                      </div>
-                    ) : tribunalStep === 8 ? (
-                      <div className="grid grid-cols-2 gap-3">
-                        {[
-                          {val: 'dismiss', label: 'اخراج توسط کارفرما'},
-                          {val: 'resign', label: 'استعفای شخصی'},
-                          {val: 'expire', label: 'پایان قرارداد'},
-                          {val: 'abandon', label: 'ترك کار'}
-                        ].map((item) => (
-                          <button
-                            key={item.val}
-                            onClick={() => setTribunalData({...tribunalData, terminationType: item.val})}
-                            className={`p-3 rounded-xl border text-sm font-medium transition-all ${tribunalData.terminationType === item.val ? 'bg-amber-600 text-white border-amber-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'}`}
-                          >
-                            {item.label}
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 gap-4">
-                        <button
-                          onClick={() => {
-                            const keys = ['hasContract','hasContract','hasInsurance','insuranceMonths','hasBankTransfer','hasPaySlip','hasWhiteSign','terminationType','hasWrittenNotice','hasWitness','hasOvertimeRecords','hasLeaveRecords','hasBenevolence','hasComplaintHistory','hasMOU'];
-                            // نگاشت کلیدهای بله/خیر
-                            const currentKey = ['hasContract','hasContract','hasInsurance','insuranceMonths','hasBankTransfer','hasPaySlip','hasWhiteSign','terminationType','hasWrittenNotice','hasWitness','hasOvertimeRecords','hasLeaveRecords','hasBenevolence','hasComplaintHistory','hasMOU'][tribunalStep-1];
-                            setTribunalData({...tribunalData, [currentKey]: 'yes'});
-                          }}
-                          className={`p-4 rounded-xl border font-bold text-sm transition-all ${
-                            (tribunalStep === 1 && tribunalData.hasContract === 'yes') ||
-                            (tribunalStep === 3 && tribunalData.hasInsurance === 'yes') ||
-                            (tribunalStep === 5 && tribunalData.hasBankTransfer === 'yes') ||
-                            (tribunalStep === 6 && tribunalData.hasPaySlip === 'yes') ||
-                            (tribunalStep === 7 && tribunalData.hasWhiteSign === 'yes') ||
-                            (tribunalStep === 9 && tribunalData.hasWrittenNotice === 'yes') ||
-                            (tribunalStep === 10 && tribunalData.hasWitness === 'yes') ||
-                            (tribunalStep === 11 && tribunalData.hasOvertimeRecords === 'yes') ||
-                            (tribunalStep === 12 && tribunalData.hasLeaveRecords === 'yes') ||
-                            (tribunalStep === 13 && tribunalData.hasBenevolence === 'yes') ||
-                            (tribunalStep === 14 && tribunalData.hasComplaintHistory === 'yes') ||
-                            (tribunalStep === 15 && tribunalData.hasMOU === 'yes')
-                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-md'
-                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'
-                          }`}
-                          onClickCapture={() => {
-                            const mapKey = ['hasContract','contractType','hasInsurance','insuranceMonths','hasBankTransfer','hasPaySlip','hasWhiteSign','terminationType','hasWrittenNotice','hasWitness','hasOvertimeRecords','hasLeaveRecords','hasBenevolence','hasComplaintHistory','hasMOU'][tribunalStep-1];
-                            if(mapKey) setTribunalData({...tribunalData, [mapKey]: 'yes'});
-                          }}
-                        >
-                          بله / مثبت / دارم
-                        </button>
-
-                        <button
-                          onClickCapture={() => {
-                            const mapKey = ['hasContract','contractType','hasInsurance','insuranceMonths','hasBankTransfer','hasPaySlip','hasWhiteSign','terminationType','hasWrittenNotice','hasWitness','hasOvertimeRecords','hasLeaveRecords','hasBenevolence','hasComplaintHistory','hasMOU'][tribunalStep-1];
-                            if(mapKey) setTribunalData({...tribunalData, [mapKey]: 'no'});
-                          }}
-                          className={`p-4 rounded-xl border font-bold text-sm transition-all ${
-                            (tribunalStep === 1 && tribunalData.hasContract === 'no') ||
-                            (tribunalStep === 3 && tribunalData.hasInsurance === 'no') ||
-                            (tribunalStep === 5 && tribunalData.hasBankTransfer === 'no') ||
-                            (tribunalStep === 6 && tribunalData.hasPaySlip === 'no') ||
-                            (tribunalStep === 7 && tribunalData.hasWhiteSign === 'no') ||
-                            (tribunalStep === 9 && tribunalData.hasWrittenNotice === 'no') ||
-                            (tribunalStep === 10 && tribunalData.hasWitness === 'no') ||
-                            (tribunalStep === 11 && tribunalData.hasOvertimeRecords === 'no') ||
-                            (tribunalStep === 12 && tribunalData.hasLeaveRecords === 'no') ||
-                            (tribunalStep === 13 && tribunalData.hasBenevolence === 'no') ||
-                            (tribunalStep === 14 && tribunalData.hasComplaintHistory === 'no') ||
-                            (tribunalStep === 15 && tribunalData.hasMOU === 'no')
-                            ? 'bg-rose-600 text-white border-rose-600 shadow-md'
-                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'
-                          }`}
-                        >
-                          خیر / منفی / ندارم
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* دکمه‌های ناوبری مرحله */}
-                  <div className="flex justify-between pt-4">
-                    <button
-                      disabled={tribunalStep === 1}
-                      onClick={() => setTribunalStep(tribunalStep - 1)}
-                      className="px-5 py-2.5 bg-gray-100 dark:bg-gray-700 disabled:opacity-40 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-medium"
-                    >
-                      مرحله قبل
-                    </button>
-
-                    {tribunalStep < 15 ? (
-                      <button
-                        onClick={() => setTribunalStep(tribunalStep + 1)}
-                        className="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold shadow-md"
-                      >
-                        مرحله بعد
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          calculateTribunal();
-                          setTribunalStep(16);
-                        }}
-                        className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md animate-pulse"
-                      >
-                        محاسبه نهایی نتیجه پرونده
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                /* نمایش نتیجه تحلیل */
-                <div className="space-y-6">
-                  {tribunalResult && (
-                    <div className="p-6 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl border border-amber-200 dark:border-amber-900/50 space-y-4">
-                      <div className="text-center pb-4 border-b border-amber-200 dark:border-gray-700">
-                        <span className="text-xs text-gray-500 block">امتیاز تخمینی موفقیت در هیئت تشخیص</span>
-                        <span className="text-4xl font-extrabold text-amber-700 dark:text-amber-400">{tribunalResult.score} از ۱۰۰</span>
-                        <p className="text-sm font-bold text-gray-800 dark:text-gray-200 mt-2">{tribunalResult.recommendation}</p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <h4 className="font-bold text-sm text-gray-800 dark:text-gray-200">تحلیل استناد قانونی:</h4>
-                        <ul className="space-y-2">
-                          {tribunalResult.notes.map((note: string, idx: number) => (
-                            <li key={idx} className="text-xs bg-white dark:bg-gray-800 p-3 rounded-xl border border-amber-100 dark:border-gray-700 text-gray-700 dark:text-gray-300 flex items-start gap-2">
-                              <span className="text-amber-600 font-bold">•</span>
-                              <span>{note}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <button
-                        onClick={() => { setTribunalStep(1); setTribunalResult(null); }}
-                        className="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold text-sm shadow-md transition-colors"
-                      >
-                        شروع مجدد ارزیابی
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+                             {/* گام ۱: قرارداد کتبی - ماده ۱۰ و ۷ */}
+          {tribunalStep === 1 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">وضعیت تنظیم قرارداد کار کتبی شما به چه صورت است؟</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { id: 'formal_two_copies', label: 'کتبی در دو نسخه دارای امضا و مهر کارفرما (ماده ۱۰)' },
+                  { id: 'single_copy', label: 'کتبی در یک نسخه نزد کارفرما / فاقد نسخه کارگر' },
+                  { id: 'verbal', label: 'شفاهی / فاقد هرگونه قرارداد کتبی (ماده ۷)' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTribunalData(prev => ({ ...prev, hasContract: opt.id }))}
+                    className={`p-3 text-right rounded-xl border text-sm transition-all ${tribunalData.hasContract === opt.id ? 'border-amber-600 bg-amber-50 text-amber-900 font-medium' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* گام ۲: نوع قرارداد - ماده ۷ */}
+          {tribunalStep === 2 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">ماهیت و مدت قرارداد کار شما چگونه منعقد شده است؟</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { id: 'permanent', label: 'دائم / مستمر در کارهای با ماهیت دائم' },
+                  { id: 'temporary_valid', label: 'موقت با ذکر دلیل موجه در کارهای غیرمستمر' },
+                  { id: 'temporary_invalid', label: 'موقت برای کارهای مستمر بدون ثبت در سامانه / سفیدامضا (تبصره ۲ ماده ۷)' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTribunalData(prev => ({ ...prev, contractType: opt.id }))}
+                    className={`p-3 text-right rounded-xl border text-sm transition-all ${tribunalData.contractType === opt.id ? 'border-amber-600 bg-amber-50 text-amber-900 font-medium' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* گام ۳: بیمه - ماده ۱۴۸ */}
+          {tribunalStep === 3 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">وضعیت ارسال لیست و واریز حق بیمه تأمین اجتماعی چگونه است؟</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { id: 'full_insurance', label: 'کامل و مطابق با ایام واقعی اشتغال و مزد واقعی (ماده ۱۴۸)' },
+                  { id: 'partial_insurance', label: 'پاره‌وقت یا با حقوق کمتر از پایه وزارت کار رد شده' },
+                  { id: 'no_insurance', label: 'کلاً رد نشده / کارفرما بیمه نکرده است (تخلف ماده ۱۴۸)' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTribunalData(prev => ({ ...prev, hasInsurance: opt.id }))}
+                    className={`p-3 text-right rounded-xl border text-sm transition-all ${tribunalData.hasInsurance === opt.id ? 'border-amber-600 bg-amber-50 text-amber-900 font-medium' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* گام ۴: سابقه بیمه */}
+          {tribunalStep === 4 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">مجموع سابقه بیمه پرداختی شما در کارگاه فعلی چقدر است؟</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { id: '6', label: 'کمتر از ۱ سال' },
+                  { id: '36', label: 'بین ۱ تا ۵ سال' },
+                  { id: '72', label: 'بیش از ۵ سال' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTribunalData(prev => ({ ...prev, insuranceMonths: opt.id }))}
+                    className={`p-3 text-right rounded-xl border text-sm transition-all ${tribunalData.insuranceMonths === opt.id ? 'border-amber-600 bg-amber-50 text-amber-900 font-medium' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* گام ۵: طریق پرداخت دستمزد - ماده ۳۷ */}
+          {tribunalStep === 5 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">دستمزد و حقوق قانونی شما از چه طریقی به حسابتان پرداخت می‌شده است؟ (ماده ۳۷)</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { id: 'bank_transfer', label: 'واریز مستقیم از حساب رسمی شرکت/کارفرما به حساب بانکی کارگر' },
+                  { id: 'cash_or_third_party', label: 'پرداخت نقدی دستی یا کارت به کارت از حساب شخصی اشخاص ثالث' },
+                  { id: 'unpaid_or_deducted', label: 'عدم پرداخت معوقات یا پرداخت همراه با کسورات غیرقانونی' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTribunalData(prev => ({ ...prev, hasBankTransfer: opt.id }))}
+                    className={`p-3 text-right rounded-xl border text-sm transition-all ${tribunalData.hasBankTransfer === opt.id ? 'border-amber-600 bg-amber-50 text-amber-900 font-medium' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* گام ۶: فیش حقوقی */}
+          {tribunalStep === 6 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">آیا فیش حقوقی ممهور به مهر کارگاه یا پرینت رسمی دریافت می‌کرده‌اید؟</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { id: 'has_payslip_official', label: 'بله، فیش‌های حقوقی هر ماه با امضا و مهر موجود است' },
+                  { id: 'payslip_unofficial', label: 'پرینت پرسنلی یا گزارش نرم‌افزاری بدون مهر دارم' },
+                  { id: 'no_payslip', label: 'خیر، هیچ‌گونه فیش یا مدرک ممهوری در اختیار ندارم' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTribunalData(prev => ({ ...prev, hasPaySlip: opt.id }))}
+                    className={`p-3 text-right rounded-xl border text-sm transition-all ${tribunalData.hasPaySlip === opt.id ? 'border-amber-600 bg-amber-50 text-amber-900 font-medium' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* گام ۷: سفیدامضا / سفته */}
+          {tribunalStep === 7 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">وضعیت برگه‌های تسویه سفیدامضا یا سفته‌های حسن انجام کار چگونه است؟</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { id: 'clean', label: 'خیر، هیچ‌گونه برگه سفیدامضا یا سفته‌ای داده نشده است' },
+                  { id: 'guarantee_check_with_receipt', label: 'بله، سفته تضمین با ذکر شماره در قرارداد و اخذ رسید تحویل شده' },
+                  { id: 'white_sign_risk', label: 'بله، قرارداد یا برگه تسویه حساب سفیدامضا و سفته بدون رسید اخذ شده (استناد به آرای دیوان)' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTribunalData(prev => ({ ...prev, hasWhiteSign: opt.id }))}
+                    className={`p-3 text-right rounded-xl border text-sm transition-all ${tribunalData.hasWhiteSign === opt.id ? 'border-amber-600 bg-amber-50 text-amber-900 font-medium' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* گام ۸: نحوه قطع همکاری - ماده ۲۱ */}
+          {tribunalStep === 8 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">قطع همکاری و خاتمه رابطه کار شما به چه نحو صورت گرفته است؟ (ماده ۲۱)</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { id: 'dismiss', label: 'اخراج مستقیم توسط کارفرما بدون رضایت کارگر (ماده ۱۶۵)' },
+                  { id: 'resign', label: 'استعفای کتبی با رعایت تشریفات قانونی' },
+                  { id: 'expire', label: 'اتمام مدت قرارداد موقت' },
+                  { id: 'abandon', label: 'ترک کار ادعایی کارفرما' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTribunalData(prev => ({ ...prev, terminationType: opt.id }))}
+                    className={`p-3 text-right rounded-xl border text-sm transition-all ${tribunalData.terminationType === opt.id ? 'border-amber-600 bg-amber-50 text-amber-900 font-medium' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* گام ۹: اخطار کتبی - ماده ۲۷ */}
+          {tribunalStep === 9 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">آیا پیش از قطع همکاری، اخطار کتبی عملکرد یا فرم کمیته انضباطی دریافت کرده‌اید؟</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { id: 'no_notice', label: 'خیر، هیچ اخطار کتبی یا مستندات قصوری وجود ندارد (به نفع کارگر)' },
+                  { id: 'has_disciplinary_notice', label: 'بله، اخطار کتبی یا آرای منفی کمیته انضباطی موجود است' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTribunalData(prev => ({ ...prev, hasWrittenNotice: opt.id }))}
+                    className={`p-3 text-right rounded-xl border text-sm transition-all ${tribunalData.hasWrittenNotice === opt.id ? 'border-amber-600 bg-amber-50 text-amber-900 font-medium' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* گام ۱۰: شهود */}
+          {tribunalStep === 10 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">آیا شهود مطلع (همکاران شاغل یا سابق) جهت اثبات حضور در کارگاه دارید؟</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { id: 'witness_available', label: 'بله، شهود معتبر با امکان حضور و گواهی در جلسه هیئت تشخیص آماده‌اند' },
+                  { id: 'no_witness', label: 'خیر، هیچ شاهدی حاضر به ادای شهادت نیست' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTribunalData(prev => ({ ...prev, hasWitness: opt.id }))}
+                    className={`p-3 text-right rounded-xl border text-sm transition-all ${tribunalData.hasWitness === opt.id ? 'border-amber-600 bg-amber-50 text-amber-900 font-medium' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* گام ۱۱: مدارک اضافه‌کار - ماده ۵۹ */}
+          {tribunalStep === 11 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">مستندات شما برای اثبات اضافه‌کار و ساعات حضور در کارگاه چیست؟ (ماده ۵۹)</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { id: 'overtime_records_valid', label: 'کارت‌ساعت فیزیکی، گزارش دستگاه تردد یا پرینت سامانه حضور و غیاب دارم' },
+                  { id: 'overtime_no_doc', label: 'صرفاً ادعای شفاهی بدون سند کتبی یا کارت‌ساعت دارم' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTribunalData(prev => ({ ...prev, hasOvertimeRecords: opt.id }))}
+                    className={`p-3 text-right rounded-xl border text-sm transition-all ${tribunalData.hasOvertimeRecords === opt.id ? 'border-amber-600 bg-amber-50 text-amber-900 font-medium' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* گام ۱۲: مرخصی - ماده ۶۶ */}
+          {tribunalStep === 12 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">وضعیت ثبت مرخصی‌های استفاده‌نشده و مانده مرخصی چگونه است؟ (ماده ۶۶)</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { id: 'leave_documented', label: 'درخواست‌های مرخصی و مانده ذخیره در پرونده کارگزینی ثبت است' },
+                  { id: 'leave_undocumented', label: 'صرفاً تعداد روزهای ادعایی بدون ثبت کتبی در شرکت است' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTribunalData(prev => ({ ...prev, hasLeaveRecords: opt.id }))}
+                    className={`p-3 text-right rounded-xl border text-sm transition-all ${tribunalData.hasLeaveRecords === opt.id ? 'border-amber-600 bg-amber-50 text-amber-900 font-medium' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* گام ۱۳: سنوات و عیدی */}
+          {tribunalStep === 13 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">حق سنوات، عیدی و پاداش سالانه شما چگونه تسویه شده است؟</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { id: 'benefits_paid', label: 'به طور کامل با واریز بانکی مستند برای هر سال تسویه شده است' },
+                  { id: 'benefits_unpaid', label: 'پرداخت نشده یا بخشی از آن به صورت دستی و بدون رسید معتبر است' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTribunalData(prev => ({ ...prev, hasBenevolence: opt.id }))}
+                    className={`p-3 text-right rounded-xl border text-sm transition-all ${tribunalData.hasBenevolence === opt.id ? 'border-amber-600 bg-amber-50 text-amber-900 font-medium' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* گام ۱۴: سوابق شکایت */}
+          {tribunalStep === 14 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">آیا سابقه طرح دعوا یا شکایت قبلی در اداره کار علیه همین کارگاه دارید؟</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { id: 'no_prior_complaint', label: 'خیر، این اولین پرونده طرح شده علیه این کارگاه است' },
+                  { id: 'prior_complaint_exists', label: 'بله، دارای سابقه سازش یا رای قطعی قبلی مرتبط هستم' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTribunalData(prev => ({ ...prev, hasComplaintHistory: opt.id }))}
+                    className={`p-3 text-right rounded-xl border text-sm transition-all ${tribunalData.hasComplaintHistory === opt.id ? 'border-amber-600 bg-amber-50 text-amber-900 font-medium' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* گام ۱۵: توافق‌نامه دستی / ماده ۸ */}
+          {tribunalStep === 15 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">آیا توافق‌نامه دستی یا تعهدنامه‌ای دال بر اسقاط حق شکایت امضا داده‌اید؟ (ماده ۸)</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { id: 'mou_none', label: 'خیر، هیچ‌گونه توافق‌نامه اسقاط حقی امضا نکرده‌ام' },
+                  { id: 'mou_waiver', label: 'بله، تعهدنامه یا رضایت‌نامه محضری با شرط اسقاط حق شکایت اخذ شده (نیازمند استناد ماده ۸)' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTribunalData(prev => ({ ...prev, hasMOU: opt.id }))}
+                    className={`p-3 text-right rounded-xl border text-sm transition-all ${tribunalData.hasMOU === opt.id ? 'border-amber-600 bg-amber-50 text-amber-900 font-medium' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
 
             {/* --- شاخه رندر تب فیش حقوقی پرسنلی (پویا، تعاملی و مجهز به حق همسر و اضافه‌کاری قابل تنظیم) --- */}
         {activeTab === 'payslip' && (
