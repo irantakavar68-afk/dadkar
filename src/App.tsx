@@ -635,6 +635,18 @@ export default function App() {
     const baseSanavatDailyRate = 70000; // ۷۰,۰۰۰ ریال روزانه مصوب
     const sanavatMonthly = workHistoryYears >= 1 ? (workHistoryYears * baseSanavatDailyRate * 30) : 0;
 
+    // ۱۱. عیدی و پاداش سالانه (ماده واحده مصوب ۱۳۷۰)
+    // فرض: کارکرد کامل یک سال یا محاسبه بر اساس روزهای کارکرد (totalWorkingDays)
+    const eidiBaseDays = 60;
+    const eidiMaxDays = 90;
+    // حداقل دستمزد روزانه سال ۱۴۰۵ (قابل تنظیم بر اساس مصوبه شورای عالی کار؛ فرضاً نمونه مقدار یا دریافت از ورودی)
+    const minDailyWage1405 = 3500000; // مثال: ۳,۵۰۰,۰۰۰ ریال حداقل دستمزد روزانه ۱۴۰۵
+    const calculatedEidi = Math.min(dailyWage * eidiBaseDays, minDailyWage1405 * eidiMaxDays);
+    // اگر کارکرد کمتر از یک سال باشد (مثلاً نسبت به ۳۶۵ روز):
+    const workDaysForEidi = Math.min(totalWorkingDays || 365, 365);
+    const finalEidi = Math.round((calculatedEidi / 365) * workDaysForEidi);
+
+    
     // ۷. حق‌بیمه اجباری کارگری (ماده ۲۸ تأمین اجتماعی)
     const insuranceWorker = baseSalary * 0.07;
     const insuranceEmployer = baseSalary * 0.20;
@@ -647,6 +659,22 @@ export default function App() {
     const housewife14 = baseSalary * 0.14; // ۱۴٪ بازنشستگی و فوت
     const housewife18 = baseSalary * 0.18; // ۱۸٪ کامل با ازکارافتادگی
 
+
+    // ۱۲. محاسبه مالیات بر درآمد حقوق پلکانی
+    // مجموع درآمد مشمول مالیات (پایه حقوق + مزایای مشمول مانند حق مسکن و خواربار بر اساس بخشنامه‌ها)
+    const taxableGross = baseSalary + (housingAllowance || 0) + (groceryAllowance || 0);
+    
+    // سقف معافیت مالیاتی ماهانه حقوق در سال ۱۴۰۵ (مثلاً بر اساس لایحه بودجه، فرضاً ۱۲۰,۰۰۰,۰۰۰ ریال یا مقدار مصوب)
+    const monthlyTaxExemption1405 = 140000000; // ۱۴۰ میلیون ریال (قابل تنظیم بر اساس قانون بودجه ۱۴۰۵)
+    
+    let salaryIncomeTax = 0;
+    if (taxableGross > monthlyTaxExemption1405) {
+      const excess = taxableGross - monthlyTaxExemption1405;
+      // نمونه پله اول مازاد (مثلاً ۱۰٪ تا مبلغ مشخص، ۱۵٪ مابقی و...)
+      // به‌طور ساده یا پلکانی استاندارد:
+      salaryIncomeTax = Math.round(excess * 0.10); 
+    }
+    
     // ۹. مقرری بیمه بیکاری (جدول ماده ۷ قانون بیمه بیکاری)
     const isMarried = dependents > 0;
     let maxUnemploymentMonths = 6;
@@ -2224,6 +2252,11 @@ export default function App() {
                       <span>اضافه کاری ({payslipData.overtimeHours} ساعت):</span>
                       <strong>{(payslipData.overtimeHours * payslipData.overtimeRate).toLocaleString()}</strong>
                     </div>
+                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0' }}>
+                        <span>عیدی و پاداش سالانه:</span>
+                        <strong>{payslipData.eidi ? payslipData.eidi.toLocaleString() : '۰'} ریال</strong>
+                      </div>
+
                     <div style={{ borderTop: '1px solid #e5e7eb', marginTop: '10px', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 'bold', color: '#065f46' }}>
                       <span>جمع مزایای ناخالص:</span>
                       <span>
@@ -2233,6 +2266,7 @@ export default function App() {
                           payslipData.groceryAllowance +
                           payslipData.childAllowance +
                           (user?.marital_status === 'married' ? 5000000 : 0) +
+                          (payslipData.insuranceDeduction ? insuranceWorker : 0)+
                           (payslipData.overtimeHours * payslipData.overtimeRate)
                         ).toLocaleString()}
                       </span>
@@ -2255,13 +2289,16 @@ export default function App() {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0' }}>
                       <span>مالیات بر درآمد حقوق:</span>
-                      <strong style={{ color: '#991b1b' }}>{payslipData.taxDeduction ? 'محاسبه شده' : 'معاف / صفر'}</strong>
+                      <strong style={{ color: '#991b1b' }}>
+                        {(payslipData.taxAmount || 0) > 0 ? `${Math.round(payslipData.taxAmount).toLocaleString()} ریال` : 'معاف / صفر'}
+                      </strong>
                     </div>
+
                     <div style={{ borderTop: '1px solid #e5e7eb', marginTop: '48px', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 'bold', color: '#991b1b' }}>
                       <span>جمع کل کسورات:</span>
                       <span>
                         {payslipData.insuranceDeduction 
-                          ? Math.round((payslipData.baseSalary + payslipData.housingAllowance + payslipData.groceryAllowance) * 0.07).toLocaleString() 
+                          ? Math.round((payslipData.baseSalary + payslipData.housingAllowance + payslipData.groceryAllowance + (payslipData.taxAmount || 0)) * 0.07).toLocaleString() 
                           : '۰'}
                       </span>
                     </div>
