@@ -287,7 +287,9 @@ export default function App() {
     overtimeHours: 20,
     overtimeRate: Math.round((Number(user?.last_salary_million_rial || 100) * 1_000_000) / 220 * 1.4),
     insuranceDeduction: true,
-    taxDeduction: false
+    taxDeduction: false,
+    eidi: 0,
+    taxAmount: 0
   });
 
   useEffect(() => {
