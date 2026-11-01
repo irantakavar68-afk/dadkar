@@ -644,11 +644,9 @@ export default function App() {
     const eidiBaseDays = 60;
     const eidiMaxDays = 90;
     const minDailyWage1405 = 3500000; // حداقل دستمزد روزانه
-    const insuranceCeilingMonthly = minDailyWage1405 * 30 * 7; // سقف ماهانه حق بیمه
-    const insurableBase = Math.min(
-      baseSalary + (payslipData.housingAllowance || 0) + (payslipData.groceryAllowance || 0),
-      insuranceCeilingMonthly
-    );
+   const workedDaysThisYear = Math.min(years * 365 + months * 30 + days, 365);
+    const calculatedEidi = Math.min(dailyWage * eidiBaseDays, minDailyWage1405 * eidiMaxDays);
+    const finalEidi = Math.round((calculatedEidi / 365) * Math.max(workedDaysThisYear, 1));
     const insuranceWorker = Math.round(insurableBase * 0.07);
     const insuranceEmployer = Math.round(insurableBase * 0.20);
     const insuranceGov = Math.round(insurableBase * 0.03);
@@ -2267,7 +2265,7 @@ export default function App() {
                     </div>
                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0' }}>
                         <span>عیدی و پاداش سالانه:</span>
-                        <strong>{payslipData.eidi ? payslipData.eidi.toLocaleString() : '۰'} ریال</strong>
+                        <strong>  {calculations.finalEidi ? calculations.finalEidi.toLocaleString() : '۰'} ریال</strong>
                       </div>
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0', paddingTop: '8px', fontWeight: 'bold', fontSize: '12px' }}>
@@ -2303,7 +2301,8 @@ export default function App() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0' }}>
                       <span>مالیات بر درآمد حقوق:</span>
                       <strong style={{ color: '#991b1b' }}>
-                        {(payslipData.taxAmount || 0) > 0 ? `${Math.round(payslipData.taxAmount).toLocaleString()} ریال` : 'معاف / صفر'}
+                          {calculations.salaryIncomeTax ? Math.round(calculations.salaryIncomeTax).toLocaleString() : '۰'} ریال
+
                       </strong>
                     </div>
 
