@@ -281,16 +281,17 @@ export default function App() {
     workshopName: user?.company_name || 'کارگاه مشمول قانون کار',
     month: getCurrentJalaliMonthLabel(),
     baseSalary: Number(user?.last_salary_million_rial || 100) * 1_000_000,
-    housingAllowance: 30000000, // ۳۰ میلیون ریال (حق مسکن)
-    groceryAllowance: 22000000, // ۲۲ میلیون ریال (بن خواربار)
-    childAllowance: (user?.children_count || 0) * 16625550, // ۱۶،۶۲۵،۵۵۰ ریال (حق اولاد)
+    housingAllowance: 30000000, // ۳۰ میلیون ریال
+    groceryAllowance: 22000000, // ۲۲ میلیون ریال
+    childAllowance: (user?.children_count || 0) * 16625550,
     overtimeHours: 20,
     overtimeRate: Math.round((Number(user?.last_salary_million_rial || 100) * 1_000_000) / 220 * 1.4),
     insuranceDeduction: true,
     taxDeduction: false,
-    eidi: 0,
-    taxAmount: 0
+    eidi: 0,          // ← اضافه شده در نسخه ۴
+    taxAmount: 0      // ← اضافه شده در نسخه ۴
   });
+
 
   useEffect(() => {
     if (user) {
@@ -640,15 +641,13 @@ export default function App() {
     const sanavatMonthly = workHistoryYears >= 1 ? (workHistoryYears * baseSanavatDailyRate * 30) : 0;
 
     // ۱۱. عیدی و پاداش سالانه (ماده واحده مصوب ۱۳۷۰)
-    // فرض: کارکرد کامل یک سال یا محاسبه بر اساس روزهای کارکرد (totalWorkingDays)
     const eidiBaseDays = 60;
     const eidiMaxDays = 90;
-    // حداقل دستمزد روزانه سال ۱۴۰۵ (قابل تنظیم بر اساس مصوبه شورای عالی کار؛ فرضاً نمونه مقدار یا دریافت از ورودی)
-    const minDailyWage1405 = 3500000; // مثال: ۳,۵۰۰,۰۰۰ ریال حداقل دستمزد روزانه ۱۴۰۵
+    const minDailyWage1405 = 3500000;  // حداقل دستمزد روزانه فرض‌شده برای سقف عیدی
     const calculatedEidi = Math.min(dailyWage * eidiBaseDays, minDailyWage1405 * eidiMaxDays);
-    // اگر کارکرد کمتر از یک سال باشد (مثلاً نسبت به ۳۶۵ روز):
     const workDaysForEidi = Math.min(totalWorkingDays || 365, 365);
     const finalEidi = Math.round((calculatedEidi / 365) * workDaysForEidi);
+
 
     
     // ۷. حق‌بیمه اجباری کارگری (ماده ۲۸ تأمین اجتماعی)
@@ -666,11 +665,11 @@ export default function App() {
 
     // ۱۲. محاسبه مالیات بر درآمد حقوق پلکانی
     const taxableGross = baseSalary + (payslipData.housingAllowance || 0) + (payslipData.groceryAllowance || 0);
-    const monthlyTaxExemption1405 = 140000000;
+    const monthlyTaxExemption1405 = 140000000; // سقف معافیت مالیاتی ماهانه
     let salaryIncomeTax = 0;
     if (taxableGross > monthlyTaxExemption1405) {
       const excess = taxableGross - monthlyTaxExemption1405;
-      salaryIncomeTax = Math.round(excess * 0.10);
+      salaryIncomeTax = Math.round(excess * 0.10); // نرخ ۱۰٪ مازاد بر معافیت
     }
     
     // ۹. مقرری بیمه بیکاری (جدول ماده ۷ قانون بیمه بیکاری)
