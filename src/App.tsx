@@ -309,7 +309,7 @@ export default function App() {
 
       }));
     }
-  }, [user]);
+    }, [user, payslipData.baseSalary, payslipData.housingAllowance, payslipData.groceryAllowance]);
 
 
 
@@ -643,18 +643,17 @@ export default function App() {
     // ۱۱. عیدی و پاداش سالانه (ماده واحده مصوب ۱۳۷۰)
     const eidiBaseDays = 60;
     const eidiMaxDays = 90;
-    const minDailyWage1405 = 3500000;  // حداقل دستمزد روزانه فرض‌شده برای سقف عیدی
-    const calculatedEidi = Math.min(dailyWage * eidiBaseDays, minDailyWage1405 * eidiMaxDays);
-    const workDaysForEidi = Math.min(totalWorkingDays || 365, 365);
-    const finalEidi = Math.round((calculatedEidi / 365) * workDaysForEidi);
+    const minDailyWage1405 = 3500000; // حداقل دستمزد روزانه
+    const insuranceCeilingMonthly = minDailyWage1405 * 30 * 7; // سقف ماهانه حق بیمه
+    const insurableBase = Math.min(
+      baseSalary + (payslipData.housingAllowance || 0) + (payslipData.groceryAllowance || 0),
+      insuranceCeilingMonthly
+    );
+    const insuranceWorker = Math.round(insurableBase * 0.07);
+    const insuranceEmployer = Math.round(insurableBase * 0.20);
+    const insuranceGov = Math.round(insurableBase * 0.03);
+    const insuranceTotal = insuranceWorker + insuranceEmployer + insuranceGov;
 
-
-    
-    // ۷. حق‌بیمه اجباری کارگری (ماده ۲۸ تأمین اجتماعی)
-    const insuranceWorker = baseSalary * 0.07;
-    const insuranceEmployer = baseSalary * 0.20;
-    const insuranceGov = baseSalary * 0.03;
-    const insuranceTotal = baseSalary * 0.30;
 
     // ۸. بیمه اختیاری، مشاغل آزاد و زنان خانه‌دار
     const voluntaryInsurance = baseSalary * 0.27; // اختیاری ۲۷٪
@@ -663,14 +662,29 @@ export default function App() {
     const housewife18 = baseSalary * 0.18; // ۱۸٪ کامل با ازکارافتادگی
 
 
-    // ۱۲. محاسبه مالیات بر درآمد حقوق پلکانی
+    // ۱۲. محاسبه مالیات بر درآمد حقوق پلکانی دقیق
     const taxableGross = baseSalary + (payslipData.housingAllowance || 0) + (payslipData.groceryAllowance || 0);
-    const monthlyTaxExemption1405 = 140000000; // سقف معافیت مالیاتی ماهانه
+    const monthlyTaxExemption1405 = 140000000; // سقف معافیت ماهانه (ریال)
+    const taxBase = Math.max(0, taxableGross - monthlyTaxExemption1405);
+    
+    // پله‌های مالیاتی (قابل تنظیم بر اساس تبصره بودجه ۱۴۰۵)
+    const taxBrackets = [
+      { width: 100000000, rate: 0.10 },
+      { width: 150000000, rate: 0.15 },
+      { width: 250000000, rate: 0.20 },
+      { width: Infinity,    rate: 0.30 },
+    ];
+    
     let salaryIncomeTax = 0;
-    if (taxableGross > monthlyTaxExemption1405) {
-      const excess = taxableGross - monthlyTaxExemption1405;
-      salaryIncomeTax = Math.round(excess * 0.10); // نرخ ۱۰٪ مازاد بر معافیت
+    let remainingTaxable = taxBase;
+    for (const bracket of taxBrackets) {
+      if (remainingTaxable <= 0) break;
+      const slice = Math.min(remainingTaxable, bracket.width);
+      salaryIncomeTax += slice * bracket.rate;
+      remainingTaxable -= slice;
     }
+    salaryIncomeTax = Math.round(salaryIncomeTax);
+
     
     // ۹. مقرری بیمه بیکاری (جدول ماده ۷ قانون بیمه بیکاری)
     const isMarried = dependents > 0;
