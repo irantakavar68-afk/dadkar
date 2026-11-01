@@ -835,7 +835,8 @@ export const AuthProfileModals: React.FC<Props> = ({
         setSaveMsg('مشخصات با موفقیت ذخیره گردید.');
         setTimeout(() => setShowProfileModal(false), 1200);
       } else setSaveMsg(res.message || 'خطا در ذخیره‌سازی');
-    } catch { setSaveMsg('خطای ارتباط با14 سرور'); }
+    } catch (e: any) { setSaveMsg(e?.message || 'خطای ارتباط با سرور'); }
+
     finally { setSaveLoading(false); }
   };
 
