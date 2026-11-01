@@ -27,7 +27,9 @@ export default function App() {
   const [shiftType, setShiftType] = useState<string>('none');
   const [unworkedLeaveDays, setUnworkedLeaveDays] = useState<number>(2);
   const [dependents, setDependents] = useState<number>(1);
-  const [unemploymentMonths, setUnemploymentMonths] = useState<number>({/*...*/ as any} || 6);
+  // ✅ نسخه اصلاح‌شده
+const [unemploymentMonths, setUnemploymentMonths] = useState<number>(6);
+
   const [insuranceYears, setInsuranceYears] = useState<number>(10);
   const [workHistoryYears, setWorkHistoryYears] = useState<number>(10);
 
