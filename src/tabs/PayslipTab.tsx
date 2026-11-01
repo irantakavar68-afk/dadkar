@@ -3,6 +3,9 @@ import React from 'react';
 export default function PayslipTab(props: any) {
   const { calculations, fontFamily, handlePrintDocument, isAndroid, payslipData, setActiveTab, setPayslipData, user } = props;
   const [includeEidi, setIncludeEidi] = React.useState(false);
+  const eidiValue = includeEidi ? (calculations.finalEidi || 0) : 0;
+  const taxValue = Math.round(calculations.salaryIncomeTax || 0);
+
   return (
     <>
           <div className="space-y-6 max-w-4xl mx-auto pb-12">
