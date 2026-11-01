@@ -647,6 +647,12 @@ export default function App() {
    const workedDaysThisYear = Math.min(years * 365 + months * 30 + days, 365);
     const calculatedEidi = Math.min(dailyWage * eidiBaseDays, minDailyWage1405 * eidiMaxDays);
     const finalEidi = Math.round((calculatedEidi / 365) * Math.max(workedDaysThisYear, 1));
+    const insuranceCeilingMonthly = minDailyWage1405 * 30 * 7; // سقف ماهانه بیمه
+    const insurableBase = Math.min(
+      baseSalary + (payslipData.housingAllowance || 0) + (payslipData.groceryAllowance || 0),
+      insuranceCeilingMonthly
+    );
+
     const insuranceWorker = Math.round(insurableBase * 0.07);
     const insuranceEmployer = Math.round(insurableBase * 0.20);
     const insuranceGov = Math.round(insurableBase * 0.03);
