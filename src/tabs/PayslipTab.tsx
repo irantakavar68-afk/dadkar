@@ -2,6 +2,8 @@ import React from 'react';
 
 export default function PayslipTab(props: any) {
   const { calculations, fontFamily, isAndroid, payslipData, setActiveTab, setPayslipData, user } = props;
+  const eidiValue = calculations.finalEidi || 0;
+  const taxValue = Math.round(calculations.salaryIncomeTax || 0);
   return (
     <>
           <div className="space-y-6 max-w-4xl mx-auto pb-12">
