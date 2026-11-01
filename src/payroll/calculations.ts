@@ -76,7 +76,7 @@ export function calculatePayroll(params: PayrollParams): PayrollResult {
   let shiftMultiplier = 0;
   if (shiftType === 'morning-evening') shiftMultiplier = 0.10;
   else if (shiftType === 'morning-evening-night') shiftMultiplier = 0.15;
-  else if (shiftType === 'night') shiftMultiplier = 0.22.5; // یا 35% حسب مورد
+  else if (shiftType === 'night') shiftMultiplier = 0.225; // یا 35% حسب مورد
   const shiftPay = Math.round(baseSalary * shiftMultiplier);
 
   // ۵. کسر مرخصی استفاده نشده
