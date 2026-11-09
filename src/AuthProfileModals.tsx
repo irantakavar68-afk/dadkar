@@ -825,24 +825,38 @@ export const AuthProfileModals: React.FC<Props> = ({
     finally { setLoading(false); }
   };
 
-  // ---- ویرایش پروفایل از درون برنامه ----
-  const handleSaveProfile = async () => {
-    const activeToken = token || sessionToken || localStorage.getItem('dadkar_token');
-    if (!activeToken) return;
-    setSaveLoading(true); setSaveMsg('');
-    try {
-      const finalIndustry = isOtherIndustry ? customIndustry : formData.industry_field;
-      const res = await post('save_profile', { ...formData, industry_field: finalIndustry, token: activeToken });
-      if (res.status === 'success') {
-        const updated = { ...formData, industry_field: finalIndustry };
-        localStorage.setItem('dadkar_user', JSON.stringify(updated));
-        onProfileUpdate(updated);
-        setSaveMsg('مشخصات با موفقیت ذخیره گردید.');
-        setTimeout(() => setShowProfileModal(false), 1200);
-      } else setSaveMsg(res.message || 'خطا در ذخیره‌سازی');
-    } catch { setSaveMsg('خطای ارتباط با14 سرور'); }
-    finally { setSaveLoading(false); }
-  };
+// ---- ویرایش پروفایل از درون برنامه ----
+const handleSaveProfile = async () => {
+  const currentActiveToken = token || sessionToken || localStorage.getItem('dadkar_token');
+  if (!currentActiveToken) return;
+  setSaveLoading(true); 
+  setSaveMsg('');
+  try {
+    const finalIndustry = isOtherIndustry ? customIndustry : formData.industry_field;
+    const res = await post('save_profile', { 
+      ...formData, 
+      industry_field: finalIndustry, 
+      token: currentActiveToken 
+    });
+    
+    if (res.status === 'success') {
+      const updated = { ...formData, industry_field: finalIndustry };
+      localStorage.setItem('dadkar_user', JSON.stringify(updated));
+      onProfileUpdate(updated);
+      setSaveMsg('مشخصات با موفقیت ذخیره گردید.');
+      setTimeout(() => setShowProfileModal(false), 1200);
+    } else {
+      setSaveMsg(res.message || 'خطا در ذخیره‌سازی');
+    }
+  } catch (err: any) {
+    // چاپ خطای واقعی برای عیب‌یابی دقیق
+    setSaveMsg('خطای سیستم: ' + (err.message || err));
+    console.error('Save Profile Error:', err);
+  } finally {
+    setSaveLoading(false);
+  }
+};
+
 
   const pwdStrength = calculatePasswordStrength(formData.password || '');
 
