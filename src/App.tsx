@@ -46,8 +46,11 @@ const handlePrintDocument = (elementId: string) => {
   doc.write(`<html dir="rtl"><head><title>فیش حقوقی - سامانه جامع دادکار</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-      body { font-family: Tahoma, Vazirmatn, sans-serif; direction: rtl; padding: 16px; background: #fff; color: #111; }
-      .print-footer { margin-top: 40px; text-align: center; font-size: 11px; color: #666; border-top: 1px dashed #ccc; padding-top: 15px; }
+      @page { size: A4; margin: 10mm; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+      html, body { margin: 0; }
+      body { font-family: Tahoma, Vazirmatn, sans-serif; direction: rtl; background: #fff; color: #111; }
+      .print-footer { margin-top: 24px; text-align: center; font-size: 11px; color: #6b7280; border-top: 2px solid #047857; padding-top: 12px; }
       .watermark { font-weight: bold; color: #047857; }
     </style></head><body>${printContent}
     <div class="print-footer">
