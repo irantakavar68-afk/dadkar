@@ -65,24 +65,29 @@ export default function PayslipTab(props: any) {
             <div id="payslip-print-area" style={{ fontFamily: 'Tahoma, Arial, sans-serif', direction: 'rtl', padding: '20px', background: '#ffffff', color: '#111827', borderRadius: '16px', border: '1px solid #e5e7eb' }}>
               
               {/* سربرگ */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',flexWrap: 'wrap', gap: '8px', borderBottom: '2px solid #1f2937', paddingBottom: '16px', marginBottom: '20px' }}>
-                <div>
-                  <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px 0' }}>{payslipData.workshopName}</h3>
-                  <p style={{ fontSize: '10px', color: '#4b5563', margin: 0 }}>سیستم جامع حقوق و دستمزد دادکار</p>
+              <div style={{ background: 'linear-gradient(135deg,#064e3b,#047857 60%,#10b981)', color: '#fff', borderRadius: '12px', padding: '16px 20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <img src="https://irantakavar68-afk.github.io/dadkar/logo.png" width={46} height={46} style={{ borderRadius: '12px', background: '#fff' }} alt="دادکار" />
+
+                  <div>
+                    <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 2px 0' }}>{payslipData.workshopName}</h3>
+                    <p style={{ fontSize: '10px', color: '#d1fae5', margin: 0 }}>سامانه جامع حقوق و دستمزد دادکار</p>
+                  </div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <h2 style={{ fontSize: '15px', fontWeight: 'bold', color: '#047857', margin: '0 0 4px 0' }}>فیش حقوق و مزایای پرسنلی</h2>
-                  <span style={{ display: 'inline-block', padding: '2px 8px', background: '#ecfdf5', color: '#065f46', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold' }}>
+                  <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px 0' }}>فیش حقوق و مزایای پرسنلی</h2>
+                  <span style={{ display: 'inline-block', padding: '2px 10px', background: 'rgba(255,255,255,0.2)', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold' }}>
                     عملکرد ماه: {payslipData.month}
                   </span>
                 </div>
-                <div style={{ textAlign: 'left', fontSize: '10px', color: '#4b5563' }}>
+                <div style={{ textAlign: 'left', fontSize: '10px', color: '#d1fae5' }}>
                   <p style={{ margin: 0 }}>تاریخ صدور: {new Date().toLocaleDateString('fa-IR')}</p>
                 </div>
               </div>
 
+
               {/* مشخصات */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', background: '#f9fafb', padding: '10px', borderRadius: '10px', border: '1px solid #e5e7eb', fontSize: '11px', marginBottom: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', background: '#f0fdf4', padding: '10px', borderRadius: '10px', border: '1px solid #bbf7d0', fontSize: '11px', marginBottom: '20px' }}>
                 <div><span style={{ color: '#6b7280' }}>نام و نام خانوادگی:</span> <strong>{payslipData.empName}</strong></div>
                 <div><span style={{ color: '#6b7280' }}>کد ملی / شناسه:</span> <strong>{payslipData.nationalId}</strong></div>
                 <div><span style={{ color: '#6b7280' }}>وضعیت تأهل و عائله:</span> <strong>{user?.marital_status === 'married' ? 'متأهل (دارای حق تأهل)' : 'مجرد / سایر'}</strong></div>
@@ -93,7 +98,7 @@ export default function PayslipTab(props: any) {
                 
                 {/* مزایا */}
                 <div style={{ border: '1px solid #d1d5db', borderRadius: '10px', padding: '12px', background: '#fcfcfc' }}>
-                  <h4 style={{ fontSize: '11px', fontWeight: 'bold', color: '#065f46', borderBottom: '1px solid #e5e7eb', paddingBottom: '6px', margin: '0 0 8px 0', display: 'flex', justifyContent: 'space-between' }}>
+                  <h4 style={{ fontSize: '11px', fontWeight: 'bold', color: '#065f46', background: '#d1fae5', borderRadius: '6px', padding: '6px 8px', margin: '0 0 8px 0', display: 'flex', justifyContent: 'space-between' }}>
                     <span>مزایای مستمر و رفاهی</span>
                     <span>مبلغ (ریال)</span>
                   </h4>
@@ -128,7 +133,7 @@ export default function PayslipTab(props: any) {
                       <strong>  {eidiValue.toLocaleString()} ریال</strong>
                     </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0', paddingTop: '6px', fontWeight: 'bold', fontSize: '11px', marginTop: '4px' }}>
+                <div style={{ background: '#f3f4f6', padding: '6px 8px', borderRadius: '6px' , display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0', fontWeight: 'bold', fontSize: '11px', marginTop: '4px' }}>
                     <span>جمع مزایای ناخالص:</span>
                     <span>
                       {(
@@ -146,7 +151,7 @@ export default function PayslipTab(props: any) {
 
                 {/* کسورات */}
                 <div style={{ border: '1px solid #d1d5db', borderRadius: '10px', padding: '12px', background: '#fcfcfc' }}>
-                  <h4 style={{ fontSize: '11px', fontWeight: 'bold', color: '#991b1b', borderBottom: '1px solid #e5e7eb', paddingBottom: '6px', margin: '0 0 8px 0', display: 'flex', justifyContent: 'space-between' }}>
+                  <h4 style={{ fontSize: '11px', fontWeight: 'bold', color: '#991b1b', background: '#fee2e2', borderRadius: '6px', padding: '6px 8px', margin: '0 0 8px 0', display: 'flex', justifyContent: 'space-between' }}>
                     <span>کسورات قانونی</span>
                     <span>مبلغ (ریال)</span>
                   </h4>
@@ -180,10 +185,10 @@ export default function PayslipTab(props: any) {
               </div>
 
               {/* خالص پرداختی */}
-              <div style={{ background: '#111827', color: '#ffffff', padding: '12px 16px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
+              <div style={{ background: 'linear-gradient(135deg,#064e3b,#047857)', color: '#ffffff', padding: '12px 16px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
                 <div>
                   <span style={{ fontSize: '9px', color: '#9ca3af', display: 'block' }}>مبلغ قابل پرداخت نهایی به پرسنل:</span>
-                  <span style={{ fontSize: '15px', fontWeight: 'bold', color: '#34d399' }}>
+                  <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#34d399' }}>
                   {(
                       (
                         payslipData.baseSalary +
