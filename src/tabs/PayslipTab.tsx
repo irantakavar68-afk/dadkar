@@ -24,14 +24,14 @@ export default function PayslipTab(props: any) {
               >
                 بازگشت به خانه
               </button>
-             {!isAndroid && (
+             
                 <button 
                   onClick={() => handlePrintDocument('payslip-print-area')}
                   className="flex-1 sm:flex-none px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2 shadow-sm"
                 >
                   <span>🖨️</span> چاپ فیش حقوقی
                 </button>
-              )}
+             
             </div>
           </div>
 
@@ -62,10 +62,10 @@ export default function PayslipTab(props: any) {
 
           {/* کادر فیش حقوقی با قابلیت اسکرول افقی در موبایل */}
           <div className="overflow-x-auto w-full">
-            <div id="payslip-print-area" style={{ fontFamily: 'Tahoma, Arial, sans-serif', direction: 'rtl', padding: '20px', background: '#ffffff', color: '#111827', borderRadius: '16px', border: '1px solid #e5e7eb', minWidth: '650px' }}>
+            <div id="payslip-print-area" style={{ fontFamily: 'Tahoma, Arial, sans-serif', direction: 'rtl', padding: '20px', background: '#ffffff', color: '#111827', borderRadius: '16px', border: '1px solid #e5e7eb' }}>
               
               {/* سربرگ */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #1f2937', paddingBottom: '16px', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',flexWrap: 'wrap', gap: '8px', borderBottom: '2px solid #1f2937', paddingBottom: '16px', marginBottom: '20px' }}>
                 <div>
                   <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px 0' }}>{payslipData.workshopName}</h3>
                   <p style={{ fontSize: '10px', color: '#4b5563', margin: 0 }}>سیستم جامع حقوق و دستمزد دادکار</p>
@@ -82,14 +82,14 @@ export default function PayslipTab(props: any) {
               </div>
 
               {/* مشخصات */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', background: '#f9fafb', padding: '10px', borderRadius: '10px', border: '1px solid #e5e7eb', fontSize: '11px', marginBottom: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', background: '#f9fafb', padding: '10px', borderRadius: '10px', border: '1px solid #e5e7eb', fontSize: '11px', marginBottom: '20px' }}>
                 <div><span style={{ color: '#6b7280' }}>نام و نام خانوادگی:</span> <strong>{payslipData.empName}</strong></div>
                 <div><span style={{ color: '#6b7280' }}>کد ملی / شناسه:</span> <strong>{payslipData.nationalId}</strong></div>
                 <div><span style={{ color: '#6b7280' }}>وضعیت تأهل و عائله:</span> <strong>{user?.marital_status === 'married' ? 'متأهل (دارای حق تأهل)' : 'مجرد / سایر'}</strong></div>
               </div>
 
               {/* جداول درآمد و کسورات */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px', marginBottom: '20px' }}>
                 
                 {/* مزایا */}
                 <div style={{ border: '1px solid #d1d5db', borderRadius: '10px', padding: '12px', background: '#fcfcfc' }}>
@@ -180,7 +180,7 @@ export default function PayslipTab(props: any) {
               </div>
 
               {/* خالص پرداختی */}
-              <div style={{ background: '#111827', color: '#ffffff', padding: '12px 16px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ background: '#111827', color: '#ffffff', padding: '12px 16px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
                 <div>
                   <span style={{ fontSize: '9px', color: '#9ca3af', display: 'block' }}>مبلغ قابل پرداخت نهایی به پرسنل:</span>
                   <span style={{ fontSize: '15px', fontWeight: 'bold', color: '#34d399' }}>
