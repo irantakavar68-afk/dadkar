@@ -398,6 +398,7 @@ interface Props {
   user: UserProfile | null;
   token: string | null;
   onLoginSuccess: (user: UserProfile, token: string) => void;
+  onLogout?: () => void;
   onProfileUpdate: (user: UserProfile) => void;
   onSessionExpired?: () => void;
   showProfileModal: boolean;
@@ -423,7 +424,7 @@ const emptyForm: UserProfile = {
 };
 
 export const AuthProfileModals: React.FC<Props> = ({
-  user, token, onLoginSuccess, onProfileUpdate, onSessionExpired, showProfileModal, setShowProfileModal
+  user, token, onLogout, onLoginSuccess, onProfileUpdate, onSessionExpired, showProfileModal, setShowProfileModal
 }) => {
   const [step, setStep] = useState<'login' | 'mobile' | 'code' | 'register' | 'forgot' | 'reset'>('login');
   const [mobile, setMobile] = useState('');
@@ -510,7 +511,7 @@ export const AuthProfileModals: React.FC<Props> = ({
         setPasswordChangeMsg({ type: 'error', text: res.message || 'خطا در تغییر رمز عبور.' });
       }
     } catch {
-      setPasswordChangeMsg({ type: 'error', text: 'خطای ارتباط با15 سرور.' });
+      setPasswordChangeMsg({ type: 'error', text: 'خطای ارتباط با سرور.' });
     }
   };
 
@@ -526,7 +527,7 @@ export const AuthProfileModals: React.FC<Props> = ({
       throw new Error('نشست شما منقضی شده است. لطفاً دوباره وارد شوید.');
     }
     if (!res.ok) {
-      throw new Error(json.message || 'خطای سر20ور');
+      throw new Error(json.message || 'خطای سرور');
     }
     return json;
   };
@@ -1639,7 +1640,7 @@ const handleSaveProfile = async () => {
                   localStorage.removeItem('dadkar_token');
                   localStorage.removeItem('dadkar_user');
                   sessionStorage.clear();
-                  onLoginSuccess(null as any, null as any);
+                  onLogout?.();
                   setShowProfileModal(false);
                   setStep('login'); // بازگشت اجباری به مرحله ورود
                 }
