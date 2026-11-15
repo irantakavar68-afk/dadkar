@@ -606,7 +606,7 @@ export default function App() {
       finalEidi,
       salaryIncomeTax 
     };
-  }, [baseSalary, years, months, days, hours, nightHours, shiftType, unworkedLeaveDays, dependents, unemploymentMonths, insuranceYears, workHistoryYears]);
+  }, [baseSalary, years, months, days, hours, nightHours, shiftType, unworkedLeaveDays, dependents, unemploymentMonths, insuranceYears, workHistoryYears, payslipData.housingAllowance, payslipData.groceryAllowance]);
 
   const formatRial = (val: number) => {
     return Math.round(val).toLocaleString('fa-IR') + ' ریال';
@@ -1089,6 +1089,10 @@ export default function App() {
             setUser(null);
             setShowProfileModal(true); // نمایش صفحه ورود
             setActiveTab('home');
+          }}
+          onLogout={() => {
+            setUser(null);
+            setToken(null);
           }}
           onProfileUpdate={(updatedUser) => {
             setUser(updatedUser);
