@@ -67,7 +67,7 @@ export default function PayslipTab(props: any) {
               {/* سربرگ */}
               <div style={{ background: 'linear-gradient(135deg,#064e3b,#047857 60%,#10b981)', color: '#fff', borderRadius: '12px', padding: '16px 20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <img src="https://irantakavar68-afk.github.io/dadkar/logo.png" width={46} height={46} style={{ borderRadius: '12px', background: '#fff' }} alt="دادکار" />
+                  <img src="https://daadkaar.ir/api/icon.svg" width={46} height={46} style={{ borderRadius: '12px', background: '#fff' }} alt="دادکار" />
 
                   <div>
                     <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 2px 0' }}>{payslipData.workshopName}</h3>
