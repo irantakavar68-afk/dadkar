@@ -31,34 +31,37 @@ import { getJalaliToday, seniorityFromProfile, toFa, toEn } from './helpers';
 
 
   // --- افزونه ۲: موتور چاپ و خروجی PDF فیش/قرارداد ---
-    const handlePrintDocument = (elementId: string) => {
-      const printContent = document.getElementById(elementId)?.innerHTML;
-      if (!printContent) return;
-      const win = window.open('', '', 'height=800,width=1000');
-      win?.document.write('<html><head><title>فیش حقوقی - سامانه جامع دادکار</title>');
-      win?.document.write(`
-        <style>
-          body { font-family: Tahoma, Vazirmatn, sans-serif; direction: rtl; padding: 30px; background: #fff; color: #111; }
-          .print-footer { margin-top: 40px; text-align: center; font-size: 11px; color: #666; border-top: 1px dashed #ccc; padding-top: 15px; }
-          .watermark { font-weight: bold; color: #047857; }
-        </style>
-      `);
-      win?.document.write('</head><body>');
-      win?.document.write(printContent);
-      win?.document.write(`
-        <div class="print-footer">
-          این سند به صورت رسمی از <span class="watermark">سامانه جامع حقوق و دستمزد دادکار (daadkaar.ir)</span> صادر شده است.<br/>
-          تاریخ صدور خروجی: ${new Date().toLocaleDateString('fa-IR')}
-        </div>
-      `);
-      win?.document.write('</body></html>');
-      win?.document.close();
-      win?.focus();
-      setTimeout(() => {
-        win?.print();
-        win?.close();
-      }, 500);
-    };
+const handlePrintDocument = (elementId: string) => {
+  const printContent = document.getElementById(elementId)?.innerHTML;
+  if (!printContent) return;
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  document.body.appendChild(iframe);
+  const doc = iframe.contentDocument || iframe.contentWindow?.document;
+  if (!doc || !iframe.contentWindow) return;
+  doc.open();
+  doc.write(`<html dir="rtl"><head><title>فیش حقوقی - سامانه جامع دادکار</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body { font-family: Tahoma, Vazirmatn, sans-serif; direction: rtl; padding: 16px; background: #fff; color: #111; }
+      .print-footer { margin-top: 40px; text-align: center; font-size: 11px; color: #666; border-top: 1px dashed #ccc; padding-top: 15px; }
+      .watermark { font-weight: bold; color: #047857; }
+    </style></head><body>${printContent}
+    <div class="print-footer">
+      این سند به صورت رسمی از <span class="watermark">سامانه جامع حقوق و دستمزد دادکار (daadkaar.ir)</span> صادر شده است.<br/>
+      تاریخ صدور خروجی: ${new Date().toLocaleDateString('fa-IR')}
+    </div></body></html>`);
+  doc.close();
+  setTimeout(() => {
+    iframe.contentWindow?.focus();
+    iframe.contentWindow?.print();
+    setTimeout(() => document.body.removeChild(iframe), 1000);
+  }, 500);
+};
+
 
 
 
