@@ -618,6 +618,23 @@ export default function App() {
     ...lawsToDocs(EXTRACTED_LAWS),
     ...templatesToDocs(ALL_TEMPLATES),
   ], []);
+  const handleSearchSelect = (tab: string, id: string) => {
+    const doc = searchDocsList.find(d => d.tab === tab && String(d.id) === String(id));
+    const title = doc?.title || '';
+    if (tab === 'laws') {
+      setSelectedLawCategory('همه قوانین');
+      setLawSearchQuery(title);
+      setLawVisibleCount(10);
+    } else if (tab === 'templates') {
+      setSelectedTemplateCategory('all');
+      setTemplateSearchQuery(title);
+      setTemplateVisibleCount(10);
+    } else if (tab === 'faq') {
+      setFaqSearchQuery(title);
+    }
+    setActiveTab(tab as any);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
 
   const formatRial = (val: number) => {
@@ -875,7 +892,7 @@ export default function App() {
       <main className="max-w-5xl mx-auto px-4 py-5">
 
         {/* ===================== ۱. صفحه اصلی (HOME) با بنر اسلایدر و آیکون‌ها ===================== */}
-        <GlobalSearch docs={searchDocsList} onSelect={(tab) => setActiveTab(tab as any)} />
+        {activeTab === 'home' && <GlobalSearch docs={searchDocsList} onSelect={handleSearchSelect} />}
         {activeTab === 'home' && <HomeTab activeBanner={activeBanner} banners={banners} setActiveBanner={setActiveBanner} setActiveCalc={setActiveCalc} setActiveTab={setActiveTab} />}
 
         {/* ===================== ۲. تب محاسبات تخصصی ===================== */}
