@@ -21,7 +21,7 @@ export interface TemplateItem {
 }
 
 // مخزن جامع ۱۰۵ قالب رسمی و استاندارد قرارداد، دادخواست و اداری
-import * as TemplatesModule from './templatesData';
+
 
 // استخراج ایمن داده‌های قالب‌ها با گارد چندگانه
 const templateExportCandidates = [
