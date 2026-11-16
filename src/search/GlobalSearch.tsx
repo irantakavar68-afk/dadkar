@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Search, X } from 'lucide-react';
-import { SearchDoc, SearchSource, SOURCE_LABEL, searchDocs } from './globalSearch';
+import { SearchDoc, SearchSource, SOURCE_LABEL, searchDocs } from './searchEngine';
 
 interface Props {
   docs: SearchDoc[];
