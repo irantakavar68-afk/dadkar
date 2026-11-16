@@ -85,9 +85,14 @@ export interface FaqLike { q: string; a: string }
 export const faqToDocs = (faq: FaqLike[]): SearchDoc[] =>
   faq.map((f, i) => ({ id: `faq-${i}`, source: 'faq', tab: 'faq', title: f.q, content: f.a }));
 
-export interface TemplateLike { id: string; title: string; category?: string; body: string; tags?: string[] }
+export interface TemplateLike { id: string; title: string; categoryLabel?: string; description?: string; content: string; tags?: string[] }
 export const templatesToDocs = (items: TemplateLike[]): SearchDoc[] =>
-  items.map(t => ({ id: t.id, source: 'template', tab: 'templates', title: t.title, subject: t.category, content: t.body, tags: t.tags }));
+  items.map(t => ({
+    id: t.id, source: 'template', tab: 'templates',
+    title: t.title, subject: t.categoryLabel,
+    content: `${t.description ?? ''} ${t.content ?? ''}`,
+    tags: t.tags,
+  }));
 
 export const SOURCE_LABEL: Record<SearchSource, string> = {
   law: 'قوانین',
