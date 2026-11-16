@@ -43,7 +43,7 @@ export default function GlobalSearch({ docs, onSelect }: Props) {
           {g.items.map(r => (
             <button
               key={`${r.source}-${r.id}`}
-              onClick={() => onSelect(r.tab, r.id)}
+              onClick={() => { onSelect(r.tab, r.id); setQuery(''); }}
               className="w-full text-right p-3 rounded-xl border border-slate-200 hover:bg-slate-50"
             >
               <div className="text-xs font-bold text-slate-800">{r.title}</div>
