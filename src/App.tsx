@@ -29,7 +29,7 @@ import FaqTab from './tabs/FaqTab';
 import ContactTab from './tabs/ContactTab';
 import { getJalaliToday, seniorityFromProfile, toFa, toEn } from './helpers';
 import GlobalSearch from './search/GlobalSearch';
-import { lawsToDocs, faqToDocs, templatesToDocs } from './search/globalSearch';
+import { lawsToDocs, faqToDocs, templatesToDocs } from './search/searchEngine';
 import { LAWS_DATABASE } from './search/lawsData';
 
 const searchDocs = useMemo(() => [
