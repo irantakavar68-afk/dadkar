@@ -32,11 +32,11 @@ import GlobalSearch from './search/GlobalSearch';
 import { lawsToDocs, faqToDocs, templatesToDocs } from './search/searchEngine';
 import { LAWS_DATABASE } from './search/lawsData';
 
-const searchDocs = useMemo(() => [
-  ...lawsToDocs(LAWS_DATABASE),
-  ...faqToDocs(FAQ_ITEMS),        // نیازمند جدا کردن آرایه FAQ
-  ...templatesToDocs(TEMPLATES),  // نیازمند فایل قالب‌ها
+const searchDocsList = useMemo(() => [
+  ...lawsToDocs(EXTRACTED_LAWS as any),
+  ...templatesToDocs(ALL_TEMPLATES as any),
 ], []);
+
 
 <GlobalSearch docs={searchDocs} onSelect={(tab, id) => setActiveTab(tab)} />
 
@@ -880,6 +880,7 @@ export default function App() {
       <main className="max-w-5xl mx-auto px-4 py-5">
 
         {/* ===================== ۱. صفحه اصلی (HOME) با بنر اسلایدر و آیکون‌ها ===================== */}
+        <GlobalSearch docs={searchDocsList} onSelect={(tab) => setActiveTab(tab as any)} />
         {activeTab === 'home' && <HomeTab activeBanner={activeBanner} banners={banners} setActiveBanner={setActiveBanner} setActiveCalc={setActiveCalc} setActiveTab={setActiveTab} />}
 
         {/* ===================== ۲. تب محاسبات تخصصی ===================== */}
