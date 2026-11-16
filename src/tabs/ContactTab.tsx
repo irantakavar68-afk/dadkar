@@ -1,8 +1,9 @@
-import React from 'react';
-import { Scale, Mail, Globe, MessageSquare, Type, MessageCircle, Send } from 'lucide-react';
+import React, { useState } from 'react';
+import { Scale, Mail, Globe, MessageSquare, MessageCircle, Send, X } from 'lucide-react';
 
 export default function ContactTab(props: any) {
   const { captchaOk, selectedTicket, setCaptchaOk, setSelectedTicket, setShowTickets, setTicketBody, setTicketSubject, setTickets, showTickets, ticketBody, ticketSubject, tickets, token } = props;
+  const [showMessengers, setShowMessengers] = useState(false);
   return (
     <>
           <div className="max-w-2xl mx-auto space-y-4">
@@ -19,7 +20,7 @@ export default function ContactTab(props: any) {
               </div>
               
               {/* گرید دسترسی‌ها و پیام‌رسان‌ها (بدون شماره تماس مستقیم) */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2">
                 <button onClick={() => setShowTickets(true)} className="flex items-center justify-center gap-1.5 p-3 rounded-2xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition">
                   <MessageSquare className="w-4 h-4" /> تیکت‌ها
                 </button>
@@ -29,13 +30,31 @@ export default function ContactTab(props: any) {
                 <a href="https://www.daadkaar.ir" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 p-3 rounded-2xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-900 transition">
                   <Globe className="w-4 h-4" /> وب‌سایت
                 </a>
-                <a href="https://ble.ir/daadkaar" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 p-3 rounded-2xl bg-sky-500 text-white text-xs font-bold hover:bg-sky-600 transition">
-                  <MessageCircle className="w-4 h-4" /> بله
-                </a>
-                <a href="https://eitaa.com/daadkar" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 p-3 rounded-2xl bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 transition">
-                  <Send className="w-4 h-4" /> ایتا
-                </a>
+                <button onClick={() => setShowMessengers(true)} className="flex items-center justify-center gap-1.5 p-3 rounded-2xl bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 transition">
+                  <MessageCircle className="w-4 h-4" /> ارتباط با پشتیبان
+                </button>
               </div>
+              
+              {/* مودال انتخاب پیام‌رسان */}
+              {showMessengers && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowMessengers(false)}>
+                  <div className="w-full max-w-xs rounded-3xl bg-white dark:bg-slate-900 p-5 shadow-2xl" onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+                      <h3 className="font-black text-sm text-slate-800 dark:text-white">ارتباط با پشتیبان</h3>
+                      <button type="button" onClick={() => setShowMessengers(false)} className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center"><X className="w-4 h-4" /></button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 mt-4">
+                      <a href="https://ble.ir/daadkaar" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-sky-500 text-white text-xs font-bold hover:bg-sky-600 transition">
+                        <MessageCircle className="w-8 h-8" /> بله
+                      </a>
+                      <a href="https://eitaa.com/daadkar" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 transition">
+                        <Send className="w-8 h-8" /> ایتا
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
+
 
 
             {/* مودال و سیستم تیکت‌ها */}
