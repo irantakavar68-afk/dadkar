@@ -29,17 +29,7 @@ import FaqTab from './tabs/FaqTab';
 import ContactTab from './tabs/ContactTab';
 import { getJalaliToday, seniorityFromProfile, toFa, toEn } from './helpers';
 import GlobalSearch from './search/GlobalSearch';
-import { lawsToDocs, faqToDocs, templatesToDocs } from './search/searchEngine';
-import { LAWS_DATABASE } from './search/lawsData';
-
-const searchDocsList = useMemo(() => [
-  ...lawsToDocs(EXTRACTED_LAWS as any),
-  ...templatesToDocs(ALL_TEMPLATES as any),
-], []);
-
-
-<GlobalSearch docs={searchDocs} onSelect={(tab, id) => setActiveTab(tab)} />
-
+import { lawsToDocs, templatesToDocs } from './search/searchEngine';
 
   // --- افزونه ۲: موتور چاپ و خروجی PDF فیش/قرارداد ---
 const handlePrintDocument = (elementId: string) => {
@@ -624,6 +614,11 @@ export default function App() {
       salaryIncomeTax 
     };
   }, [baseSalary, years, months, days, hours, nightHours, shiftType, unworkedLeaveDays, dependents, unemploymentMonths, insuranceYears, workHistoryYears, payslipData.housingAllowance, payslipData.groceryAllowance]);
+    const searchDocsList = useMemo(() => [
+    ...lawsToDocs(EXTRACTED_LAWS),
+    ...templatesToDocs(ALL_TEMPLATES),
+  ], []);
+
 
   const formatRial = (val: number) => {
     return Math.round(val).toLocaleString('fa-IR') + ' ریال';
