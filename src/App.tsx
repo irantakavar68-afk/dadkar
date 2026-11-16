@@ -895,7 +895,19 @@ export default function App() {
 
                {/* ===================== ۷. ارتباط با ما ===================== */}
         {activeTab === 'contact' && <ContactTab captchaOk={captchaOk} selectedTicket={selectedTicket} setCaptchaOk={setCaptchaOk} setSelectedTicket={setSelectedTicket} setShowTickets={setShowTickets} setTicketBody={setTicketBody} setTicketSubject={setTicketSubject} setTickets={setTickets} showTickets={showTickets} ticketBody={ticketBody} ticketSubject={ticketSubject} tickets={tickets} token={token} />}
+       
     </main>
+ <footer className={`max-w-5xl mx-auto px-4 pb-24 text-center text-[11px] leading-6 ${
+          appTheme === 'dark' ? 'text-slate-500' : 'text-slate-400'
+        }`}>
+          <p>
+            ⚖️ نتایج محاسبات و شبیه‌سازی‌ها صرفاً جنبه راهنما و اطلاع‌رسانی دارند و جایگزین
+            مشاوره حقوقی رسمی یا نظر مراجع قانونی (اداره کار، هیئت تشخیص، تأمین اجتماعی) نیستند.
+          </p>
+          <p className="mt-1">
+            اطلاعات شخصی شما فقط برای ارائه خدمات همین سامانه استفاده می‌شود و با اشخاص ثالث به اشتراک گذاشته نمی‌شود.
+          </p>
+        </footer>
 
 
 
