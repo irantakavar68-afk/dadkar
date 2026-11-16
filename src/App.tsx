@@ -28,6 +28,17 @@ import LawsTab from './tabs/LawsTab';
 import FaqTab from './tabs/FaqTab';
 import ContactTab from './tabs/ContactTab';
 import { getJalaliToday, seniorityFromProfile, toFa, toEn } from './helpers';
+import GlobalSearch from './search/GlobalSearch';
+import { lawsToDocs, faqToDocs, templatesToDocs } from './search/globalSearch';
+import { LAWS_DATABASE } from './search/lawsData';
+
+const searchDocs = useMemo(() => [
+  ...lawsToDocs(LAWS_DATABASE),
+  ...faqToDocs(FAQ_ITEMS),        // نیازمند جدا کردن آرایه FAQ
+  ...templatesToDocs(TEMPLATES),  // نیازمند فایل قالب‌ها
+], []);
+
+<GlobalSearch docs={searchDocs} onSelect={(tab, id) => setActiveTab(tab)} />
 
 
   // --- افزونه ۲: موتور چاپ و خروجی PDF فیش/قرارداد ---
