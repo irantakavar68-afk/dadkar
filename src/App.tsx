@@ -75,6 +75,7 @@ export default function App() {
 
   // تب‌های اصلی اپلیکیشن: اضافه شدن تب خانه (home)
   const [activeTab, setActiveTab] = useState<'home' | 'calculator' | 'tamin' | 'templates' | 'laws' | 'faq' | 'contact' | 'payslip' | 'tribunal'>('home');
+  const [globalSearchQuery, setGlobalSearchQuery] = useState('');
 
   // --- وضعیت‌های پیشرفته تنظیمات دادکار ---
     type AppTheme = 'light' | 'dark';
@@ -892,9 +893,27 @@ export default function App() {
       <main className="max-w-5xl mx-auto px-4 py-5">
 
         {/* ===================== ۱. صفحه اصلی (HOME) با بنر اسلایدر و آیکون‌ها ===================== */}
-        {activeTab === 'home' && <GlobalSearch docs={searchDocsList} onSelect={handleSearchSelect} />}
-        {activeTab === 'home' && <HomeTab activeBanner={activeBanner} banners={banners} setActiveBanner={setActiveBanner} setActiveCalc={setActiveCalc} setActiveTab={setActiveTab} />}
 
+      {activeTab === 'home' && (
+        <GlobalSearch
+          docs={searchDocsList}
+          query={globalSearchQuery}
+          onQueryChange={setGlobalSearchQuery}
+          onSelect={handleSearchSelect}
+        />
+      )}
+      
+      {activeTab === 'home' && !globalSearchQuery.trim() && (
+        <HomeTab
+          activeBanner={activeBanner}
+          banners={banners}
+          setActiveBanner={setActiveBanner}
+          setActiveCalc={setActiveCalc}
+          setActiveTab={setActiveTab}
+        />
+      )}
+
+        
         {/* ===================== ۲. تب محاسبات تخصصی ===================== */}
         {activeTab === 'calculator' && <CalculatorTab MAX_SALARY_RIAL={MAX_SALARY_RIAL} activeCalc={activeCalc} baseSalary={baseSalary} calculations={calculations} days={days} dependents={dependents} formatRial={formatRial} handleSalaryTextBlur={handleSalaryTextBlur} handleSalaryTextChange={handleSalaryTextChange} handleSliderSalaryChange={handleSliderSalaryChange} hours={hours} insuranceYears={insuranceYears} months={months} nightHours={nightHours} salaryInputText={salaryInputText} setActiveCalc={setActiveCalc} setBaseSalary={setBaseSalary} setDays={setDays} setDependents={setDependents} setHours={setHours} setInsuranceYears={setInsuranceYears} setMonths={setMonths} setNightHours={setNightHours} setSalaryInputText={setSalaryInputText} setShiftType={setShiftType} setUnemploymentMonths={setUnemploymentMonths} setUnworkedLeaveDays={setUnworkedLeaveDays} setWorkHistoryYears={setWorkHistoryYears} setYears={setYears} shiftType={shiftType} unemploymentMonths={unemploymentMonths} unworkedLeaveDays={unworkedLeaveDays} workHistoryYears={workHistoryYears} years={years} />}
                {/* --- شاخه رندر تب شبیه‌ساز هیئت تشخیص (۱۵ مرحله‌ای تخصصی) --- */}
