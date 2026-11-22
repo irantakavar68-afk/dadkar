@@ -1,17 +1,19 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Search, X } from 'lucide-react';
 import { SearchDoc, SearchSource, SOURCE_LABEL, searchDocs } from './searchEngine';
 
 interface Props {
   docs: SearchDoc[];
+  query: string;
+  onQueryChange: (query: string) => void;
   /** وقتی کاربر نتیجه‌ای را انتخاب می‌کند: تب مقصد و شناسه آیتم */
   onSelect: (tab: string, id: string) => void;
 }
 
+
 const ORDER: SearchSource[] = ['law', 'faq', 'template'];
 
-export default function GlobalSearch({ docs, onSelect }: Props) {
-  const [query, setQuery] = useState('');
+export default function GlobalSearch({ docs, query, onQueryChange, onSelect }: Props) {
   const results = useMemo(() => searchDocs(docs, query, 60), [docs, query]);
 
   const grouped = ORDER.map(src => ({ src, items: results.filter(r => r.source === src) })).filter(g => g.items.length);
@@ -43,7 +45,7 @@ export default function GlobalSearch({ docs, onSelect }: Props) {
           {g.items.map(r => (
             <button
               key={`${r.source}-${r.id}`}
-              onClick={() => { onSelect(r.tab, r.id); setQuery(''); }}
+              onClick={() => { onSelect(r.tab, r.id); onQueryChange(''); }}
               className="w-full text-right p-3 rounded-xl border border-slate-200 hover:bg-slate-50"
             >
               <div className="text-xs font-bold text-slate-800">{r.title}</div>
